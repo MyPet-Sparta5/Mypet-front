@@ -5,6 +5,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import './styles/App.css';
 import IndexImage from './assets/index_picture.png'
 import Header from './components/Header';
+import LoginPage from './pages/LoginPage';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
           <Header />
           <Routes>
             <Route path="/" element={<HomePage />} />
+            <Route path="/login" element={<LoginPage />} />
             </Routes>
         </div>
       </Router>
