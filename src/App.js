@@ -6,6 +6,7 @@ import './styles/App.css';
 import IndexImage from './assets/index_picture.png'
 import Header from './components/Header';
 import LoginPage from './pages/LoginPage';
+import SignupPage from './pages/SignupPage';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
             </Routes>
         </div>
       </Router>
