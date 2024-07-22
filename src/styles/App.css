@@ -1,0 +1,9 @@
+.App {
+  text-align: center;
+}
+
+.index-image {
+  width: 100%; /* 원하는 크기로 변경 */
+  max-width: 100%; /* 최대 크기 설정 */
+  height: auto; /* 비율을 유지하며 크기를 조정 */
+}
