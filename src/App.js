@@ -8,10 +8,12 @@ import Header from './components/Header';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import PostListPage from './pages/PostListPage';
+import PostProvider from './context/PostContext';
+import PostDetailPage from './pages/PostDetailPage';
 
 function App() {
   return (
-    <DndProvider backend={HTML5Backend}>
+    <PostProvider>
       <Router>
         <div className="App">
           <Header />
@@ -20,10 +22,11 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/community" element={<PostListPage />} />
+            <Route path="/posts/:postId" element={<PostDetailPage />} />
             </Routes>
         </div>
       </Router>
-    </DndProvider>
+    </PostProvider>
   );
 }
 
