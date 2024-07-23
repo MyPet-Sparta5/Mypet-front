@@ -5,10 +5,12 @@ import styles from '../styles/PostDetail.module.css';
 import { SlArrowUpCircle } from "react-icons/sl";
 import { FaRegHeart, FaHeart } from 'react-icons/fa'; // 빈 하트와 채워진 하트 아이콘
 import { MdEdit, MdAddCircleOutline } from 'react-icons/md';
+import { GoAlertFill } from "react-icons/go";
 import { FaTrashAlt } from 'react-icons/fa';
 import Comment from '../components/Comment';
 import PostEditModal from './PostEditModal';
 import DeleteModal from './DeleteModal';
+import ReportModal from './ReportModal';
 
 const PostDetail = () => {
     const navigate = useNavigate();
@@ -17,16 +19,20 @@ const PostDetail = () => {
     const post = posts.find(p => p.id === parseInt(postId));
     const [isEditing, setIsEditing] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [isReporting, setIsReporting] = useState(false);
 
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [category, setCategory] = useState('');
+    const [userName, setUser] = useState('');
+    //이부분 api 연동할때 userId도 추가해서 아래 nickname으로 보내는 부분에도 추가
 
     useEffect(() => {
         if (post) {
             setTitle(post.title);
             setContent(post.content);
             setCategory(post.category);
+            setUser(post.nickname);
         }
     }, [post]);
 
@@ -44,9 +50,14 @@ const PostDetail = () => {
         setIsDeleting(true);
     };
 
+    const handleReportClick = () => {
+        setIsReporting(true);
+    }
+
     const handleCloseModal = () => {
         setIsEditing(false);
         setIsDeleting(false);
+        setIsReporting(false);
     };
 
     const handleSaveModal = async ({ category, title, content }) => {
@@ -72,6 +83,18 @@ const PostDetail = () => {
         } catch (error) {
             console.error("게시물 삭제 중 오류:", error);
             alert("게시물 삭제에 실패했습니다.");
+        }
+    };
+
+    const handleReportModal = () => {
+        setIsReporting(false);
+        try {
+            //api 연동
+            alert('유저 신고가 접수되었습니다.');
+            navigate('/community'); // 신고 후 보드로 돌아가기
+        } catch (error) {
+            console.error("유저 신고 중 오류:", error);
+            alert("유저 신고에 실패했습니다.");
         }
     };
 
@@ -110,8 +133,9 @@ const PostDetail = () => {
                     <div className={styles.postHeader}>
                         <span className={styles.postTitle}>{title}</span>
                         <div className={styles.icons}>
-                            <MdEdit className={styles.editIcon} onClick={handleEditClick} />
-                            <FaTrashAlt className={styles.deleteIcon} onClick={handleDeleteClick} />
+                            <MdEdit className={styles.editIcon} onClick={handleEditClick} title="게시물 수정" />
+                            <FaTrashAlt className={styles.deleteIcon} onClick={handleDeleteClick} title="게시물 삭제" />
+                            <GoAlertFill className={styles.reportIcon} onClick={handleReportClick} title="해당 게시물 유저 신고" />
                         </div>
                     </div>
                     <div className={styles.postBody}>
@@ -152,6 +176,15 @@ const PostDetail = () => {
                             content={<div><strong>"{title}"</strong><br />해당 게시물을 정말로 삭제하시겠습니까?</div>}
                             onClose={handleCloseModal}
                             onConfirm={handleConfirmDelete}
+                            confirmText="삭제"
+                        />
+                    )}
+                    {isReporting && (
+                        <ReportModal
+                            content={<div><strong>"{userName}"</strong> 유저 신고를 원하시나요? <br /> 아래 사유를 작성해주세요.</div>}
+                            userName={userName} //이부분은 api 연동할때 userId로 수정해주세요.
+                            onClose={handleCloseModal}
+                            onSave={handleReportModal}
                             confirmText="삭제"
                         />
                     )}

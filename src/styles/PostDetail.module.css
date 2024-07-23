@@ -58,11 +58,11 @@
 .icons {
     display: flex;
     gap: 8px;
-    /* optional: adds space between icons */
 }
 
 .editIcon,
-.deleteIcon {
+.deleteIcon,
+.reportIcon {
     cursor: pointer;
     font-size: 18px;
     color: #888;
