@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useRef, useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PostContext } from '../context/PostContext';
 import styles from '../styles/PostDetail.module.css';
@@ -7,6 +7,7 @@ import { FaRegHeart, FaHeart } from 'react-icons/fa'; // 빈 하트와 채워진
 import { MdEdit, MdAddCircleOutline } from 'react-icons/md';
 import { FaTrashAlt } from 'react-icons/fa';
 import Comment from '../components/Comment';
+import PostEditModal from './PostEditModal';
 
 const PostDetail = () => {
     const navigate = useNavigate();
@@ -15,6 +16,18 @@ const PostDetail = () => {
     const post = posts.find(p => p.id === parseInt(postId));
     const [isEditing, setIsEditing] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+
+    const [title, setTitle] = useState('');
+    const [content, setContent] = useState('');
+    const [category, setCategory] = useState('');
+
+    useEffect(() => {
+        if (post) {
+            setTitle(post.title);
+            setContent(post.content);
+            setCategory(post.category);
+        }
+    }, [post]);
 
     const [comments, setComments] = useState([
         "api 연동 후 가져온 댓글 리스트로 생성 해야 함",
@@ -33,6 +46,20 @@ const PostDetail = () => {
     const handleCloseModal = () => {
         setIsEditing(false);
         setIsDeleting(false);
+    };
+
+    const handleSaveModal = async ({ category, title, content }) => {
+
+        if (!title || !content || !category) {
+            alert("모든 필드를 입력해주세요.");
+            return;
+        }
+        //api 연동
+        setTitle(title);
+        setContent(content);
+        setCategory(category);
+        alert(`게시물 수정 완료: ${title}`);
+        setIsEditing(false);
     };
 
     const [liked, setLiked] = useState(false); // 좋아요 상태
@@ -68,7 +95,7 @@ const PostDetail = () => {
             <main className={styles.mainContent}>
                 <div className={styles.postDetail}>
                     <div className={styles.postHeader}>
-                        <span className={styles.postTitle}>{post.title}</span>
+                        <span className={styles.postTitle}>{title}</span>
                         <div className={styles.icons}>
                             <MdEdit className={styles.editIcon} onClick={handleEditClick} />
                             <FaTrashAlt className={styles.deleteIcon} onClick={handleDeleteClick} />
@@ -93,10 +120,19 @@ const PostDetail = () => {
                                     )} <strong> {post.likes} </strong> likes </div>
                             </div>
                             <p><strong>작성자</strong> {post.nickname}</p>
-                            <p><strong>내용</strong> {post.content}</p>
+                            <p><strong>내용</strong> {content}</p>
                         </div>
                         <button className={styles.backButton} onClick={handleBoardClick}>게시판으로 돌아가기</button>
                     </div>
+                    {isEditing && (
+                        <PostEditModal
+                            title={title}
+                            content={content}
+                            category={category}
+                            onSave={handleSaveModal}
+                            onClose={handleCloseModal}
+                        />
+                    )}
                 </div>
                 <div className={styles.commentsSection}>
                     <h3>댓글</h3>
