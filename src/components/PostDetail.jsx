@@ -8,6 +8,7 @@ import { MdEdit, MdAddCircleOutline } from 'react-icons/md';
 import { FaTrashAlt } from 'react-icons/fa';
 import Comment from '../components/Comment';
 import PostEditModal from './PostEditModal';
+import DeleteModal from './DeleteModal';
 
 const PostDetail = () => {
     const navigate = useNavigate();
@@ -60,6 +61,18 @@ const PostDetail = () => {
         setCategory(category);
         alert(`게시물 수정 완료: ${title}`);
         setIsEditing(false);
+    };
+
+    const handleConfirmDelete = async () => {
+        setIsDeleting(false);
+        try {
+            //api 연동
+            alert('게시물이 삭제되었습니다.');
+            navigate('/community'); // 삭제 후 보드로 돌아가기
+        } catch (error) {
+            console.error("게시물 삭제 중 오류:", error);
+            alert("게시물 삭제에 실패했습니다.");
+        }
     };
 
     const [liked, setLiked] = useState(false); // 좋아요 상태
@@ -131,6 +144,15 @@ const PostDetail = () => {
                             category={category}
                             onSave={handleSaveModal}
                             onClose={handleCloseModal}
+                        />
+                    )}
+                    {isDeleting && (
+                        <DeleteModal
+                            title="게시물 삭제"
+                            content={<div><strong>"{title}"</strong><br />해당 게시물을 정말로 삭제하시겠습니까?</div>}
+                            onClose={handleCloseModal}
+                            onConfirm={handleConfirmDelete}
+                            confirmText="삭제"
                         />
                     )}
                 </div>
