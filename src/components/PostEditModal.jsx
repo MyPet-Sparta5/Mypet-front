@@ -41,8 +41,8 @@ function PostEditModal({ category, title, content, onSave, onClose }) {
           />
         </div>
         <div className={styles.modalButtons}>
-          <button onClick={handleSave}>수정</button>
-          <button onClick={onClose}>취소</button>
+          <button className={styles.saveButton} onClick={handleSave}>수정</button>
+          <button className={styles.cancelButton} onClick={onClose}>취소</button>
         </div>
       </div>
     </div>
