@@ -10,6 +10,7 @@ import PostEditModal from './PostEditModal';
 import DeleteModal from './DeleteModal';
 import '../styles/PetCardPost.css';
 import styles from '../styles/PostDetail.module.css';
+import ReportModal from './ReportModal';
 
 const PetCardPost = () => {
   const navigate = useNavigate();
@@ -24,6 +25,7 @@ const PetCardPost = () => {
   const [fileUrl, setFileUrl] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isReporting, setIsReporting] = useState(false);
 
   useEffect(() => {
     if (post) {
@@ -43,9 +45,14 @@ const PetCardPost = () => {
     setIsDeleting(true);
   };
 
+  const handleReportClick = () => {
+    setIsReporting(true);
+  }
+
   const handleCloseModal = () => {
     setIsEditing(false);
     setIsDeleting(false);
+    setIsReporting(false);
   };
 
   const handleSaveModal = async ({ category, title, content }) => {
@@ -74,6 +81,18 @@ const PetCardPost = () => {
     }
   };
 
+  const handleReportModal = () => {
+    setIsReporting(false);
+    try {
+      //api 연동
+      alert('유저 신고가 접수되었습니다.');
+      navigate('/community'); // 신고 후 보드로 돌아가기
+    } catch (error) {
+      console.error("유저 신고 중 오류:", error);
+      alert("유저 신고에 실패했습니다.");
+    }
+  };
+
   const toggleLike = () => {
     setLiked(!liked);
   };
@@ -92,7 +111,7 @@ const PetCardPost = () => {
         <div className={styles.icons}>
           <MdEdit className={styles.editIcon} onClick={handleEditClick} title="게시물 수정" />
           <FaTrashAlt className={styles.deleteIcon} onClick={handleDeleteClick} title="게시물 삭제" />
-          <GoAlertFill className={styles.reportIcon} title="해당 게시물 유저 신고" />
+          <GoAlertFill className={styles.reportIcon} onClick={handleReportClick} title="해당 게시물 유저 신고" />
         </div>
       </div>
       <ImageSlider postId={parseInt(id)} />
@@ -129,6 +148,15 @@ const PetCardPost = () => {
           content={<div><strong>"{title}"</strong><br />해당 게시물을 정말로 삭제하시겠습니까?</div>}
           onClose={handleCloseModal}
           onConfirm={handleConfirmDelete}
+          confirmText="삭제"
+        />
+      )}
+      {isReporting && (
+        <ReportModal
+          content={<div><strong>"{userName}"</strong> 유저 신고를 원하시나요? <br /> 아래 사유를 작성해주세요.</div>}
+          userName={userName} //이부분은 api 연동할때 userId로 수정해주세요.
+          onClose={handleCloseModal}
+          onSave={handleReportModal}
           confirmText="삭제"
         />
       )}
