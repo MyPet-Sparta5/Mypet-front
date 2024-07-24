@@ -1,0 +1,17 @@
+.sliderContainer {
+    width: 100%;
+    margin: auto;
+}
+
+.slide {
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+    height: 300px; /* 슬라이더의 높이를 조정할 수 있습니다. */
+}
+
+.slideImage {
+    width: auto;
+    height: 100%;
+    object-fit: cover;
+}

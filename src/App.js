@@ -10,6 +10,7 @@ import SignupPage from './pages/SignupPage';
 import PostListPage from './pages/PostListPage';
 import PostProvider from './context/PostContext';
 import PostDetailPage from './pages/PostDetailPage';
+import PetCardPostPage from './pages/PetCardPostPage';
 
 function App() {
   return (
@@ -22,7 +23,8 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/community" element={<PostListPage />} />
-            <Route path="/posts/:postId" element={<PostDetailPage />} />
+            <Route path="/pet/:id" element={<PetCardPostPage />} />
+                <Route path="/posts/:id" element={<PostDetailPage />} />
             </Routes>
         </div>
       </Router>

@@ -6,12 +6,12 @@ export const PostContext = createContext();
 const PostProvider = ({ children }) => {
     // Sample data 
     const posts = [
-        { id: 1, category: "자랑하기", title: "첫 번째 게시물", content: "내용 1", nickname: "test", createdTime: "2024-07-20", likes: 10 },
-        { id: 2, category: "자유게시판", title: "우리집 햄스터랑 맞짱떴는데 졌다", content: "아니.. 왤캐 세냐\n오늘 피봤다 ㅠ", nickname: "도라미", createdTime: "2024-07-21", likes: 20 },
-        { id: 3, category: "자랑하기", title: "세 번째 게시물", content: "내용 3", nickname: "test", createdTime: "2024-07-22", likes: 30 },
-        { id: 4, category: "자랑하기", title: "네 번째 게시물", content: "내용 4", nickname: "test", createdTime: "2024-07-23", likes: 40 },
-        { id: 5, category: "자유게시판", title: "다섯 번째 게시물", content: "내용 5", nickname: "test", createdTime: "2024-07-24", likes: 50 },
-        { id: 6, category: "자랑하기", title: "여섯 번째 게시물", content: "내용 6", nickname: "test", createdTime: "2024-07-25", likes: 60 },
+        { id: 1, category: "자랑하기", title: "햄스터 귀엽죠? ^^", content: "제가 키우는 선우칠갑이 입니다~ ^^\n20년같은 3개월 됐어요~", nickname: "test", createdTime: "2024-07-20", likes: 1, fileUrls: ["https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/PhodopusSungorus_2.jpg/640px-PhodopusSungorus_2.jpg", "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSAEe8yHtzePQZvQpPznr7neD9uZUuldjLglw&s"] },
+        { id: 2, category: "자유게시판", title: "우리집 햄스터랑 맞짱떴는데 졌다", content: "아니.. 왤캐 세냐\n오늘 피봤다 ㅠ", nickname: "도라미", createdTime: "2024-07-21", likes: 20, fileUrls: ["https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/PhodopusSungorus_2.jpg/640px-PhodopusSungorus_2.jpg"] },
+        { id: 3, category: "자랑하기", title: "세 번째 게시물", content: "내용 3", nickname: "test", createdTime: "2024-07-22", likes: 30, fileUrls: ["https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/PhodopusSungorus_2.jpg/640px-PhodopusSungorus_2.jpg"] },
+        { id: 4, category: "자랑하기", title: "네 번째 게시물", content: "내용 4", nickname: "test", createdTime: "2024-07-23", likes: 40, fileUrls: ["https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/PhodopusSungorus_2.jpg/640px-PhodopusSungorus_2.jpg"] },
+        { id: 5, category: "자유게시판", title: "다섯 번째 게시물", content: "내용 5", nickname: "test", createdTime: "2024-07-24", likes: 50, fileUrls: ["https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/PhodopusSungorus_2.jpg/640px-PhodopusSungorus_2.jpg"] },
+        { id: 6, category: "자랑하기", title: "여섯 번째 게시물", content: "내용 6", nickname: "test", createdTime: "2024-07-25", likes: 60, fileUrls: ["https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/PhodopusSungorus_2.jpg/640px-PhodopusSungorus_2.jpg"] },
         { id: 7, category: "자랑하기", title: "7번째 게시물", content: "내용 7", nickname: "test", createdTime: "2024-07-23", likes: 40 },
         { id: 8, category: "자유게시판", title: "8번째 게시물", content: "내용 8", nickname: "test", createdTime: "2024-07-24", likes: 50 },
         { id: 9, category: "자랑하기", title: "9번째 게시물", content: "내용 9", nickname: "test", createdTime: "2024-07-25", likes: 60 },

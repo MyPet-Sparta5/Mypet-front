@@ -21,8 +21,12 @@ const PostList = () => {
 
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-    const navigateToPost = (postId) => {
-        navigate(`/posts/${postId}`);
+    const navigateToPost = (post) => {
+        if (post.category === '자랑하기') {
+            navigate(`/pet/${post.id}`);
+        } else {
+            navigate(`/posts/${post.id}`);
+        }
     };
 
     return (
@@ -40,7 +44,7 @@ const PostList = () => {
                 </thead>
                 <tbody>
                     {currentPosts.map(post => (
-                        <tr key={post.id} onClick={() => navigateToPost(post.id)} className={styles.clickableRow}>
+                        <tr key={post.id} onClick={() => navigateToPost(post)} className={styles.clickableRow}>
                             <td>{post.category}</td>
                             <td>{post.title}</td>
                             <td>{post.likes}</td>

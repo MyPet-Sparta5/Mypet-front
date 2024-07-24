@@ -1,0 +1,62 @@
+.card {
+    width: 70%;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+    margin: 20px auto;
+  }
+  
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    background-color: #f5f5f5;
+    font-size: 18px;
+    font-weight: bold;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .card-title {
+      font-size: 1.3em;
+      font-weight: bold;
+  }
+  .card-actions button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+  }
+  
+  .hamster-image {
+    width: 40%;
+    height: auto;
+  }
+  
+  .card-content {
+    padding: 10px;
+    word-wrap: break-word;
+    white-space: pre-line;
+  }
+  
+  .card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f5f5f5;
+    padding: 10px;
+}
+
+.likes-container {
+  display: flex;
+  align-items: center;
+  margin-left: auto; /* likes를 오른쪽으로 밀어내기 */
+}
+
+.backButton {
+    color: #864e5d;
+    cursor: pointer;
+}
+  
