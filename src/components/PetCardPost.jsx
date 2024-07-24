@@ -7,6 +7,7 @@ import { GoAlertFill } from "react-icons/go";
 import { FaTrashAlt } from 'react-icons/fa';
 import ImageSlider from "./ImageSlider";
 import PostEditModal from './PostEditModal';
+import DeleteModal from './DeleteModal';
 import '../styles/PetCardPost.css';
 import styles from '../styles/PostDetail.module.css';
 
@@ -22,6 +23,7 @@ const PetCardPost = () => {
   const [category, setCategory] = useState('');
   const [fileUrl, setFileUrl] = useState('');
   const [isEditing, setIsEditing] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (post) {
@@ -37,8 +39,13 @@ const PetCardPost = () => {
     setIsEditing(true);
   };
 
+  const handleDeleteClick = () => {
+    setIsDeleting(true);
+  };
+
   const handleCloseModal = () => {
     setIsEditing(false);
+    setIsDeleting(false);
   };
 
   const handleSaveModal = async ({ category, title, content }) => {
@@ -55,6 +62,17 @@ const PetCardPost = () => {
     setIsEditing(false);
   };
 
+  const handleConfirmDelete = async () => {
+    setIsDeleting(false);
+    try {
+      //api 연동
+      alert('게시물이 삭제되었습니다.');
+      navigate('/community'); // 삭제 후 보드로 돌아가기
+    } catch (error) {
+      console.error("게시물 삭제 중 오류:", error);
+      alert("게시물 삭제에 실패했습니다.");
+    }
+  };
 
   const toggleLike = () => {
     setLiked(!liked);
@@ -73,7 +91,7 @@ const PetCardPost = () => {
         </div>
         <div className={styles.icons}>
           <MdEdit className={styles.editIcon} onClick={handleEditClick} title="게시물 수정" />
-          <FaTrashAlt className={styles.deleteIcon} title="게시물 삭제" />
+          <FaTrashAlt className={styles.deleteIcon} onClick={handleDeleteClick} title="게시물 삭제" />
           <GoAlertFill className={styles.reportIcon} title="해당 게시물 유저 신고" />
         </div>
       </div>
@@ -103,6 +121,15 @@ const PetCardPost = () => {
           category={category}
           onSave={handleSaveModal}
           onClose={handleCloseModal}
+        />
+      )}
+      {isDeleting && (
+        <DeleteModal
+          title="게시물 삭제"
+          content={<div><strong>"{title}"</strong><br />해당 게시물을 정말로 삭제하시겠습니까?</div>}
+          onClose={handleCloseModal}
+          onConfirm={handleConfirmDelete}
+          confirmText="삭제"
         />
       )}
     </div>
