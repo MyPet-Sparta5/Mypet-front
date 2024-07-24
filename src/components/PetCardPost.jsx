@@ -5,6 +5,7 @@ import { FaRegHeart, FaHeart, FaArrowLeft } from 'react-icons/fa'; // 빈 하트
 import { MdEdit, MdAddCircleOutline } from 'react-icons/md';
 import { GoAlertFill } from "react-icons/go";
 import { FaTrashAlt } from 'react-icons/fa';
+import ImageSlider from "./ImageSlider";
 import '../styles/PetCardPost.css';
 import styles from '../styles/PostDetail.module.css';
 
@@ -26,7 +27,7 @@ const PetCardPost = () => {
       setContent(post.content);
       setCategory(post.category);
       setUser(post.nickname);
-      setFileUrl(post.fileUrl);
+      setFileUrl(post.fileUrls);
     }
   }, [post]);
 
@@ -36,14 +37,14 @@ const PetCardPost = () => {
 
   const handleBoardClick = () => {
     navigate('/community');
-};
+  };
 
   return (
     <div className="card">
       <div className="card-header">
         <div>
-      <FaArrowLeft  className="backButton" onClick={handleBoardClick}>게시판으로 돌아가기</FaArrowLeft>
-        <span className="card-title">  {title}</span>
+          <FaArrowLeft className="backButton" onClick={handleBoardClick} />
+          <span className="card-title">{title}</span>
         </div>
         <div className={styles.icons}>
           <MdEdit className={styles.editIcon} title="게시물 수정" />
@@ -51,11 +52,7 @@ const PetCardPost = () => {
           <GoAlertFill className={styles.reportIcon} title="해당 게시물 유저 신고" />
         </div>
       </div>
-      <img
-        src={fileUrl}
-        alt="동물 사진"
-        className="animal-image"
-      />
+      <ImageSlider postId={parseInt(id)} />
       <div className="card-content">
         <p>{content}</p>
       </div>
