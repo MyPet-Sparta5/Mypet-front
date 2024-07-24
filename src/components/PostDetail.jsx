@@ -14,9 +14,9 @@ import ReportModal from './ReportModal';
 
 const PostDetail = () => {
     const navigate = useNavigate();
-    const { postId } = useParams();
+    const { id } = useParams();
     const posts = useContext(PostContext);
-    const post = posts.find(p => p.id === parseInt(postId));
+    const post = posts.find(p => p.id === parseInt(id));
     const [isEditing, setIsEditing] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [isReporting, setIsReporting] = useState(false);
@@ -154,10 +154,17 @@ const PostDetail = () => {
                                             className={styles.likeIcon}
                                             onClick={toggleLike}
                                         />
-                                    )} <strong> {post.likes} </strong> likes </div>
+                                    )} <strong> {post.likes} </strong> likes
+                                </div>
                             </div>
-                            <p><strong>작성자</strong> {post.nickname}</p>
-                            <p><strong>내용</strong> {content}</p>
+                            <div className={styles.infoRow}>
+                                <span className={styles.infoLabel}>작성자</span>
+                                <p className={styles.infoContent}>{post.nickname}</p>
+                            </div>
+                            <div className={styles.infoRow}>
+                                <span className={styles.infoLabel}>내용</span>
+                                <p className={styles.infoContent}>{content}</p>
+                            </div>
                         </div>
                         <button className={styles.backButton} onClick={handleBoardClick}>게시판으로 돌아가기</button>
                     </div>

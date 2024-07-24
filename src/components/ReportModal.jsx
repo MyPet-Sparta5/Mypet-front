@@ -7,7 +7,6 @@ function ReportModal({ userName, content, onClose, onSave }) {
 
     const handleSave = () => {
         onSave({ text, userName });
-        console.log(text, userName);
         onClose();
     };
 

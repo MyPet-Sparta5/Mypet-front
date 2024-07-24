@@ -49,10 +49,28 @@
 
 .postInfo {
     margin-bottom: 15px;
+    white-space: pre-line;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.infoRow {
+    display: flex;
+    align-items: flex-start;
+}
+
+.infoLabel {
+    min-width: 60px; /* 라벨의 고정된 너비를 설정합니다 */
+    font-weight: bold;
+}
+
+.infoContent {
+    flex-grow: 1; /* 내용 부분이 가변적으로 차지하게 합니다 */
 }
 
 .postInfo p {
-    margin: 5px 0 15px;
+    margin: 0 0 15px;
 }
 
 .icons {

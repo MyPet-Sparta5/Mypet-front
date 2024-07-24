@@ -10,7 +10,7 @@ function DeleteModal({ title, content, onConfirm, onClose, confirmText = '삭제
         <div className={styles.modalOverlay}>
             <div className={styles.modal}>
                 <h2>{title}</h2>
-                <p>{content}</p>
+                <div>{content}</div>
                 <div className={styles.modalButtons}>
                     <button className={styles.saveButton} onClick={onConfirm}>{confirmText}</button>
                     <button className={styles.cancelButton} onClick={handleCancel}>취소</button>
