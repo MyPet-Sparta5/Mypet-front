@@ -1,0 +1,88 @@
+.facility-finder-page {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    font-family: Arial, sans-serif;
+  }
+  
+  .facility-finder-page h1 {
+    text-align: center;
+    color: #333;
+    padding: 20px 0;
+    margin: 0;
+    background-color: #f0f0f0;
+  }
+  
+  .content {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+  
+  .map-container {
+    flex: 2;
+    height: calc(100vh - 80px); /* 헤더 높이를 뺀 나머지 */
+  }
+  
+  .facility-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+  }
+  
+  .facility-list h2 {
+    margin-top: 0;
+    color: #333;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 10px;
+  }
+  
+  .facility-item {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  .facility-item h3 {
+    margin-top: 0;
+    color: #2c3e50;
+  }
+  
+  .facility-item p {
+    margin: 5px 0;
+    color: #7f8c8d;
+  }
+  
+  /* 반응형 디자인 */
+  @media (max-width: 768px) {
+    .content {
+      flex-direction: column;
+    }
+  
+    .map-container, .facility-list {
+      flex: none;
+      width: 100%;
+    }
+  
+    .map-container {
+      height: 50vh;
+    }
+  
+    .facility-list {
+      height: calc(50vh - 80px);
+    }
+  }
+  
+  /* 로딩 인디케이터 스타일 */
+  .loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-size: 24px;
+    color: #3498db;
+  }
