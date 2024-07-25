@@ -16,13 +16,10 @@ const PostList = () => {
             try {
                 // Fetch data with page parameter
                 const response = await axios.get(`http://localhost:8080/api/posts?page=${currentPage}`);
-                console.log('API Response:', response.data); // Log the entire response data
 
                 const { content, totalPages, totalElements } = response.data.data;
-                console.log('Content:', content); // Log the content for debugging
 
                 const transformedData = transformPostData(content);
-                console.log('Transformed Data:', transformedData); // Log transformed data
 
                 setPosts(transformedData);
                 setTotalPages(totalPages);
@@ -38,7 +35,7 @@ const PostList = () => {
     const transformPostData = (data) => {
         const categoryMapping = {
             "BOAST": "자랑하기",
-            "FREEDOM": "자유게시판" // Update as needed
+            "FREEDOM": "자유게시판" 
         };
 
         return data.map(post => ({
@@ -57,6 +54,31 @@ const PostList = () => {
         if (pageNumber >= 1 && pageNumber <= totalPages) {
             setCurrentPage(pageNumber);
         }
+    };
+
+    const getPaginationButtons = () => {
+        const maxButtons = 5;
+        let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+        let endPage = startPage + maxButtons - 1;
+
+        if (endPage > totalPages) {
+            endPage = totalPages;
+            startPage = Math.max(1, endPage - maxButtons + 1);
+        }
+
+        const buttons = [];
+        for (let i = startPage; i <= endPage; i++) {
+            buttons.push(
+                <button
+                    key={i}
+                    onClick={() => paginate(i)}
+                    className={currentPage === i ? styles.active : ''}
+                >
+                    {i}
+                </button>
+            );
+        }
+        return buttons;
     };
 
     const navigateToPost = (post) => {
@@ -100,15 +122,7 @@ const PostList = () => {
             </table>
 
             <div className={styles.pagination}>
-                {Array.from({ length: totalPages }, (_, index) => (
-                    <button
-                        key={index + 1}
-                        onClick={() => paginate(index + 1)}
-                        className={currentPage === index + 1 ? styles.active : ''}
-                    >
-                        {index + 1}
-                    </button>
-                ))}
+                {getPaginationButtons()}
             </div>
         </div>
     );
