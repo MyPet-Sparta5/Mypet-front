@@ -1,15 +1,10 @@
-import React, { useContext } from "react";
+import React from "react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import { PostContext } from '../context/PostContext';
 import styles from '../styles/ImageSlider.module.css';
 
-export default function ImageSlider({ postId }) {
-    const posts = useContext(PostContext);
-
-    // Find the post with the given postId
-    const post = posts.find(post => post.id === postId);
+export default function ImageSlider({ post }) {
 
     // Extract image URLs from the found post
     const imageUrls = post && post.fileUrls ? post.fileUrls : [];

@@ -1,6 +1,6 @@
-import React, { useContext, useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { PostContext } from '../context/PostContext';
+import axios from 'axios';
 import styles from '../styles/PostDetail.module.css';
 import { SlArrowUpCircle } from "react-icons/sl";
 import { FaRegHeart, FaHeart } from 'react-icons/fa'; // 빈 하트와 채워진 하트 아이콘
@@ -15,8 +15,7 @@ import ReportModal from './ReportModal';
 const PostDetail = () => {
     const navigate = useNavigate();
     const { id } = useParams();
-    const posts = useContext(PostContext);
-    const post = posts.find(p => p.id === parseInt(id));
+    const [post, setPost] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [isReporting, setIsReporting] = useState(false);
@@ -28,13 +27,25 @@ const PostDetail = () => {
     //이부분 api 연동할때 userId도 추가해서 아래 nickname으로 보내는 부분에도 추가
 
     useEffect(() => {
-        if (post) {
-            setTitle(post.title);
-            setContent(post.content);
-            setCategory(post.category);
-            setUser(post.nickname);
-        }
-    }, [post]);
+        const fetchPostDetails = async () => {
+            try {
+                const postResponse = await axios.get(`http://localhost:8080/api/posts/${id}`);
+                setPost(postResponse.data);
+                setTitle(postResponse.data.title);
+                setContent(postResponse.data.content);
+                setCategory(postResponse.data.category);
+                setUser(postResponse.data.nickname);
+                setLiked(postResponse.data.liked); // assuming `liked` is part of post data
+                // Fetch comments if there's an endpoint for them
+                const commentsResponse = await axios.get(`http://localhost:8080/api/posts/${id}/comments`);
+                setComments(commentsResponse.data);
+            } catch (error) {
+                console.error('Error fetching post details:', error);
+            }
+        };
+
+        fetchPostDetails();
+    }, [id]);
 
     const [comments, setComments] = useState([
         "api 연동 후 가져온 댓글 리스트로 생성 해야 함",

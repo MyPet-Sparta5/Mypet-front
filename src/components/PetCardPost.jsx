@@ -1,6 +1,6 @@
-import React, { useContext, useRef, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { PostContext } from '../context/PostContext';
+import axios from 'axios';
 import { FaRegHeart, FaHeart, FaArrowLeft } from 'react-icons/fa'; // 빈 하트와 채워진 하트 아이콘
 import { MdEdit, MdAddCircleOutline } from 'react-icons/md';
 import { GoAlertFill } from "react-icons/go";
@@ -15,8 +15,7 @@ import ReportModal from './ReportModal';
 const PetCardPost = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const posts = useContext(PostContext);
-  const post = posts.find(p => p.id === parseInt(id));
+  const [post, setPost] = useState(null);
   const [liked, setLiked] = useState(false); // 좋아요 상태
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -28,14 +27,23 @@ const PetCardPost = () => {
   const [isReporting, setIsReporting] = useState(false);
 
   useEffect(() => {
-    if (post) {
-      setTitle(post.title);
-      setContent(post.content);
-      setCategory(post.category);
-      setUser(post.nickname);
-      setFileUrl(post.fileUrls);
-    }
-  }, [post]);
+    const fetchPost = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8080/api/posts/${id}`);
+        const postData = response.data;
+        setPost(postData);
+        setTitle(postData.title);
+        setContent(postData.content);
+        setCategory(postData.category);
+        setUser(postData.nickname);
+        setFileUrl(postData.fileUrls);
+      } catch (error) {
+        console.error('Error fetching post:', error);
+      }
+    };
+
+    fetchPost();
+  }, [id]);
 
   const handleEditClick = () => {
     setIsEditing(true);
