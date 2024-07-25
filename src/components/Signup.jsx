@@ -1,4 +1,5 @@
 import React, { useRef, useEffect } from 'react';
+import axios from 'axios';
 import styles from '../styles/Signup.module.css';
 import { useNavigate } from 'react-router-dom';
 
@@ -10,18 +11,35 @@ function Signup() {
 
     const navigate = useNavigate();
 
-    const handleSignupClick = () => {
+    const handleSignupClick = async () => {
         if (!emailInput.current || !passwordInput.current || !repeatPasswordInput.current || !nicknameInput.current) {
             alert('빈 칸을 전부 입력 해주세요.');
             return;
         }
 
-        if(repeatPasswordInput.current.value !== passwordInput.current.value) {
+        if (repeatPasswordInput.current.value !== passwordInput.current.value) {
             alert('비밀번호 확인이 일치하지 않습니다.');
             return;
         }
-        //이부분에서 signup 백엔드랑 연결 후 성공시 아래 navigate 실행하도록 수정
-        navigate('/login');
+
+        try {
+            const response = await axios.post('http://localhost:8080/api/users', {
+                email: emailInput.current.value,
+                password: passwordInput.current.value,
+                repeatPassword: repeatPasswordInput.current.value,
+                nickname: nicknameInput.current.value
+            });
+
+            if (response.status == 201) { // 201 Created
+                alert('회원가입이 성공적으로 완료되었습니다.');
+                navigate('/login');
+            } else {
+                alert('회원가입에 실패했습니다.');
+            }
+        } catch (error) {
+            console.error('회원가입 중 오류 발생:', error);
+            alert('회원가입 중 오류가 발생했습니다. 다시 시도해 주세요.');
+        }
     };
 
     return (
