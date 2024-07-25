@@ -1,7 +1,7 @@
 .header {
   background-color: #fff;
-  border-bottom: 1px solid #ddd;
-  padding: 5px 20px;
+  border-bottom: 1px solid #eaeaea;
+  padding: 0.5rem 1rem;
 }
 
 .headerContainer {
@@ -22,48 +22,57 @@
 }
 
 .headerTitle {
-  font-size: 20px;
+  font-size: 1.25rem;
   font-weight: bold;
-  text-decoration: none; /* 밑줄 제거 */
-  color: #020715; 
+  color: #333;
+  text-decoration: none;
 }
 
 .nav {
   display: flex;
-  gap: 20px; /* 네비게이션 링크 간격 */
+  gap: 20px;
 }
 
 .navLink {
-  text-decoration: none; /* 밑줄 제거 */
-  color: #020715; 
-  font-size: 18px;
+  font-size: 1rem;
+  color: #333;
+  text-decoration: none;
+  padding: 0.5rem;
 }
 
-.navLink.active {
-  color: #4a2b35; /* 활성화된 링크의 색상 */
-  font-weight: bold;
+.navLink:hover {
+  color: #0070f3;
+}
+
+.active {
+  color: #4a2b35;
+  border-bottom: 2px solid #0070f3;
 }
 
 .headerButtons {
   display: flex;
+  gap: 0.5rem;
 }
 
 .button {
-  margin-left: 10px;
-  padding: 10px 20px;
-  font-size: 16px;
-  cursor: pointer;
-  background-color: #5f3742; /* 기본 색상 */
-  color: #fff; /* 글자 색상 */
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  color: #fff;
+  background-color: #5f3742;
   border: none;
-  border-radius: 5px; /* 둥근 모서리 */
-  transition: background-color 0.3s ease; /* 부드러운 전환 */
+  border-radius: 0.25rem;
+  cursor: pointer;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .button:hover {
-  background-color: #4a2b35; /* 호버 시 색상 */
+  background-color: #4a2b35;
 }
 
-.button:active {
-  background-color: #3e232c; /* 클릭 시 색상 */
+.button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #3e232c;
 }
