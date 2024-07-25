@@ -16,6 +16,7 @@ const PostDetail = () => {
     const navigate = useNavigate();
     const { id } = useParams();
     const [post, setPost] = useState(null);
+    const [comments, setComments] = useState([]); // 댓글 상태를 빈 배열로 초기화
     const [isEditing, setIsEditing] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [isReporting, setIsReporting] = useState(false);
@@ -24,21 +25,23 @@ const PostDetail = () => {
     const [content, setContent] = useState('');
     const [category, setCategory] = useState('');
     const [userName, setUser] = useState('');
-    //이부분 api 연동할때 userId도 추가해서 아래 nickname으로 보내는 부분에도 추가
+    const [liked, setLiked] = useState(false); // 좋아요 상태
+
+    const commentInput = useRef();
 
     useEffect(() => {
         const fetchPostDetails = async () => {
             try {
+                // 게시물 세부 정보 가져오기
                 const postResponse = await axios.get(`http://localhost:8080/api/posts/${id}`);
-                setPost(postResponse.data);
-                setTitle(postResponse.data.title);
-                setContent(postResponse.data.content);
-                setCategory(postResponse.data.category);
-                setUser(postResponse.data.nickname);
-                setLiked(postResponse.data.liked); // assuming `liked` is part of post data
-                // Fetch comments if there's an endpoint for them
-                const commentsResponse = await axios.get(`http://localhost:8080/api/posts/${id}/comments`);
-                setComments(commentsResponse.data);
+                const postData = postResponse.data.data;
+                setPost(postData);
+                setTitle(postData.title);
+                setContent(postData.content);
+                setCategory(postData.category);
+                setUser(postData.nickname);
+                setLiked(postData.like);
+                // 댓글은 일단 API 연동하지 않음, 빈 배열로 초기화
             } catch (error) {
                 console.error('Error fetching post details:', error);
             }
@@ -46,12 +49,6 @@ const PostDetail = () => {
 
         fetchPostDetails();
     }, [id]);
-
-    const [comments, setComments] = useState([
-        "api 연동 후 가져온 댓글 리스트로 생성 해야 함",
-        "댓글2",
-        "댓글3"
-    ]);
 
     const handleEditClick = () => {
         setIsEditing(true);
@@ -63,7 +60,7 @@ const PostDetail = () => {
 
     const handleReportClick = () => {
         setIsReporting(true);
-    }
+    };
 
     const handleCloseModal = () => {
         setIsEditing(false);
@@ -72,51 +69,63 @@ const PostDetail = () => {
     };
 
     const handleSaveModal = async ({ category, title, content }) => {
-
         if (!title || !content || !category) {
             alert("모든 필드를 입력해주세요.");
             return;
         }
-        //api 연동
-        setTitle(title);
-        setContent(content);
-        setCategory(category);
-        alert(`게시물 수정 완료: ${title}`);
-        setIsEditing(false);
+        try {
+            await axios.put(`http://localhost:8080/api/posts/${id}`, { category, title, content }, {
+                headers: {
+                    'Authorization': 'Bearer your-auth-token' // 실제 토큰으로 대체
+                }
+            });
+            setTitle(title);
+            setContent(content);
+            setCategory(category);
+            alert(`게시물 수정 완료: ${title}`);
+            setIsEditing(false);
+        } catch (error) {
+            console.error('Error saving post:', error);
+            alert("게시물 수정에 실패했습니다.");
+        }
     };
 
     const handleConfirmDelete = async () => {
         setIsDeleting(false);
         try {
-            //api 연동
+            await axios.delete(`http://localhost:8080/api/posts/${id}`, {
+                headers: {
+                    'Authorization': 'Bearer your-auth-token' // 실제 토큰으로 대체
+                }
+            });
             alert('게시물이 삭제되었습니다.');
-            navigate('/community'); // 삭제 후 보드로 돌아가기
+            navigate('/community');
         } catch (error) {
             console.error("게시물 삭제 중 오류:", error);
             alert("게시물 삭제에 실패했습니다.");
         }
     };
 
-    const handleReportModal = () => {
+    const handleReportModal = async () => {
         setIsReporting(false);
         try {
-            //api 연동
+            await axios.post('http://localhost:8080/api/report', { userId: userName }, {
+                headers: {
+                    'Authorization': 'Bearer your-auth-token' // 실제 토큰으로 대체
+                }
+            });
             alert('유저 신고가 접수되었습니다.');
-            navigate('/community'); // 신고 후 보드로 돌아가기
+            navigate('/community');
         } catch (error) {
             console.error("유저 신고 중 오류:", error);
             alert("유저 신고에 실패했습니다.");
         }
     };
 
-    const [liked, setLiked] = useState(false); // 좋아요 상태
-
-    const commentInput = useRef();
-
     const handleSendClick = () => {
         const newComment = commentInput.current.value.trim();
         if (newComment) {
-            setComments([...comments, newComment]);
+            setComments([...comments, { text: newComment }]); // 댓글 추가
             commentInput.current.value = "";
         }
     };
@@ -125,12 +134,22 @@ const PostDetail = () => {
         setComments(comments.filter((_, i) => i !== index));
     };
 
-    const handleBoardClick = () => {
-        navigate('/community');
+    const toggleLike = async () => {
+        try {
+            await axios.post(`http://localhost:8080/api/posts/${id}/like`, {}, {
+                headers: {
+                    'Authorization': 'Bearer your-auth-token' // 실제 토큰으로 대체
+                }
+            });
+            setLiked(!liked);
+        } catch (error) {
+            console.error('Error toggling like:', error);
+            alert('좋아요 처리에 실패했습니다.');
+        }
     };
 
-    const toggleLike = () => {
-        setLiked(!liked);
+    const handleBoardClick = () => {
+        navigate('/community');
     };
 
     if (!post) {
@@ -152,8 +171,7 @@ const PostDetail = () => {
                     <div className={styles.postBody}>
                         <div className={styles.postInfo}>
                             <div className={styles.dateLike}>
-                                {/* <p><strong>카테고리</strong> {post.category}</p> */}
-                                <span>{post.createdTime}</span>
+                                <span>{new Date(post.createAt).toLocaleDateString()}</span>
                                 <div>
                                     {liked ? (
                                         <FaHeart
@@ -165,7 +183,7 @@ const PostDetail = () => {
                                             className={styles.likeIcon}
                                             onClick={toggleLike}
                                         />
-                                    )} <strong> {post.likes} </strong> likes
+                                    )} <strong> {post.likeCount} </strong> likes
                                 </div>
                             </div>
                             <div className={styles.infoRow}>
@@ -200,10 +218,10 @@ const PostDetail = () => {
                     {isReporting && (
                         <ReportModal
                             content={<div><strong>"{userName}"</strong> 유저 신고를 원하시나요? <br /> 아래 사유를 작성해주세요.</div>}
-                            userName={userName} //이부분은 api 연동할때 userId로 수정해주세요.
+                            userName={userName}
                             onClose={handleCloseModal}
                             onSave={handleReportModal}
-                            confirmText="삭제"
+                            confirmText="신고"
                         />
                     )}
                 </div>
@@ -212,7 +230,7 @@ const PostDetail = () => {
                     {comments.map((comment, index) => (
                         <Comment
                             key={index}
-                            text={comment}
+                            text={comment.text}
                             onDelete={() => handleDeleteComment(index)}
                         />
                     ))}
