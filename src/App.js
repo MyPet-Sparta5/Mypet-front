@@ -8,27 +8,24 @@ import Header from './components/Header';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import PostListPage from './pages/PostListPage';
-import PostProvider from './context/PostContext';
 import PostDetailPage from './pages/PostDetailPage';
 import PetCardPostPage from './pages/PetCardPostPage';
 
 function App() {
   return (
-    <PostProvider>
-      <Router>
-        <div className="App">
-          <Header />
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignupPage />} />
-            <Route path="/community" element={<PostListPage />} />
-            <Route path="/pet/:id" element={<PetCardPostPage />} />
-                <Route path="/posts/:id" element={<PostDetailPage />} />
-            </Routes>
-        </div>
-      </Router>
-    </PostProvider>
+    <Router>
+      <div className="App">
+        <Header />
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
+          <Route path="/community" element={<PostListPage />} />
+          <Route path="/pet/:id" element={<PetCardPostPage />} />
+              <Route path="/posts/:id" element={<PostDetailPage />} />
+          </Routes>
+      </div>
+    </Router>
   );
 }
 
