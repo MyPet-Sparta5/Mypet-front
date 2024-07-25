@@ -1,25 +1,63 @@
-// src/components/PostList.jsx
-import React, { useState, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PostContext } from '../context/PostContext';
+import axios from 'axios';
 import styles from '../styles/PostList.module.css';
 
 const PostList = () => {
     const navigate = useNavigate();
-    const posts = useContext(PostContext); // 데이터 컨텍스트에서 가져오기
-
-    // Pagination states
+    const [posts, setPosts] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalElements, setTotalElements] = useState(0);
     const postsPerPage = 10; // Number of posts per page
 
-    const indexOfLastPost = currentPage * postsPerPage;
-    const indexOfFirstPost = indexOfLastPost - postsPerPage;
+    useEffect(() => {
+        const fetchPosts = async () => {
+            try {
+                // Fetch data with page parameter
+                const response = await axios.get(`http://localhost:8080/api/posts?page=${currentPage}`);
+                console.log('API Response:', response.data); // Log the entire response data
 
-    const currentPosts = posts.slice(indexOfFirstPost, indexOfLastPost);
+                const { content, totalPages, totalElements } = response.data.data;
+                console.log('Content:', content); // Log the content for debugging
 
-    const totalPages = Math.ceil(posts.length / postsPerPage);
+                const transformedData = transformPostData(content);
+                console.log('Transformed Data:', transformedData); // Log transformed data
 
-    const paginate = (pageNumber) => setCurrentPage(pageNumber);
+                setPosts(transformedData);
+                setTotalPages(totalPages);
+                setTotalElements(totalElements);
+            } catch (error) {
+                console.error('Error fetching posts:', error);
+            }
+        };
+
+        fetchPosts();
+    }, [currentPage]);
+
+    const transformPostData = (data) => {
+        const categoryMapping = {
+            "BOAST": "자랑하기",
+            "FREEDOM": "자유게시판" // Update as needed
+        };
+
+        return data.map(post => ({
+            id: post.id,
+            category: categoryMapping[post.category] || post.category,
+            title: post.title,
+            content: post.content,
+            nickname: post.nickname,
+            createdTime: new Date(post.createAt).toLocaleDateString(),
+            likes: post.likeCount,
+            fileUrls: post.files.map(file => file.url),
+        }));
+    };
+
+    const paginate = (pageNumber) => {
+        if (pageNumber >= 1 && pageNumber <= totalPages) {
+            setCurrentPage(pageNumber);
+        }
+    };
 
     const navigateToPost = (post) => {
         if (post.category === '자랑하기') {
@@ -43,15 +81,21 @@ const PostList = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {currentPosts.map(post => (
-                        <tr key={post.id} onClick={() => navigateToPost(post)} className={styles.clickableRow}>
-                            <td>{post.category}</td>
-                            <td>{post.title}</td>
-                            <td>{post.likes}</td>
-                            <td>{post.nickname}</td>
-                            <td>{post.createdTime}</td>
+                    {posts.length > 0 ? (
+                        posts.map(post => (
+                            <tr key={post.id} onClick={() => navigateToPost(post)} className={styles.clickableRow}>
+                                <td>{post.category}</td>
+                                <td>{post.title}</td>
+                                <td>{post.likes}</td>
+                                <td>{post.nickname}</td>
+                                <td>{post.createdTime}</td>
+                            </tr>
+                        ))
+                    ) : (
+                        <tr>
+                            <td colSpan="5">게시물이 없습니다.</td>
                         </tr>
-                    ))}
+                    )}
                 </tbody>
             </table>
 
