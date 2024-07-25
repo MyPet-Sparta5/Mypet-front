@@ -1,7 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
-import { DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import './styles/App.css';
 import IndexImage from './assets/index_picture.png'
 import Header from './components/Header';
@@ -10,6 +8,7 @@ import SignupPage from './pages/SignupPage';
 import PostListPage from './pages/PostListPage';
 import PostDetailPage from './pages/PostDetailPage';
 import PetCardPostPage from './pages/PetCardPostPage';
+import FacilityFinderPage from './pages/FacilityFinderPage';
 
 function App() {
   return (
@@ -23,6 +22,7 @@ function App() {
           <Route path="/community" element={<PostListPage />} />
           <Route path="/pet/:id" element={<PetCardPostPage />} />
               <Route path="/posts/:id" element={<PostDetailPage />} />
+          <Route path="/facility-finder" element={<FacilityFinderPage />} />
           </Routes>
       </div>
     </Router>

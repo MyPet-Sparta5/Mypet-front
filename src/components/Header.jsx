@@ -35,7 +35,7 @@ function Header() {
                     <NavLink to="/freedom" className={({ isActive }) => isActive ? styles.navLink + ' ' + styles.active : styles.navLink}>
                         자유 게시판
                     </NavLink>
-                    <NavLink to="/hospital" className={({ isActive }) => isActive ? styles.navLink + ' ' + styles.active : styles.navLink}>
+                    <NavLink to="/facility-finder" className={({ isActive }) => isActive ? styles.navLink + ' ' + styles.active : styles.navLink}>
                         동물병원 찾기
                     </NavLink>
                 </nav>
