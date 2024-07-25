@@ -78,3 +78,26 @@
 .clickableRow {
     cursor: pointer; /* 마우스 커서를 링크 클릭할 때처럼 바꾸기 위한 스타일 */
 }
+
+
+/* 카테고리 열 너비 줄이기 */
+.table th:nth-child(1),
+.table td:nth-child(1) {
+    width: 15%; /* 원하는 너비로 조정 */
+}
+
+/* 제목 열 너비 늘리기 */
+.table th:nth-child(2),
+.table td:nth-child(2) {
+    width: 50%; /* 원하는 너비로 조정 */
+}
+
+/* 나머지 열은 균등하게 나누기 */
+.table th:nth-child(3),
+.table td:nth-child(3),
+.table th:nth-child(4),
+.table td:nth-child(4),
+.table th:nth-child(5),
+.table td:nth-child(5) {
+    width: 10%; /* 원하는 너비로 조정 */
+}
