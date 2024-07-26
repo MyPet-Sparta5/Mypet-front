@@ -2,6 +2,7 @@ import React from 'react';
 import { useRef, useEffect } from 'react'
 import styles from '../styles/Login.module.css';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 function Login() {
     const emailInput = useRef();
@@ -9,7 +10,7 @@ function Login() {
 
     const navigate = useNavigate();
 
-    const handleBoardClick = async (e) => {
+    const handleLoginClick = async (e) => {
         e.preventDefault();
 
         if (!emailInput.current || !passwordInput.current) {
@@ -19,11 +20,37 @@ function Login() {
 
         try {
             //로그인 백엔드 연결 부분
+            const response = await axios.post('http://localhost:8080/api/auth/login', {
+                email: emailInput.current.value,
+                password: passwordInput.current.value
+            }, {
+                withCredentials: true // 쿠키 허용
+            });
 
-            navigate('/');
-            window.location.reload();
+            if (response.status == 200) {
+                const accessToken = response.headers['authorization']; // 서버에서는  대소문자 구분되지만, 클라이언트는 구분 X
+
+                if (accessToken) {
+                    localStorage.setItem('accessToken', accessToken.replace('Bearer ', ''));
+                } else {
+                    alert('access token이 존재하지 않습니다.')
+                }
+
+                const { id, nickname, userRole } = response.data.data;
+
+                localStorage.setItem('userId', id);
+                localStorage.setItem('nickname', nickname);
+                localStorage.setItem('userRole', userRole);
+
+                alert(`[ ${nickname} ] 님 환영합니다!`);
+
+                navigate('/');
+                window.location.reload();
+            } else {
+                alert('로그인 중 오류가 발생했습니다.')
+            }
         } catch (error) {
-            alert(`${error.response.data.msg}`);
+            alert(`${error.response.data.message}` || '로그인 중 오류가 발생했습니다.');
         }
     };
 
@@ -37,7 +64,7 @@ function Login() {
             <form className={styles.form}>
                 <input className={styles.input} type="email" placeholder="Email" ref={emailInput} />
                 <input className={styles.input} type="password" placeholder="Password" ref={passwordInput} />
-                <button className={styles.button} type="submit" onClick={handleBoardClick}>Login</button>
+                <button className={styles.button} type="submit" onClick={handleLoginClick}>Login</button>
                 <button className={styles.button} type="submit" onClick={handleSignupClick}>Sign up</button>
             </form>
         </div>
