@@ -1,0 +1,79 @@
+.header {
+    background-color: #fff;
+    border-bottom: 1px solid #eaeaea;
+    padding: 0.5rem 1rem;
+  }
+  
+  .headerContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .logoContainer {
+    display: flex;
+    align-items: center;
+  }
+  
+  .logo {
+    width: 50px; /* 로고 크기 조정 */
+    height: 50px; /* 로고 크기 조정 */
+    margin-right: 10px;
+  }
+  
+  .headerTitle {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #333;
+    text-decoration: none;
+  }
+  
+  .nav {
+    display: flex;
+    gap: 130px;
+  }
+  
+  .navLink {
+    font-size: 1rem;
+    color: #333;
+    text-decoration: none;
+    padding: 0.5rem;
+  }
+  
+  .navLink:hover {
+    color: #874355;
+  }
+  
+  .active {
+    color: #4a2b35;
+    border-bottom: 2px solid #4a2b35;
+  }
+  
+  .headerButtons {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .button {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    color: #fff;
+    background-color: #5f3742;
+    border: none;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .button:hover {
+    background-color: #4a2b35;
+  }
+  
+  .button:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #3e232c;
+  }
+  
