@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import styles from '../styles/PostList.module.css';
 
-const PostList = () => {
+const PostList = ({ category }) => {
     const navigate = useNavigate();
     const [posts, setPosts] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -14,8 +14,14 @@ const PostList = () => {
     useEffect(() => {
         const fetchPosts = async () => {
             try {
-                // Fetch data with page parameter
-                const response = await axios.get(`http://localhost:8080/api/posts?page=${currentPage}`);
+                const response = await axios.get('http://localhost:8080/api/posts', {
+                    params: {
+                        page: currentPage,
+                        pageSize: postsPerPage,
+                        sortBy: 'createdAt,desc',
+                        category: category
+                    },
+                });
 
                 const { content, totalPages, totalElements } = response.data.data;
 
@@ -30,12 +36,12 @@ const PostList = () => {
         };
 
         fetchPosts();
-    }, [currentPage]);
+    }, [currentPage, category]);
 
     const transformPostData = (data) => {
         const categoryMapping = {
             "BOAST": "자랑하기",
-            "FREEDOM": "자유게시판" 
+            "FREEDOM": "자유게시판"
         };
 
         return data.map(post => ({
@@ -91,7 +97,7 @@ const PostList = () => {
 
     return (
         <div className={styles.container}>
-            <h2 className={styles.heading}>통합 게시판</h2>
+            <h2 className={styles.heading}>{category === 'DEFAULT' ? '통합 게시판' : (category === 'BOAST' ? '자랑하기 게시판' : '자유게시판')}</h2>
             <table className={styles.table}>
                 <thead>
                     <tr>

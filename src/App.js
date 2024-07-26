@@ -9,8 +9,6 @@ import PostListPage from './pages/PostListPage';
 import PostDetailPage from './pages/PostDetailPage';
 import PetCardPostPage from './pages/PetCardPostPage';
 import FacilityFinderPage from './pages/FacilityFinderPage';
-import FreedomBoard from './components/FreedomBoard';
-import GalleryBoard from './components/GalleryBoard';
 
 function App() {
   return (
@@ -21,9 +19,9 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
-          <Route path="/community" element={<PostListPage />} />
-          <Route path="/freedom" element={<FreedomBoard />} />
-          <Route path="/gallery" element={<GalleryBoard />} />
+          <Route path="/community" element={<PostListPage category="DEFAULT" />} />
+          <Route path="/gallery" element={<PostListPage category="BOAST" />} />
+          <Route path="/freedom" element={<PostListPage category="FREEDOM" />} />
           <Route path="/pet/:id" element={<PetCardPostPage />} />
           <Route path="/posts/:id" element={<PostDetailPage />} />
           <Route path="/facility-finder" element={<FacilityFinderPage />} />

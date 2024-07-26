@@ -1,10 +1,10 @@
 import React from 'react';
 import PostList from '../components/PostList';
 
-function PostListPage() {
+function PostListPage({ category }) {
     return (
         <div className="postList-page">
-            <PostList />
+            <PostList category={category} />
         </div>
     );
 }
