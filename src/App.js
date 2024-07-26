@@ -19,9 +19,11 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
-          <Route path="/community" element={<PostListPage />} />
+          <Route path="/community" element={<PostListPage category="DEFAULT" />} />
+          <Route path="/gallery" element={<PostListPage category="BOAST" />} />
+          <Route path="/freedom" element={<PostListPage category="FREEDOM" />} />
           <Route path="/pet/:id" element={<PetCardPostPage />} />
-              <Route path="/posts/:id" element={<PostDetailPage />} />
+          <Route path="/posts/:id" element={<PostDetailPage />} />
           <Route path="/facility-finder" element={<FacilityFinderPage />} />
           </Routes>
       </div>
