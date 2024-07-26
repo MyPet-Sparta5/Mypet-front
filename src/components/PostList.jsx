@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import styles from '../styles/PostList.module.css';
+import PaginationButton from '../components/PaginationButton'; // PaginationButton 컴포넌트 import
 
 const PostList = ({ category }) => {
     const navigate = useNavigate();
@@ -56,35 +57,10 @@ const PostList = ({ category }) => {
         }));
     };
 
-    const paginate = (pageNumber) => {
+    const handlePageChange = (pageNumber) => {
         if (pageNumber >= 1 && pageNumber <= totalPages) {
             setCurrentPage(pageNumber);
         }
-    };
-
-    const getPaginationButtons = () => {
-        const maxButtons = 5;
-        let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
-        let endPage = startPage + maxButtons - 1;
-
-        if (endPage > totalPages) {
-            endPage = totalPages;
-            startPage = Math.max(1, endPage - maxButtons + 1);
-        }
-
-        const buttons = [];
-        for (let i = startPage; i <= endPage; i++) {
-            buttons.push(
-                <button
-                    key={i}
-                    onClick={() => paginate(i)}
-                    className={currentPage === i ? styles.active : ''}
-                >
-                    {i}
-                </button>
-            );
-        }
-        return buttons;
     };
 
     const navigateToPost = (post) => {
@@ -127,9 +103,11 @@ const PostList = ({ category }) => {
                 </tbody>
             </table>
 
-            <div className={styles.pagination}>
-                {getPaginationButtons()}
-            </div>
+            <PaginationButton
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+            />
         </div>
     );
 };
