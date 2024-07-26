@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styles from '../styles/ReportList.module.css';
-import PaginationButton from '../components/PaginationButton'; // PaginationButton 컴포넌트 import
+import PaginationButton from '../components/PaginationButton';
 
 const ReportList = () => {
     // 예시 데이터
