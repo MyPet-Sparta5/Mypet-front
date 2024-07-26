@@ -78,3 +78,24 @@
 .clickableRow {
     cursor: pointer; /* 마우스 커서를 링크 클릭할 때처럼 바꾸기 위한 스타일 */
 }
+/* 이메일 */
+.table th:nth-child(1),
+.table td:nth-child(1) {
+    width: 28%;
+}
+
+/* 유저권한, 유저상태, 누적 경고 수 */
+.table th:nth-child(2),
+.table td:nth-child(2),
+.table th:nth-child(3),
+.table td:nth-child(3),
+.table th:nth-child(4),
+.table td:nth-child(4) {
+    width: 19%;
+}
+
+/* 가입일자 */
+.table th:nth-child(5),
+.table td:nth-child(5) {
+    width: 15%;
+}
