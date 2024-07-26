@@ -8,13 +8,6 @@ function Header() {
     const [user, setUser] = useState({ nickname: '', role: '' });
     const navigate = useNavigate();
 
-    const handleLoginClick = () => {
-        navigate('/login'); 
-    };
-
-    const handleSignupClick = () => {
-        navigate('/signup');
-    };
 
     return (
         <header className={styles.header}>
@@ -36,8 +29,6 @@ function Header() {
                 <div className={styles.headerButtons}>
                     {/* api 연동 후 로그인 전에는 로그인, 회원가입이 나오고 아니면 dropdownmenu가 보이도록 해주시면됩니다. 
                         어드민 헤더에서는 닉네임만 띄우도록 할 예정*/}
-                    <button className={styles.button} onClick={handleLoginClick}>로그인</button>
-                    <button className={styles.button} onClick={handleSignupClick}>회원가입</button>
                     <DropdownMenu nickname={user.nickname} role={user.role} />
                 </div>
             </div>
