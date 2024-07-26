@@ -39,3 +39,24 @@
 .table tr:hover {
     background-color: #f1f1f1;
 }
+/* 신고사유 */
+.table th:nth-child(1),
+.table td:nth-child(1) {
+    width: 30%; /* 원하는 너비로 조정 */
+}
+
+/* 신고상태, 신고일시 */
+.table th:nth-child(2),
+.table td:nth-child(2),
+.table th:nth-child(3),
+.table td:nth-child(3) {
+    width: 12%; /* 원하는 너비로 조정 */
+}
+
+/* 신고당한 유저, 신고한 유저 */
+.table th:nth-child(4),
+.table td:nth-child(4),
+.table th:nth-child(5),
+.table td:nth-child(5) {
+    width: 23%; /* 원하는 너비로 조정 */
+}
