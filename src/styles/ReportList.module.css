@@ -1,0 +1,62 @@
+.container {
+    padding: 20px;
+}
+
+.heading {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th, .table td {
+    padding: 12px 15px;
+    text-align: left;
+}
+
+.table th {
+    background-color: white;
+    font-weight: bold;
+    text-transform: uppercase;
+    border-bottom: 2px solid #ddd;
+}
+
+.table td {
+    background-color: #fff;
+    border-bottom: 1px solid #ddd;
+}
+
+.table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.table tr:hover {
+    background-color: #f1f1f1;
+}
+/* 신고사유 */
+.table th:nth-child(1),
+.table td:nth-child(1) {
+    width: 30%; /* 원하는 너비로 조정 */
+}
+
+/* 신고상태, 신고일시 */
+.table th:nth-child(2),
+.table td:nth-child(2),
+.table th:nth-child(3),
+.table td:nth-child(3) {
+    width: 12%; /* 원하는 너비로 조정 */
+}
+
+/* 신고당한 유저, 신고한 유저 */
+.table th:nth-child(4),
+.table td:nth-child(4),
+.table th:nth-child(5),
+.table td:nth-child(5) {
+    width: 23%; /* 원하는 너비로 조정 */
+}
