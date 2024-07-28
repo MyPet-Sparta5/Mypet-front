@@ -2,6 +2,7 @@
     position: relative;
     display: inline-block;
     font-size: 1rem;
+    z-index: 10; /* 최상단에 보이도록 조정 */
 }
 
 .dropdownContent {
