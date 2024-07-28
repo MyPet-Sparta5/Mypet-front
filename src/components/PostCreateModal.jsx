@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import styles from '../styles/Modal.module.css';
+import refreshToken from './refreshToken';
+
 
 function getAuthTokenFromLocalStorage() {
     return localStorage.getItem('accessToken');
@@ -31,20 +33,33 @@ function PostCreateModal({ category, onSave, onClose }) {
                 setError('로그인이 필요합니다.');
                 return;
             }
-    
+
             await axios.post('http://localhost:8080/api/posts', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     'Authorization': `Bearer ${token}`,
                 }
             });
-    
-            // 성공적으로 게시물이 생성되면 페이지를 새로고침
+
             window.location.reload(); 
         } catch (error) {
-            console.error('게시물 작성 중 오류:', error);
-            if (error.response && error.response.status === 403) {
-                setError('접근 권한이 없습니다.');
+            if (error.response && error.response.status === 401) {
+                // 토큰 만료시 토큰 갱신 시도
+                try {
+                    await refreshToken();
+                    // 갱신된 토큰으로 다시 시도
+                    const newToken = getAuthTokenFromLocalStorage();
+                    await axios.post('http://localhost:8080/api/posts', formData, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data',
+                            'Authorization': `Bearer ${newToken}`,
+                        }
+                    });
+
+                    window.location.reload(); 
+                } catch (refreshError) {
+                    setError('토큰 갱신 중 오류가 발생했습니다. 다시 시도해 주세요.');
+                }
             } else {
                 setError('게시물 작성 중 오류가 발생했습니다. 다시 시도해 주세요.');
             }
