@@ -1,21 +1,71 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import styles from '../styles/Modal.module.css';
+import refreshToken from './refreshToken';
+
+
+function getAuthTokenFromLocalStorage() {
+    return localStorage.getItem('accessToken');
+}
 
 function PostCreateModal({ category, onSave, onClose }) {
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [selectedCategory, setSelectedCategory] = useState(category === 'DEFAULT' ? '' : category);
     const [files, setFiles] = useState([]);
-
-    const handleSave = () => {
-        onSave({ title, content, category: selectedCategory, files });
-        onClose();
-    };
+    const [error, setError] = useState('');
 
     const handleFileChange = (e) => {
-        const fileArray = Array.from(e.target.files);
-        setFiles(fileArray.slice(0, 5));
+        setFiles(Array.from(e.target.files).slice(0, 5));
     };
+
+    const handleSave = async () => {
+        const formData = new FormData();
+        formData.append('requestDto', new Blob([JSON.stringify({ title, content })], { type: 'application/json' }));
+        formData.append('category', selectedCategory);
+        files.forEach(file => {
+            formData.append('file', file);
+        });
+    
+        try {
+            const token = getAuthTokenFromLocalStorage();
+            if (!token) {
+                setError('로그인이 필요합니다.');
+                return;
+            }
+
+            await axios.post('http://localhost:8080/api/posts', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${token}`,
+                }
+            });
+
+            window.location.reload(); 
+        } catch (error) {
+            if (error.response && error.response.status === 401) {
+                // 토큰 만료시 토큰 갱신 시도
+                try {
+                    await refreshToken();
+                    // 갱신된 토큰으로 다시 시도
+                    const newToken = getAuthTokenFromLocalStorage();
+                    await axios.post('http://localhost:8080/api/posts', formData, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data',
+                            'Authorization': `Bearer ${newToken}`,
+                        }
+                    });
+
+                    window.location.reload(); 
+                } catch (refreshError) {
+                    setError('토큰 갱신 중 오류가 발생했습니다. 다시 시도해 주세요.');
+                }
+            } else {
+                setError('게시물 작성 중 오류가 발생했습니다. 다시 시도해 주세요.');
+            }
+        }
+    };
+    
 
     return (
         <div className={styles.modalOverlay}>
@@ -85,6 +135,7 @@ function PostCreateModal({ category, onSave, onClose }) {
                         )}
                     </div>
                 )}
+                {error && <p className={styles.error}>{error}</p>}
                 <div className={styles.modalButtons}>
                     <button className={styles.saveButton} onClick={handleSave}>저장</button>
                     <button className={styles.cancelButton} onClick={onClose}>취소</button>
