@@ -1,36 +1,52 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from '../styles/UserList.module.css';
 import PaginationButton from '../components/PaginationButton';
 import UserRoleModal from '../components/UserRoleModal';
 import UserStatusModal from '../components/UserStatusModal';
+import axios from 'axios';
 
 const UserList = () => {
-    const users = [
-        { id: 1, email: 'user1@example.com', role: 'Admin', status: 'Active', warningCount: 1, signUpDate: '2023-01-15' },
-        { id: 2, email: 'user2@example.com', role: 'User', status: 'Inactive', warningCount: 0, signUpDate: '2023-02-20' },
-        { id: 3, email: 'user3@example.com', role: 'Moderator', status: 'Active', warningCount: 2, signUpDate: '2023-03-10' },
-        { id: 4, email: 'user4@example.com', role: 'Admin', status: 'Active', warningCount: 0, signUpDate: '2023-04-05' },
-        { id: 5, email: 'user5@example.com', role: 'User', status: 'Inactive', warningCount: 1, signUpDate: '2023-05-15' },
-        { id: 6, email: 'user6@example.com', role: 'Moderator', status: 'Active', warningCount: 0, signUpDate: '2023-06-20' },
-        { id: 7, email: 'user7@example.com', role: 'Admin', status: 'Inactive', warningCount: 2, signUpDate: '2023-07-10' },
-        { id: 8, email: 'user8@example.com', role: 'User', status: 'Active', warningCount: 1, signUpDate: '2023-08-25' },
-        { id: 9, email: 'user9@example.com', role: 'Moderator', status: 'Inactive', warningCount: 0, signUpDate: '2023-09-30' },
-        { id: 10, email: 'user10@example.com', role: 'Admin', status: 'Active', warningCount: 2, signUpDate: '2023-10-12' },
-        { id: 11, email: 'user11@example.com', role: 'User', status: 'Inactive', warningCount: 1, signUpDate: '2023-11-01' },
-    ];
-
+    const [users, setUsers] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
     const usersPerPage = 10;
-    const totalPages = Math.ceil(users.length / usersPerPage);
 
     const [selectedUser, setSelectedUser] = useState(null);
     const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
     const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
 
-    const paginatedUsers = users.slice(
-        (currentPage - 1) * usersPerPage,
-        currentPage * usersPerPage
-    );
+    const axiosInstance = axios.create({
+        baseURL: 'http://localhost:8080', // API 기본 URL 설정
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+            'Content-Type': 'application/json'
+        }
+    });
+
+    const fetchUsers = async (page) => {
+        try {
+            const response = await axiosInstance.get('/api/admin/user-manage', {
+                params: {
+                    page: currentPage,
+                    pageSize: usersPerPage,
+                    sortBy: 'createdAt,desc'
+                }
+            });
+            const data = response.data;
+            const usersWithFormattedRoles = data.data.content.map(user => ({
+                ...user,
+                userRole: user.userRole.replace('ROLE_', '') // 'ROLE_' 접두사 제거
+            }));
+            setUsers(usersWithFormattedRoles);
+            setTotalPages(data.data.totalPages);
+        } catch (error) {
+            console.error('Failed to fetch users:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchUsers(currentPage);
+    }, [currentPage]);
 
     const handlePageChange = (pageNumber) => {
         setCurrentPage(pageNumber);
@@ -46,13 +62,39 @@ const UserList = () => {
         setIsStatusModalOpen(true);
     };
 
-    const handleRoleSave = (newRole) => {
-        setSelectedUser({ ...selectedUser, role: newRole });
+    const handleRoleSave = async (newRole) => {
+        try {
+            const response = await axiosInstance.put(`/api/admin/user-manage/${selectedUser.id}/role`, {
+                role: newRole
+            });
+
+            if (response.status === 200) {
+                fetchUsers(currentPage); // Update user list after saving role
+                alert(`${selectedUser.email} 유저의 권한을 ${newRole}로 변경했습니다`);
+            } else {
+                console.error('Failed to save role:', response.data);
+            }
+        } catch (error) {
+            console.error('Failed to save role:', error);
+        }
         setIsRoleModalOpen(false);
     };
 
-    const handleStatusSave = (newStatus) => {
-        setSelectedUser({ ...selectedUser, status: newStatus });
+    const handleStatusSave = async (newStatus) => {
+        try {
+            const response = await axiosInstance.put(`/api/admin/user-manage/${selectedUser.id}/status`, {
+                status: newStatus
+            });
+
+            if (response.status === 200) {
+                fetchUsers(currentPage); // Update user list after saving status
+                alert(`${selectedUser.email} 유저의 상태를 ${newStatus}로 변경했습니다`);
+            } else {
+                console.error('Failed to save status:', response.data);
+            }
+        } catch (error) {
+            console.error('Failed to save status:', error);
+        }
         setIsStatusModalOpen(false);
     };
 
@@ -70,14 +112,14 @@ const UserList = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {paginatedUsers.length > 0 ? (
-                        paginatedUsers.map(user => (
+                    {users.length > 0 ? (
+                        users.map(user => (
                             <tr key={user.id}>
                                 <td>{user.email}</td>
-                                <td onClick={() => openRoleModal(user)}>{user.role}</td>
-                                <td onClick={() => openStatusModal(user)}>{user.status}</td>
-                                <td>{user.warningCount}</td>
-                                <td>{user.signUpDate}</td>
+                                <td className={styles.userEdit} onClick={() => openRoleModal(user)}>{user.userRole}</td>
+                                <td className={styles.userEdit} onClick={() => openStatusModal(user)}>{user.userStatus}</td>
+                                <td>{user.penaltyCount}</td>
+                                <td>{user.createAt.split('T')[0]}</td>
                             </tr>
                         ))
                     ) : (
@@ -96,7 +138,8 @@ const UserList = () => {
 
             {isRoleModalOpen && (
                 <UserRoleModal
-                    role={selectedUser.role}
+                    email={selectedUser.email}
+                    role={selectedUser.userRole}
                     onSave={handleRoleSave}
                     onClose={() => setIsRoleModalOpen(false)}
                 />
@@ -104,7 +147,8 @@ const UserList = () => {
 
             {isStatusModalOpen && (
                 <UserStatusModal
-                    status={selectedUser.status}
+                    email={selectedUser.email}
+                    status={selectedUser.userStatus}
                     onSave={handleStatusSave}
                     onClose={() => setIsStatusModalOpen(false)}
                 />
