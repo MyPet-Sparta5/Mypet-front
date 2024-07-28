@@ -1,12 +1,23 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import styles from '../styles/Header.module.css';
 import logo from '../assets/logo.png'; // 로고 이미지 파일 경로
 import DropdownMenu from './DropdownMenu';
 
 function Header() {
-    const [user, setUser] = useState({ nickname: '', role: '' });
+
+    const [user, setUser] = useState({ nickname: '', role: '', accessToken: '' });
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const storedNickname = localStorage.getItem('nickname');
+        const storedrole = localStorage.getItem('userRole');
+        const storedAccessToken = localStorage.getItem('accessToken');
+
+        if (storedNickname && storedrole && storedAccessToken) {
+            setUser({ nickname: storedNickname, role: storedrole, accessToken: storedAccessToken });
+        }
+    }, []);
 
     const handleLoginClick = () => {
         navigate('/login');
@@ -40,10 +51,14 @@ function Header() {
                     </NavLink>
                 </nav>
                 <div className={styles.headerButtons}>
-                    {/* api 연동 후 로그인 전에는 로그인, 회원가입이 나오고 아니면 dropdownmenu가 보이도록 해주시면됩니다. */}
-                    <button className={styles.button} onClick={handleLoginClick}>로그인</button>
-                    <button className={styles.button} onClick={handleSignupClick}>회원가입</button>
-                    <DropdownMenu nickname={user.nickname} role={user.role} />
+                    {user.accessToken ? (
+                        <DropdownMenu nickname={user.nickname} role={user.role} />
+                    ) : (
+                        <>
+                            <button className={styles.button} onClick={handleLoginClick}>로그인</button>
+                            <button className={styles.button} onClick={handleSignupClick}>회원가입</button>
+                        </>
+                    )}
                 </div>
             </div>
         </header>
