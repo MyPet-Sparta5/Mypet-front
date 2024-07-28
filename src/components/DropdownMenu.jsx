@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import styles from '../styles/DropdownMenu.module.css';
+import handleLogout from './Logout';
 
 function DropdownMenu({ nickname, role }) {
     const [isOpen, setIsOpen] = useState(false);
     const menuRef = useRef(null);
+    const navigate = useNavigate();
 
     const toggleMenu = () => {
         setIsOpen(!isOpen);
@@ -31,7 +33,7 @@ function DropdownMenu({ nickname, role }) {
                 {(role === 'ROLE_ADMIN' || role === 'ROLE_MANAGER') && (
                     <NavLink to="/admin/user-list">BackOffice</NavLink>
                 )}
-                <NavLink to="/logout">Log Out</NavLink>
+                <button onClick={() => handleLogout(navigate)} className={styles.logoutButton}>Log Out</button>
             </div>
         </div>
     );

@@ -39,3 +39,17 @@
     border: none;
     border-radius: 0.25rem;
 }
+
+.logoutButton {
+    cursor: pointer;
+    min-width: 160px;
+    padding: 12px 16px;
+    font-size: 1rem;
+    color: black;
+    background-color: #fff;
+    border: none;
+}
+
+.logoutButton:hover {
+    background-color: #f1f1f1;
+}
