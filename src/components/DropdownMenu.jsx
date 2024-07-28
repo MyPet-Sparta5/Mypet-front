@@ -33,7 +33,7 @@ function DropdownMenu({ nickname, role }) {
                 {(role === 'ROLE_ADMIN' || role === 'ROLE_MANAGER') && (
                     <NavLink to="/admin/user-list">BackOffice</NavLink>
                 )}
-                <button type='button' onClick={() => handleLogout(navigate)} className={styles.logoutButton}>Log Out</button>
+                <button onClick={() => handleLogout(navigate)} className={styles.logoutButton}>Log Out</button>
             </div>
         </div>
     );
