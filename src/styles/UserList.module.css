@@ -99,3 +99,10 @@
 .table td:nth-child(5) {
     width: 15%;
 }
+
+.userEdit {
+    cursor: pointer;
+    text-decoration-line: underline;
+    text-underline-offset: 5px; /* 밑줄 간격 조정 */
+    text-decoration-color: #864e5d;
+}
