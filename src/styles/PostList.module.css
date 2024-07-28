@@ -75,3 +75,27 @@
 .table td:nth-child(5) {
     width: 10%; /* 원하는 너비로 조정 */
 }
+.button {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    color: #fff;
+    background-color: #5f3742;
+    border: none;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+     margin-left: auto; 
+  }
+  
+  .button:hover {
+    background-color: #4a2b35;
+  }
+  
+  .button:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #3e232c;
+  }
+  

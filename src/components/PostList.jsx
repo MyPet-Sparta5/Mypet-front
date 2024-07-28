@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import styles from '../styles/PostList.module.css';
-import PaginationButton from '../components/PaginationButton'; // PaginationButton 컴포넌트 import
+import PaginationButton from '../components/PaginationButton';
+import PostCreateModal from '../components/PostCreateModal';
 
 const PostList = ({ category }) => {
     const navigate = useNavigate();
@@ -10,7 +11,8 @@ const PostList = ({ category }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [totalElements, setTotalElements] = useState(0);
-    const postsPerPage = 10; // Number of posts per page
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const postsPerPage = 10;
 
     useEffect(() => {
         const fetchPosts = async () => {
@@ -71,9 +73,25 @@ const PostList = ({ category }) => {
         }
     };
 
+    const openModal = () => {
+        setIsModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+    };
+
+    const handleSave = (newPost) => {
+        // 게시글 저장 로직 추가
+        console.log('새 게시글:', newPost);
+    };
+
     return (
         <div className={styles.container}>
-            <h2 className={styles.heading}>{category === 'DEFAULT' ? '통합 게시판' : (category === 'BOAST' ? '자랑하기 게시판' : '자유게시판')}</h2>
+            <div className={styles.header}>
+                <h2 className={styles.heading}>{category === 'DEFAULT' ? '통합 게시판' : (category === 'BOAST' ? '자랑하기 게시판' : '자유게시판')}</h2>
+                <button onClick={openModal} className={styles.button}>+ 게시글 작성</button>
+            </div>
             <table className={styles.table}>
                 <thead>
                     <tr>
@@ -108,6 +126,14 @@ const PostList = ({ category }) => {
                 totalPages={totalPages}
                 onPageChange={handlePageChange}
             />
+
+            {isModalOpen && (
+                <PostCreateModal
+                    category={category}
+                    onSave={handleSave}
+                    onClose={closeModal}
+                />
+            )}
         </div>
     );
 };
