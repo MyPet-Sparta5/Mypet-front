@@ -30,7 +30,7 @@ function DropdownMenu() {
             </button>
             <div className={`${styles.dropdownContent} ${isOpen ? styles.show : ''}`}>
                 <NavLink to="/profile">MyPage</NavLink>
-                <NavLink to="/settings">BackOffice</NavLink>
+                <NavLink to="/admin/user-list">BackOffice</NavLink>
                 {/* 백오피스는 로그인한 사용자가 admin 권한일때 되도록합니다. */}
                 <NavLink to="/logout">Log Out</NavLink>
             </div>
