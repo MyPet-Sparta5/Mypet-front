@@ -1,12 +1,22 @@
-import React, { useState } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { NavLink } from 'react-router-dom';
 import styles from '../styles/AdminHeader.module.css';
 import logo from '../assets/logo.png'; // 로고 이미지 파일 경로
 import DropdownMenu from './DropdownMenu';
 
 function Header() {
-    const [user, setUser] = useState({ nickname: '', role: '' });
-    const navigate = useNavigate();
+
+    const [user, setUser] = useState({ nickname: '', role: '', accessToken: '' });
+
+    useEffect(() => {
+        const storedNickname = localStorage.getItem('nickname');
+        const storedrole = localStorage.getItem('userRole');
+        const storedAccessToken = localStorage.getItem('accessToken');
+
+        if (storedNickname && storedrole && storedAccessToken) {
+            setUser({ nickname: storedNickname, role: storedrole, accessToken: storedAccessToken });
+        }
+    }, []);
 
 
     return (
@@ -27,8 +37,6 @@ function Header() {
                     </NavLink>
                 </nav>
                 <div className={styles.headerButtons}>
-                    {/* api 연동 후 로그인 전에는 로그인, 회원가입이 나오고 아니면 dropdownmenu가 보이도록 해주시면됩니다. 
-                        어드민 헤더에서는 닉네임만 띄우도록 할 예정*/}
                     <DropdownMenu nickname={user.nickname} role={user.role} />
                 </div>
             </div>
