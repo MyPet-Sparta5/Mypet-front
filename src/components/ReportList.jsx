@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styles from '../styles/ReportList.module.css';
 import PaginationButton from '../components/PaginationButton';
+import ReportStatusModal from '../components/ReportStatusModal';
 
 const ReportList = () => {
     // 예시 데이터
@@ -23,6 +24,7 @@ const ReportList = () => {
     ];
 
     const [currentPage, setCurrentPage] = useState(1);
+    const [selectedReport, setSelectedReport] = useState(null);
     const reportsPerPage = 10; // 페이지당 보고서 수
     const totalPages = Math.ceil(reports.length / reportsPerPage);
 
@@ -34,6 +36,23 @@ const ReportList = () => {
 
     const handlePageChange = (pageNumber) => {
         setCurrentPage(pageNumber);
+    };
+
+    const handleStatusChange = (report) => {
+        setSelectedReport(report);
+    };
+
+    const handleSaveStatus = (newStatus) => {
+        setSelectedReport((prev) => ({
+            ...prev,
+            status: newStatus,
+        }));
+        // 이 예제에서는 데이터를 로컬에서 업데이트합니다.
+        // 실제로는 서버에 변경 사항을 저장하는 로직이 필요합니다.
+    };
+
+    const handleCloseModal = () => {
+        setSelectedReport(null);
     };
 
     return (
@@ -54,7 +73,9 @@ const ReportList = () => {
                         paginatedReports.map(report => (
                             <tr key={report.id}>
                                 <td>{report.reason}</td>
-                                <td>{report.status}</td>
+                                <td onClick={() => handleStatusChange(report)} style={{ cursor: 'pointer' }}>
+                                    {report.status}
+                                </td>
                                 <td>{report.reportedDate}</td>
                                 <td>{report.reportedUser}</td>
                                 <td>{report.reporter}</td>
@@ -73,6 +94,14 @@ const ReportList = () => {
                 totalPages={totalPages}
                 onPageChange={handlePageChange}
             />
+
+            {selectedReport && (
+                <ReportStatusModal
+                    status={selectedReport.status}
+                    onSave={handleSaveStatus}
+                    onClose={handleCloseModal}
+                />
+            )}
         </div>
     );
 };
