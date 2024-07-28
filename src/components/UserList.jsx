@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import styles from '../styles/UserList.module.css';
-import PaginationButton from '../components/PaginationButton'; 
+import PaginationButton from '../components/PaginationButton';
+import UserRoleModal from '../components/UserRoleModal';
+import UserStatusModal from '../components/UserStatusModal';
 
 const UserList = () => {
-    // 예시 데이터 (11개)
     const users = [
         { id: 1, email: 'user1@example.com', role: 'Admin', status: 'Active', warningCount: 1, signUpDate: '2023-01-15' },
         { id: 2, email: 'user2@example.com', role: 'User', status: 'Inactive', warningCount: 0, signUpDate: '2023-02-20' },
@@ -19,9 +20,12 @@ const UserList = () => {
     ];
 
     const [currentPage, setCurrentPage] = useState(1);
-    const usersPerPage = 10; 
+    const usersPerPage = 10;
     const totalPages = Math.ceil(users.length / usersPerPage);
 
+    const [selectedUser, setSelectedUser] = useState(null);
+    const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
+    const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
 
     const paginatedUsers = users.slice(
         (currentPage - 1) * usersPerPage,
@@ -30,6 +34,26 @@ const UserList = () => {
 
     const handlePageChange = (pageNumber) => {
         setCurrentPage(pageNumber);
+    };
+
+    const openRoleModal = (user) => {
+        setSelectedUser(user);
+        setIsRoleModalOpen(true);
+    };
+
+    const openStatusModal = (user) => {
+        setSelectedUser(user);
+        setIsStatusModalOpen(true);
+    };
+
+    const handleRoleSave = (newRole) => {
+        setSelectedUser({ ...selectedUser, role: newRole });
+        setIsRoleModalOpen(false);
+    };
+
+    const handleStatusSave = (newStatus) => {
+        setSelectedUser({ ...selectedUser, status: newStatus });
+        setIsStatusModalOpen(false);
     };
 
     return (
@@ -50,8 +74,8 @@ const UserList = () => {
                         paginatedUsers.map(user => (
                             <tr key={user.id}>
                                 <td>{user.email}</td>
-                                <td>{user.role}</td>
-                                <td>{user.status}</td>
+                                <td onClick={() => openRoleModal(user)}>{user.role}</td>
+                                <td onClick={() => openStatusModal(user)}>{user.status}</td>
                                 <td>{user.warningCount}</td>
                                 <td>{user.signUpDate}</td>
                             </tr>
@@ -69,6 +93,22 @@ const UserList = () => {
                 totalPages={totalPages}
                 onPageChange={handlePageChange}
             />
+
+            {isRoleModalOpen && (
+                <UserRoleModal
+                    role={selectedUser.role}
+                    onSave={handleRoleSave}
+                    onClose={() => setIsRoleModalOpen(false)}
+                />
+            )}
+
+            {isStatusModalOpen && (
+                <UserStatusModal
+                    status={selectedUser.status}
+                    onSave={handleStatusSave}
+                    onClose={() => setIsStatusModalOpen(false)}
+                />
+            )}
         </div>
     );
 };
