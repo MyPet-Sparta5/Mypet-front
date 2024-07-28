@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import styles from '../styles/Header.module.css';
+import styles from '../styles/AdminHeader.module.css';
 import logo from '../assets/logo.png'; // 로고 이미지 파일 경로
 import DropdownMenu from './DropdownMenu';
 
@@ -16,13 +16,13 @@ function Header() {
                     <NavLink to="/">
                         <img src={logo} alt="로고" className={styles.logo} />
                     </NavLink>
-                    <NavLink to="/admin/users-manager" className={styles.headerTitle}>나만, 펫</NavLink>
+                    <NavLink to="/" className={styles.headerTitle}>나만, 펫</NavLink>
                 </div>
                 <nav className={styles.nav}>
-                    <NavLink to="/admin/users-manager" className={({ isActive }) => isActive ? styles.navLink + ' ' + styles.active : styles.navLink}>
+                    <NavLink to="/admin/user-list" className={({ isActive }) => isActive ? styles.navLink + ' ' + styles.active : styles.navLink}>
                         회원 관리
                     </NavLink>
-                    <NavLink to="/admin/reports-view" className={({ isActive }) => isActive ? styles.navLink + ' ' + styles.active : styles.navLink}>
+                    <NavLink to="/admin/report-list" className={({ isActive }) => isActive ? styles.navLink + ' ' + styles.active : styles.navLink}>
                         신고 목록
                     </NavLink>
                 </nav>

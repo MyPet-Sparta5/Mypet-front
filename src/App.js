@@ -48,8 +48,8 @@ function App() {
 
           {/* 백오피스 경로 */}
           <Route path="/admin/*" element={<AdminLayout />}>
-            <Route path="users-manager" element={<AdminUserListPage />} />
-            <Route path="reports-view" element={<AdminReportListPage />} />
+            <Route path="user-list" element={<AdminUserListPage />} />
+            <Route path="report-list" element={<AdminReportListPage />} />
           </Route>
         </Routes>
       </div>
