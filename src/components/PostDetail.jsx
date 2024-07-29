@@ -14,6 +14,10 @@ import refreshToken from './refreshToken';
 import PaginationButton from './PaginationButton';
 import LikeButton from './LikeButton';
 
+function getUserIdFromLocalStorage() {
+    return Number(localStorage.getItem('userId'));
+}
+
 const PostDetail = () => {
     const navigate = useNavigate();
     const { id } = useParams();
@@ -295,7 +299,7 @@ const PostDetail = () => {
 
             alert('게시물이 삭제되었습니다.');
             navigate('/community');
-
+            
         } catch (error) {
             if (error.response?.status === 401) {
                 try {
@@ -313,18 +317,40 @@ const PostDetail = () => {
     };
 
 
-
-    const handleReportModal = async () => {
+    const handleReportModal = async ({ text }) => {
         setIsReporting(false);
+
+        // 현재 포스트의 작성자 ID를 가져오기
+        const postUserId = post.postUserId;
+        const currentUserId = getUserIdFromLocalStorage();
+
+        if (currentUserId === postUserId) {
+            alert('자신의 게시물을 신고할 수 없습니다.');
+            return;
+        }
+
         try {
-            await axios.post('http://localhost:8080/api/report', { userId: userName }, {
-                headers: {
-                    'Authorization': 'Bearer your-auth-token' // 실제 토큰으로 대체
-                }
-            });
+            const token = getAuthTokenFromLocalStorage();
+            if (!token) {
+                throw new Error('로그인이 필요합니다.');
+            }
+            console.log(token, postUserId)
+            await axios.post(`http://localhost:8080/api/reports/users/${postUserId}`,
+                { reportIssue: text }, // 신고 사유를 포함한 요청 본문
+                { headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' } }
+            );
             alert('유저 신고가 접수되었습니다.');
             navigate('/community');
         } catch (error) {
+            if (error.response?.status === 401) {
+                try {
+                    await handleTokenRefresh(handleReportModal, { text });
+                } catch (refreshError) {
+                    console.error('토큰 갱신 중 오류:', refreshError);
+                    alert('토큰 갱신 중 오류가 발생했습니다. 다시 로그인해 주세요.');
+                    window.location.href = '/login';
+                }
+            }
             console.error("유저 신고 중 오류:", error);
             alert("유저 신고에 실패했습니다.");
         }
@@ -340,6 +366,9 @@ const PostDetail = () => {
         return <div>게시물을 찾을 수 없습니다.</div>;
     }
 
+    const currentUserId = getUserIdFromLocalStorage();
+    const isOwner = currentUserId === post.postUserId;
+
     return (
         <div className={styles.container}>
             <main className={styles.mainContent}>
@@ -347,8 +376,12 @@ const PostDetail = () => {
                     <div className={styles.postHeader}>
                         <span className={styles.postTitle}>{post.title}</span>
                         <div className={styles.icons}>
-                            <MdEdit className={styles.editIcon} onClick={handleEditClick} title="게시물 수정" />
-                            <FaTrashAlt className={styles.deleteIcon} onClick={handleDeleteClick} title="게시물 삭제" />
+                            {isOwner && (
+                                <>
+                                    <MdEdit className={styles.editIcon} onClick={handleEditClick} title="게시물 수정" />
+                                    <FaTrashAlt className={styles.deleteIcon} onClick={handleDeleteClick} title="게시물 삭제" />
+                                </>
+                            )}
                             <GoAlertFill className={styles.reportIcon} onClick={handleReportClick} title="해당 게시물 유저 신고" />
                         </div>
                     </div>
@@ -394,11 +427,10 @@ const PostDetail = () => {
                     )}
                     {isReporting && (
                         <ReportModal
-                            content={<div><strong>"{userName}"</strong> 유저 신고를 원하시나요? <br /> 아래 사유를 작성해주세요.</div>}
-                            userName={userName}
+                            userName={post.nickname}
+                            content={<div><strong>"{post.nickname}"</strong> 유저 신고를 원하시나요? <br /> 아래 사유를 작성해주세요.</div>}
                             onClose={handleCloseModal}
                             onSave={handleReportModal}
-                            confirmText="신고"
                         />
                     )}
                 </div>

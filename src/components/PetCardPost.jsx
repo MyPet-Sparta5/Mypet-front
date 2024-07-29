@@ -18,6 +18,10 @@ function getAuthTokenFromLocalStorage() {
   return localStorage.getItem('accessToken');
 }
 
+function getUserIdFromLocalStorage() {
+  return Number(localStorage.getItem('userId'));
+}
+
 const PetCardPost = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -173,29 +177,43 @@ const PetCardPost = () => {
   };
 
 
-  const handleReportModal = async () => {
+  const handleReportModal = async ({ text }) => {
     setIsReporting(false);
+
+    // 현재 포스트의 작성자 ID를 가져오기
+    const postUserId = post.postUserId;
+    const currentUserId = getUserIdFromLocalStorage();
+
+    if (currentUserId === postUserId) {
+      alert('자신의 게시물을 신고할 수 없습니다.');
+      return;
+    }
+
     try {
       const token = getAuthTokenFromLocalStorage();
       if (!token) {
-        alert('로그인이 필요합니다.');
-        return;
+        throw new Error('로그인이 필요합니다.');
       }
-
-      await axios.post('http://localhost:8080/api/report', { userId: userName }, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      console.log(token, postUserId)
+      await axios.post(`http://localhost:8080/api/reports/users/${postUserId}`,
+        { reportIssue: text }, // 신고 사유를 포함한 요청 본문
+        { headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' } }
+      );
       alert('유저 신고가 접수되었습니다.');
       navigate('/community');
     } catch (error) {
-      if (error.response && error.response.status === 401) {
-        await handleUnauthorizedError();
-      } else {
-        console.error("유저 신고 중 오류:", error);
-        alert("유저 신고에 실패했습니다.");
+      if (error.response?.status === 401) {
+        try {
+          await refreshToken();
+          await handleReportModal();
+        } catch (refreshError) {
+          console.error('토큰 갱신 중 오류:', refreshError);
+          alert('토큰 갱신 중 오류가 발생했습니다. 다시 로그인해 주세요.');
+          window.location.href = '/login';
+        }
       }
+      console.error("유저 신고 중 오류:", error);
+      alert("유저 신고에 실패했습니다.");
     }
   };
 
@@ -215,6 +233,10 @@ const PetCardPost = () => {
     return <div>게시물을 찾을 수 없습니다.</div>;
   }
 
+
+  const currentUserId = getUserIdFromLocalStorage();
+  const isOwner = currentUserId === post.postUserId;
+
   return (
     <div className="card">
       <div className="card-header">
@@ -223,8 +245,12 @@ const PetCardPost = () => {
           <span className="card-title">{post.title}</span>
         </div>
         <div className={styles.icons}>
-          <MdEdit className={styles.editIcon} onClick={handleEditClick} title="게시물 수정" />
-          <FaTrashAlt className={styles.deleteIcon} onClick={handleDeleteClick} title="게시물 삭제" />
+          {isOwner && (
+            <>
+              <MdEdit className={styles.editIcon} onClick={handleEditClick} title="게시물 수정" />
+              <FaTrashAlt className={styles.deleteIcon} onClick={handleDeleteClick} title="게시물 삭제" />
+            </>
+          )}
           <GoAlertFill className={styles.reportIcon} onClick={handleReportClick} title="해당 게시물 유저 신고" />
         </div>
       </div>
@@ -261,11 +287,10 @@ const PetCardPost = () => {
       )}
       {isReporting && (
         <ReportModal
-          content={<div><strong>"{userName}"</strong> 유저 신고를 원하시나요? <br /> 아래 사유를 작성해주세요.</div>}
-          userName={userName} // 이부분은 API 연동할 때 userId로 수정해주세요.
+          userName={post.nickname}
+          content={<div><strong>"{post.nickname}"</strong> 유저 신고를 원하시나요? <br /> 아래 사유를 작성해주세요.</div>}
           onClose={handleCloseModal}
           onSave={handleReportModal}
-          confirmText="신고"
         />
       )}
     </div>
