@@ -249,28 +249,28 @@ const PostDetail = () => {
             if (!token) {
                 throw new Error('로그인이 필요합니다.');
             }
-            // 게시물 수정 요청
+
             await axios.put(`http://localhost:8080/api/posts/${id}`, { category, title, content }, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
+
             setPost(prevState => ({
                 ...prevState,
-                title: title,
-                content: content,
-                category: category,
+                title,
+                content,
+                category,
             }));
             alert(`게시물 수정 완료: ${title}`);
             setIsEditing(false);
+
         } catch (error) {
-            // 토큰 만료 시 토큰 갱신 시도
-            if (error.response && error.response.status === 401) {
+            if (error.response?.status === 401) {
                 try {
-                    await refreshToken(); // 리프레시 토큰으로 액세스 토큰 갱신
-                    handleSaveModal({ category, title, content });
+                    await handleTokenRefresh(handleSaveModal, { category, title, content });
                 } catch (refreshError) {
                     console.error('토큰 갱신 중 오류:', refreshError);
                     alert('토큰 갱신 중 오류가 발생했습니다. 다시 로그인해 주세요.');
-                    window.location.href = '/login'; // 로그인 페이지로 리다이렉트
+                    window.location.href = '/login';
                 }
             } else {
                 console.error('Error saving post:', error);
@@ -279,21 +279,40 @@ const PostDetail = () => {
         }
     };
 
+
     const handleConfirmDelete = async () => {
         setIsDeleting(false);
+
         try {
+            const token = getAuthTokenFromLocalStorage();
+            if (!token) {
+                throw new Error('로그인이 필요합니다.');
+            }
+
             await axios.delete(`http://localhost:8080/api/posts/${id}`, {
-                headers: {
-                    'Authorization': 'Bearer your-auth-token' // 실제 토큰으로 대체
-                }
+                headers: { 'Authorization': `Bearer ${token}` }
             });
+
             alert('게시물이 삭제되었습니다.');
             navigate('/community');
+
         } catch (error) {
-            console.error("게시물 삭제 중 오류:", error);
-            alert("게시물 삭제에 실패했습니다.");
+            if (error.response?.status === 401) {
+                try {
+                    await handleTokenRefresh(handleConfirmDelete);
+                } catch (refreshError) {
+                    console.error('토큰 갱신 중 오류:', refreshError);
+                    alert('토큰 갱신 중 오류가 발생했습니다. 다시 로그인해 주세요.');
+                    window.location.href = '/login';
+                }
+            } else {
+                console.error('Error deleting post:', error);
+                alert("게시물 삭제에 실패했습니다.");
+            }
         }
     };
+
+
 
     const handleReportModal = async () => {
         setIsReporting(false);

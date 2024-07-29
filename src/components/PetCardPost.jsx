@@ -100,44 +100,54 @@ const PetCardPost = () => {
       alert("모든 필드를 입력해주세요.");
       return;
     }
-    try {
-      const token = getAuthTokenFromLocalStorage();
-      if (!token) {
-        alert('로그인이 필요합니다.');
-        return;
-      }
 
+    const updatePost = async (token) => {
       await axios.put(`http://localhost:8080/api/posts/${id}`, { category, title, content }, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+        headers: { 'Authorization': `Bearer ${token}` }
       });
-      setPost(prevState => ({
-        ...prevState,
-        title: title,
-        content: content,
-        category: category,
-      }));
-      alert(`게시물 수정 완료: ${title}`);
-      setIsEditing(false);
-    } catch (error) {
-      if (error.response && error.response.status === 401) {
-        try {
-          await refreshToken();
-          handleSaveModal({ category, title, content });
-        } catch (refreshError) {
-          alert('토큰 갱신 중 오류가 발생했습니다. 다시 로그인해 주세요.');
-          window.location.href = '/login'; // 로그인 페이지로 리다이렉트
+    };
+
+    const handleUpdatePost = async () => {
+      try {
+        const token = getAuthTokenFromLocalStorage();
+        if (!token) {
+          throw new Error('로그인이 필요합니다.');
         }
-      } else {
-        console.error('Error saving post:', error);
-        alert("게시물 수정에 실패했습니다.");
+
+        await updatePost(token);
+
+        setPost(prevState => ({
+          ...prevState,
+          title,
+          content,
+          category,
+        }));
+        alert(`게시물 수정 완료: ${title}`);
+        setIsEditing(false);
+      } catch (error) {
+        if (error.response?.status === 401) {
+          try {
+            await refreshToken();
+            await handleUpdatePost();
+          } catch (refreshError) {
+            console.error('토큰 갱신 중 오류:', refreshError);
+            alert('토큰 갱신 중 오류가 발생했습니다. 다시 로그인해 주세요.');
+            window.location.href = '/login';
+          }
+        } else {
+          console.error('Error saving post:', error);
+          alert("게시물 수정에 실패했습니다.");
+        }
       }
-    }
+    };
+
+    await handleUpdatePost();
   };
+
 
   const handleConfirmDelete = async () => {
     setIsDeleting(false);
+
     try {
       const token = getAuthTokenFromLocalStorage();
       if (!token) {
@@ -146,14 +156,14 @@ const PetCardPost = () => {
       }
 
       await axios.delete(`http://localhost:8080/api/posts/${id}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+        headers: { 'Authorization': `Bearer ${token}` }
       });
+
       alert('게시물이 삭제되었습니다.');
       navigate('/community');
+
     } catch (error) {
-      if (error.response && error.response.status === 401) {
+      if (error.response?.status === 401) {
         await handleUnauthorizedError();
       } else {
         console.error("게시물 삭제 중 오류:", error);
@@ -161,6 +171,7 @@ const PetCardPost = () => {
       }
     }
   };
+
 
   const handleReportModal = async () => {
     setIsReporting(false);
