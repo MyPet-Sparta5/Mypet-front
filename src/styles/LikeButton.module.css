@@ -1,0 +1,10 @@
+.likeIcon {
+    font-size: 15px;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.liked {
+    color: #fe0028;
+    /* 하트가 클릭되었을 때 빨간색 */
+}
