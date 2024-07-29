@@ -11,6 +11,11 @@ import DeleteModal from './DeleteModal';
 import ReportModal from './ReportModal';
 import styles from '../styles/PostDetail.module.css';
 import '../styles/PetCardPost.css';
+import refreshToken from './refreshToken';
+
+function getAuthTokenFromLocalStorage() {
+  return localStorage.getItem('accessToken');
+}
 
 const PetCardPost = () => {
   const navigate = useNavigate();
@@ -29,24 +34,42 @@ const PetCardPost = () => {
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/api/posts/${id}`);
+        const token = getAuthTokenFromLocalStorage();
+        const response = await axios.get(`http://localhost:8080/api/posts/${id}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
         const postData = response.data.data;
         setPost(postData);
         setTitle(postData.title);
         setContent(postData.content);
         setCategory(postData.category);
         setUser(postData.nickname);
-        setFileUrls(postData.files && postData.files.length > 0 
+        setFileUrls(postData.files && postData.files.length > 0
           ? postData.files.map(file => file.url)
           : []);
         setLiked(postData.like);
       } catch (error) {
         console.error('Error fetching post:', error);
+        if (error.response && error.response.status === 401) {
+          await handleUnauthorizedError();
+        }
       }
     };
 
     fetchPost();
   }, [id]);
+
+  const handleUnauthorizedError = async () => {
+    try {
+      await refreshToken(); // 리프레시 토큰으로 액세스 토큰 갱신
+      window.location.reload(); // 페이지 새로고침하여 원래 요청 재시도
+    } catch (refreshError) {
+      console.error('토큰 갱신 중 오류:', refreshError);
+      window.location.href = '/login'; // 로그인 페이지로 리다이렉트
+    }
+  };
 
   const handleEditClick = () => {
     setIsEditing(true);
@@ -58,7 +81,7 @@ const PetCardPost = () => {
 
   const handleReportClick = () => {
     setIsReporting(true);
-  }
+  };
 
   const handleCloseModal = () => {
     setIsEditing(false);
@@ -72,9 +95,15 @@ const PetCardPost = () => {
       return;
     }
     try {
+      const token = getAuthTokenFromLocalStorage();
+      if (!token) {
+        alert('로그인이 필요합니다.');
+        return;
+      }
+
       await axios.put(`http://localhost:8080/api/posts/${id}`, { category, title, content }, {
         headers: {
-          'Authorization': 'Bearer your-auth-token' // 실제 토큰으로 대체
+          'Authorization': `Bearer ${token}`
         }
       });
       setTitle(title);
@@ -83,40 +112,80 @@ const PetCardPost = () => {
       alert(`게시물 수정 완료: ${title}`);
       setIsEditing(false);
     } catch (error) {
-      console.error('Error saving post:', error);
-      alert("게시물 수정에 실패했습니다.");
+      if (error.response && error.response.status === 401) {
+        try {
+          await refreshToken(); // 리프레시 토큰으로 액세스 토큰 갱신
+          const newToken = getAuthTokenFromLocalStorage(); // 갱신된 액세스 토큰 가져오기
+          await axios.put(`http://localhost:8080/api/posts/${id}`, { category, title, content }, {
+            headers: {
+              'Authorization': `Bearer ${newToken}`
+            }
+          });
+          setTitle(title);
+          setContent(content);
+          setCategory(category);
+          alert(`게시물 수정 완료: ${title}`);
+          setIsEditing(false);
+        } catch (refreshError) {
+          alert('토큰 갱신 중 오류가 발생했습니다. 다시 로그인해 주세요.');
+          window.location.href = '/login'; // 로그인 페이지로 리다이렉트
+        }
+      } else {
+        console.error('Error saving post:', error);
+        alert("게시물 수정에 실패했습니다.");
+      }
     }
   };
 
   const handleConfirmDelete = async () => {
     setIsDeleting(false);
     try {
+      const token = getAuthTokenFromLocalStorage();
+      if (!token) {
+        alert('로그인이 필요합니다.');
+        return;
+      }
+
       await axios.delete(`http://localhost:8080/api/posts/${id}`, {
         headers: {
-          'Authorization': 'Bearer your-auth-token' // 실제 토큰으로 대체
+          'Authorization': `Bearer ${token}`
         }
       });
       alert('게시물이 삭제되었습니다.');
       navigate('/community');
     } catch (error) {
-      console.error("게시물 삭제 중 오류:", error);
-      alert("게시물 삭제에 실패했습니다.");
+      if (error.response && error.response.status === 401) {
+        await handleUnauthorizedError();
+      } else {
+        console.error("게시물 삭제 중 오류:", error);
+        alert("게시물 삭제에 실패했습니다.");
+      }
     }
   };
 
   const handleReportModal = async () => {
     setIsReporting(false);
     try {
+      const token = getAuthTokenFromLocalStorage();
+      if (!token) {
+        alert('로그인이 필요합니다.');
+        return;
+      }
+
       await axios.post('http://localhost:8080/api/report', { userId: userName }, {
         headers: {
-          'Authorization': 'Bearer your-auth-token' // 실제 토큰으로 대체
+          'Authorization': `Bearer ${token}`
         }
       });
       alert('유저 신고가 접수되었습니다.');
       navigate('/community');
     } catch (error) {
-      console.error("유저 신고 중 오류:", error);
-      alert("유저 신고에 실패했습니다.");
+      if (error.response && error.response.status === 401) {
+        await handleUnauthorizedError();
+      } else {
+        console.error("유저 신고 중 오류:", error);
+        alert("유저 신고에 실패했습니다.");
+      }
     }
   };
 
