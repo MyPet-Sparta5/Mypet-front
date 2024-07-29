@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import styles from '../styles/PostDetail.module.css';
@@ -11,12 +11,14 @@ import Comment from '../components/Comment';
 import PostEditModal from './PostEditModal';
 import DeleteModal from './DeleteModal';
 import ReportModal from './ReportModal';
+import refreshToken from './refreshToken';
+import PaginationButton from './PaginationButton';
+import debounce from 'lodash/debounce';
 
 const PostDetail = () => {
     const navigate = useNavigate();
     const { id } = useParams();
     const [post, setPost] = useState(null);
-    const [comments, setComments] = useState([]); // 댓글 상태를 빈 배열로 초기화
     const [isEditing, setIsEditing] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [isReporting, setIsReporting] = useState(false);
@@ -27,9 +29,34 @@ const PostDetail = () => {
     const [userName, setUser] = useState('');
     const [liked, setLiked] = useState(false); // 좋아요 상태
 
+    const [likeCount, setLikeCount] = useState(0);
+    const [comments, setComments] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+
     const commentInput = useRef();
 
+    function getAuthTokenFromLocalStorage() {
+        return localStorage.getItem('accessToken');
+    }
+
+    //#region 댓글 가져오기
+    const fetchComments = useCallback(async (page) => {
+        try {
+            const response = await axios.get(`http://localhost:8080/api/posts/${id}/comments?page=${page}&size=10`);
+            const { comments, pageInfo } = response.data.data;
+            setComments(comments);
+            setCurrentPage(pageInfo.pageNumber + 1);
+            setTotalPages(pageInfo.totalPages);
+        } catch (error) {
+            console.error('Error fetching comments:', error);
+        }
+    }, [id]);
+
+    //#endregion
+
     useEffect(() => {
+
         const fetchPostDetails = async () => {
             try {
                 // 게시물 세부 정보 가져오기
@@ -41,7 +68,7 @@ const PostDetail = () => {
                 setCategory(postData.category);
                 setUser(postData.nickname);
                 setLiked(postData.like);
-                // 댓글은 일단 API 연동하지 않음, 빈 배열로 초기화
+                setLikeCount(postData.likeCount);
             } catch (error) {
                 console.error('Error fetching post details:', error);
             }
@@ -49,6 +76,155 @@ const PostDetail = () => {
 
         fetchPostDetails();
     }, [id]);
+
+    useEffect(() => {
+        fetchComments(currentPage);
+    }, [currentPage, fetchComments]);
+
+
+    //#region Like 연동
+
+    const debouncedToggleLikeRef = useRef();
+
+    const toggleLike = useCallback(async () => {
+        try {
+            if (liked) {
+                // 좋아요 취소
+                await axios.delete(`http://localhost:8080/api/posts/${id}/likes`, {
+                    headers: {
+                        'Authorization': 'Bearer your-auth-token'
+                    }
+                });
+            } else {
+                // 좋아요 추가
+                await axios.post(`http://localhost:8080/api/posts/${id}/likes`, {}, {
+                    headers: {
+                        'Authorization': 'Bearer your-auth-token'
+                    }
+                });
+            }
+            setLiked(!liked);
+            setLikeCount(prevCount => liked ? prevCount - 1 : prevCount + 1);
+        } catch (error) {
+            console.error('Error toggling like:', error);
+            alert('좋아요 처리에 실패했습니다.');
+        }
+    }, [id, liked]);
+
+    debouncedToggleLikeRef.current = debounce(toggleLike, 300);
+
+    const handleToggleLike = () => {
+        debouncedToggleLikeRef.current();
+    };
+
+    //#endregion
+
+    //#region 토큰 갱신
+    const handleTokenRefresh = async (retryFunc, ...args) => {
+        try {
+            await refreshToken();
+            const newToken = getAuthTokenFromLocalStorage();
+            return await retryFunc(newToken, ...args);
+        } catch (refreshError) {
+            console.error('Token refresh error:', refreshError);
+            throw new Error('토큰 갱신 중 오류가 발생했습니다.');
+        }
+    };
+    //#endregion
+
+    //#region 댓글 작성
+
+    const handleSendClick = async () => {
+        const newComment = commentInput.current.value.trim();
+        if (!newComment) return;
+    
+        try {
+            await postComment(newComment);
+            commentInput.current.value = "";
+            await fetchComments(currentPage);
+        } catch (error) {
+            console.error('Error sending comment:', error);
+            alert(error.message || '댓글 작성에 실패했습니다.');
+        }
+    };
+    
+    const postComment = async (content) => {
+        const token = getAuthTokenFromLocalStorage();
+        if (!token) {
+            throw new Error('로그인이 필요합니다.');
+        }
+    
+        try {
+            await sendCommentRequest(token, content);
+        } catch (error) {
+            if (error.response?.status === 401) {
+                await handleTokenRefresh(sendCommentRequest, content);
+            } else {
+                throw error;
+            }
+        }
+    };
+    
+    const sendCommentRequest = async (token, content) => {
+        await axios.post(`http://localhost:8080/api/posts/${id}/comments`, 
+            { content }, 
+            { headers: { 'Authorization': `Bearer ${token}` } }
+        );
+    };
+
+    //#endregion
+
+
+    // 댓글 페이지 변경
+    const handlePageChange = (newPage) => {
+        if (newPage !== currentPage) {
+            setCurrentPage(newPage);
+        }
+    };
+
+    //#region 댓글 삭제
+    const handleDeleteComment = async (commentId) => {
+        try {
+            console.log(commentId);
+            await deleteComment(commentId);
+            await fetchComments(currentPage);
+            alert('댓글이 삭제되었습니다.');
+        } catch (error) {
+            console.error('Error deleting comment:', error);
+            if (error.response?.status === 400) {
+                alert('본인의 댓글만 삭제할 수 있습니다.');
+            } else {
+                alert('댓글 삭제에 실패했습니다.');
+            }
+        }
+    };
+    
+    const deleteComment = async (commentId) => {
+        const token = getAuthTokenFromLocalStorage();
+        if (!token) {
+            throw new Error('로그인이 필요합니다.');
+        }
+    
+        try {
+            await sendDeleteRequest(token, commentId);
+        } catch (error) {
+            if (error.response?.status === 401) {
+                await handleTokenRefresh(sendDeleteRequest, commentId);
+            } else {
+                throw error;
+            }
+        }
+    };
+    
+    const sendDeleteRequest = async (token, commentId) => {
+        await axios.delete(`http://localhost:8080/api/comments/${commentId}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+    };
+    
+    //#endregion
+
+    //#region Modal handler
 
     const handleEditClick = () => {
         setIsEditing(true);
@@ -67,6 +243,9 @@ const PostDetail = () => {
         setIsDeleting(false);
         setIsReporting(false);
     };
+
+    //#endregion
+
 
     const handleSaveModal = async ({ category, title, content }) => {
         if (!title || !content || !category) {
@@ -122,31 +301,7 @@ const PostDetail = () => {
         }
     };
 
-    const handleSendClick = () => {
-        const newComment = commentInput.current.value.trim();
-        if (newComment) {
-            setComments([...comments, { text: newComment }]); // 댓글 추가
-            commentInput.current.value = "";
-        }
-    };
 
-    const handleDeleteComment = (index) => {
-        setComments(comments.filter((_, i) => i !== index));
-    };
-
-    const toggleLike = async () => {
-        try {
-            await axios.post(`http://localhost:8080/api/posts/${id}/like`, {}, {
-                headers: {
-                    'Authorization': 'Bearer your-auth-token' // 실제 토큰으로 대체
-                }
-            });
-            setLiked(!liked);
-        } catch (error) {
-            console.error('Error toggling like:', error);
-            alert('좋아요 처리에 실패했습니다.');
-        }
-    };
 
     const handleBoardClick = () => {
         navigate('/community');
@@ -176,14 +331,14 @@ const PostDetail = () => {
                                     {liked ? (
                                         <FaHeart
                                             className={`${styles.likeIcon} ${styles.liked}`}
-                                            onClick={toggleLike}
+                                            onClick={handleToggleLike}
                                         />
                                     ) : (
                                         <FaRegHeart
                                             className={styles.likeIcon}
-                                            onClick={toggleLike}
+                                            onClick={handleToggleLike}
                                         />
-                                    )} <strong> {post.likeCount} </strong> likes
+                                    )} <strong> {likeCount} </strong> likes
                                 </div>
                             </div>
                             <div className={styles.infoRow}>
@@ -230,10 +385,15 @@ const PostDetail = () => {
                     {comments.map((comment, index) => (
                         <Comment
                             key={index}
-                            text={comment.text}
-                            onDelete={() => handleDeleteComment(index)}
+                            text={comment.content}
+                            onDelete={() => handleDeleteComment(comment.id)}
                         />
                     ))}
+                    <PaginationButton
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={handlePageChange}
+                    />
                     <div className={styles.commentInputContainer}>
                         <input
                             className={styles.commentInput}
