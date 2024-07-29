@@ -15,6 +15,10 @@ import refreshToken from './refreshToken';
 import PaginationButton from './PaginationButton';
 import debounce from 'lodash/debounce';
 
+function getAuthTokenFromLocalStorage() {
+  return localStorage.getItem('accessToken');
+}
+
 const PostDetail = () => {
     const navigate = useNavigate();
     const { id } = useParams();
@@ -252,11 +256,15 @@ const PostDetail = () => {
             alert("모든 필드를 입력해주세요.");
             return;
         }
+    
         try {
+            const token = getAuthTokenFromLocalStorage();
+            if (!token) {
+                throw new Error('로그인이 필요합니다.');
+            }
+            // 게시물 수정 요청
             await axios.put(`http://localhost:8080/api/posts/${id}`, { category, title, content }, {
-                headers: {
-                    'Authorization': 'Bearer your-auth-token' // 실제 토큰으로 대체
-                }
+                headers: { 'Authorization': `Bearer ${token}` }
             });
             setTitle(title);
             setContent(content);
@@ -264,8 +272,20 @@ const PostDetail = () => {
             alert(`게시물 수정 완료: ${title}`);
             setIsEditing(false);
         } catch (error) {
-            console.error('Error saving post:', error);
-            alert("게시물 수정에 실패했습니다.");
+            // 토큰 만료 시 토큰 갱신 시도
+            if (error.response && error.response.status === 401) {
+                try {
+                    await refreshToken(); // 리프레시 토큰으로 액세스 토큰 갱신
+                    handleSaveModal({ category, title, content });
+                } catch (refreshError) {
+                    console.error('토큰 갱신 중 오류:', refreshError);
+                    alert('토큰 갱신 중 오류가 발생했습니다. 다시 로그인해 주세요.');
+                    window.location.href = '/login'; // 로그인 페이지로 리다이렉트
+                }
+            } else {
+                console.error('Error saving post:', error);
+                alert("게시물 수정에 실패했습니다.");
+            }
         }
     };
 
