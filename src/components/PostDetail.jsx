@@ -276,15 +276,7 @@ const PostDetail = () => {
             if (error.response && error.response.status === 401) {
                 try {
                     await refreshToken(); // 리프레시 토큰으로 액세스 토큰 갱신
-                    const newToken = getAuthTokenFromLocalStorage();
-                    await axios.put(`http://localhost:8080/api/posts/${id}`, { category, title, content }, {
-                        headers: { 'Authorization': `Bearer ${newToken}` }
-                    });
-                    setTitle(title);
-                    setContent(content);
-                    setCategory(category);
-                    alert(`게시물 수정 완료: ${title}`);
-                    setIsEditing(false);
+                    handleSaveModal({ category, title, content });
                 } catch (refreshError) {
                     console.error('토큰 갱신 중 오류:', refreshError);
                     alert('토큰 갱신 중 오류가 발생했습니다. 다시 로그인해 주세요.');
