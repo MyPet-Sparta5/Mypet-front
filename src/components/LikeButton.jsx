@@ -2,7 +2,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { FaRegHeart, FaHeart } from 'react-icons/fa';
 import axios from 'axios';
-import refreshToken from './refreshToken';
+import RefreshToken from './refreshToken';
 import debounce from 'lodash/debounce';
 import styles from '../styles/LikeButton.module.css'; // 스타일 파일 생성 필요
 
@@ -16,12 +16,11 @@ const LikeButton = ({ postId, initialLiked, initialLikeCount, onLikeChange }) =>
 
     const handleTokenRefresh = useCallback(async (retryFunc) => {
         try {
-            await refreshToken();
+            await RefreshToken();
             const newToken = getAuthTokenFromLocalStorage();
             return await retryFunc(newToken);
-        } catch (refreshError) {
-            console.error('Token refresh error:', refreshError);
-            throw new Error('토큰 갱신 중 오류가 발생했습니다.');
+        } catch {
+            console.error('Token refresh error');
         }
     }, []);
 
@@ -53,11 +52,10 @@ const LikeButton = ({ postId, initialLiked, initialLikeCount, onLikeChange }) =>
             }
         } catch (error) {
             console.error('Error toggling like:', error);
-            if (error.response?.status === 401) {
+            if (error.response?.status === 401 && error.response.data.data === 'Expired-Token') {
                 try {
                     await handleTokenRefresh(toggleLike);
-                } catch (refreshError) {
-                    console.error('Token refresh failed:', refreshError);
+                } catch {
                     alert('인증에 실패했습니다. 다시 로그인해주세요.');
                 }
             } else {
