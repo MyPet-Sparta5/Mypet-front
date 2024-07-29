@@ -1,5 +1,5 @@
 import React from 'react';
-import { useRef, useEffect } from 'react'
+import { useRef } from 'react';
 import styles from '../styles/Login.module.css';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -27,7 +27,7 @@ function Login() {
                 withCredentials: true // 쿠키 허용
             });
 
-            if (response.status == 200) {
+            if (response.status === 200) {
                 const accessToken = response.headers['authorization']; // 서버에서는  대소문자 구분되지만, 클라이언트는 구분 X
 
                 if (accessToken) {

@@ -1,9 +1,6 @@
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 
-const RefreshToken = async () => {
-    const navigate = useNavigate();
-
+const RefreshToken = async (navigate) => {
     try {
         // refresh token을 포함한 요청을 서버로 보냄
         const response = await axios.post(
@@ -26,9 +23,13 @@ const RefreshToken = async () => {
         localStorage.removeItem('nickname');
         localStorage.removeItem('userRole');
         localStorage.removeItem('userId');
-        
+
         alert('로그인이 만료되었습니다. 다시 로그인 해주세요!');
-        navigate('/login'); // 로그인 페이지로 이동
+
+        // 로그인 페이지로 이동
+        navigate('/login');
+        window.location.reload();
+        throw new Error('토큰 재발급 실패!!', error.response.data.message);
     }
 };
 

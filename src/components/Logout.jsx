@@ -1,5 +1,5 @@
 import axios from 'axios';
-import RefreshToken from './refreshToken';
+import RefreshToken from './RefreshToken';
 
 const handleLogout = async (navigate) => {
 
@@ -39,8 +39,12 @@ const handleLogout = async (navigate) => {
 
     // 에러 상태코드 '401' 이고, 서버의 응답 데이터가 'Expired-Token'인 경우 토큰 리프레쉬
     if (error.response?.status === 401 && error.response.data.data === 'Expired-Token') {
-      await RefreshToken();
-      handleLogout(navigate); // 다시 수행하고 있던 함수 재호출
+      try {
+        await RefreshToken(navigate);
+        handleLogout(navigate); // 다시 수행하고 있던 함수 재호출
+      } catch (refreshError) {
+        console.error('Token refresh error:', refreshError);
+      }
     } else {
       alert(`${error.response.data.message}` || '로그아웃 중 오류가 발생했습니다.');
     }
