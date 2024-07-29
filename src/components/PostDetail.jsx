@@ -120,12 +120,13 @@ const PostDetail = () => {
     //#endregion
 
     //#region 토큰 갱신
-    const handleTokenRefresh = async (retryFunc) => {
+    const handleTokenRefresh = async (retryFunc, ...args) => {
         try {
             await refreshToken();
             const newToken = getAuthTokenFromLocalStorage();
-            await retryFunc(newToken);
+            return await retryFunc(newToken, ...args);
         } catch (refreshError) {
+            console.error('Token refresh error:', refreshError);
             throw new Error('토큰 갱신 중 오류가 발생했습니다.');
         }
     };
@@ -154,17 +155,17 @@ const PostDetail = () => {
         }
     
         try {
-            await sendCommentRequest(content, token);
+            await sendCommentRequest(token, content);
         } catch (error) {
             if (error.response?.status === 401) {
-                await handleTokenRefresh(() => sendCommentRequest(content));
+                await handleTokenRefresh(sendCommentRequest, content);
             } else {
                 throw error;
             }
         }
     };
     
-    const sendCommentRequest = async (content, token) => {
+    const sendCommentRequest = async (token, content) => {
         await axios.post(`http://localhost:8080/api/posts/${id}/comments`, 
             { content }, 
             { headers: { 'Authorization': `Bearer ${token}` } }
@@ -205,17 +206,17 @@ const PostDetail = () => {
         }
     
         try {
-            await sendDeleteRequest(commentId, token);
+            await sendDeleteRequest(token, commentId);
         } catch (error) {
             if (error.response?.status === 401) {
-                await handleTokenRefresh(() => sendDeleteRequest(commentId));
+                await handleTokenRefresh(sendDeleteRequest, commentId);
             } else {
                 throw error;
             }
         }
     };
     
-    const sendDeleteRequest = async (commentId, token) => {
+    const sendDeleteRequest = async (token, commentId) => {
         await axios.delete(`http://localhost:8080/api/comments/${commentId}`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
