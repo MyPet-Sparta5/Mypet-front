@@ -4,6 +4,7 @@ import PaginationButton from '../components/PaginationButton';
 import UserRoleModal from '../components/UserRoleModal';
 import UserStatusModal from '../components/UserStatusModal';
 import axios from 'axios';
+import refreshAccessToken from './refreshToken';
 
 const UserList = () => {
     const [users, setUsers] = useState([]);
@@ -16,26 +17,41 @@ const UserList = () => {
     const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
 
     const axiosInstance = axios.create({
-        baseURL: 'http://localhost:8080', // API 기본 URL 설정
+        baseURL: 'http://localhost:8080',
         headers: {
             'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
             'Content-Type': 'application/json'
-        }
+        },
+        withCredentials: true
     });
+
+    const handleApiCall = async (apiCall) => {
+        try {
+            return await apiCall();
+        } catch (error) {
+            if (error.response && error.response.status === 401 && error.response.data.data === 'Expired-Token') {
+                await refreshAccessToken();
+                // 토큰 갱신 후 헤더 업데이트
+                axiosInstance.defaults.headers['Authorization'] = `Bearer ${localStorage.getItem('accessToken')}`;
+                return await apiCall();
+            }
+            throw error;
+        }
+    };
 
     const fetchUsers = async (page) => {
         try {
-            const response = await axiosInstance.get('/api/admin/user-manage', {
+            const response = await handleApiCall(() => axiosInstance.get('/api/admin/user-manage', {
                 params: {
                     page: currentPage,
                     pageSize: usersPerPage,
                     sortBy: 'createdAt,desc'
                 }
-            });
+            }));
             const data = response.data;
             const usersWithFormattedRoles = data.data.content.map(user => ({
                 ...user,
-                userRole: user.userRole.replace('ROLE_', '') // 'ROLE_' 접두사 제거
+                userRole: user.userRole.replace('ROLE_', '')
             }));
             setUsers(usersWithFormattedRoles);
             setTotalPages(data.data.totalPages);
@@ -64,12 +80,12 @@ const UserList = () => {
 
     const handleRoleSave = async (newRole) => {
         try {
-            const response = await axiosInstance.put(`/api/admin/user-manage/${selectedUser.id}/role`, {
+            const response = await handleApiCall(() => axiosInstance.put(`/api/admin/user-manage/${selectedUser.id}/role`, {
                 role: newRole
-            });
+            }));
 
             if (response.status === 200) {
-                fetchUsers(currentPage); // Update user list after saving role
+                fetchUsers(currentPage);
                 alert(`${selectedUser.email} 유저의 권한을 ${newRole}로 변경했습니다`);
             } else {
                 console.error('Failed to save role:', response.data);
@@ -82,12 +98,12 @@ const UserList = () => {
 
     const handleStatusSave = async (newStatus) => {
         try {
-            const response = await axiosInstance.put(`/api/admin/user-manage/${selectedUser.id}/status`, {
+            const response = await handleApiCall(() => axiosInstance.put(`/api/admin/user-manage/${selectedUser.id}/status`, {
                 status: newStatus
-            });
+            }));
 
             if (response.status === 200) {
-                fetchUsers(currentPage); // Update user list after saving status
+                fetchUsers(currentPage);
                 alert(`${selectedUser.email} 유저의 상태를 ${newStatus}로 변경했습니다`);
             } else {
                 console.error('Failed to save status:', response.data);
