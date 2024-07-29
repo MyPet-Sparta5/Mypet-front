@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { FaRegHeart, FaHeart, FaArrowLeft } from 'react-icons/fa';
+import { FaArrowLeft } from 'react-icons/fa';
 import { MdEdit } from 'react-icons/md';
 import { GoAlertFill } from "react-icons/go";
 import { FaTrashAlt } from 'react-icons/fa';
@@ -12,6 +12,7 @@ import ReportModal from './ReportModal';
 import styles from '../styles/PostDetail.module.css';
 import '../styles/PetCardPost.css';
 import refreshToken from './refreshToken';
+import LikeButton from './LikeButton';
 
 function getAuthTokenFromLocalStorage() {
   return localStorage.getItem('accessToken');
@@ -21,35 +22,40 @@ const PetCardPost = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [post, setPost] = useState(null);
-  const [liked, setLiked] = useState(false);
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
   const [userName, setUser] = useState('');
-  const [category, setCategory] = useState('');
   const [fileUrls, setFileUrls] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isReporting, setIsReporting] = useState(false);
 
   useEffect(() => {
-    const fetchPost = async () => {
+    const fetchPost = async (token = null) => {
       try {
-        const token = getAuthTokenFromLocalStorage();
-        const response = await axios.get(`http://localhost:8080/api/posts/${id}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        const postData = response.data.data;
-        setPost(postData);
-        setTitle(postData.title);
-        setContent(postData.content);
-        setCategory(postData.category);
-        setUser(postData.nickname);
+        if (!token) {
+          token = getAuthTokenFromLocalStorage();
+        }
+        const config = {
+          headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+        };
+
+        const postResponse = await axios.get(`http://localhost:8080/api/posts/${id}`, config);
+
+        const postData = postResponse.data.data;
+
+        setPost(prevState => ({
+          ...prevState,
+          ...postData,
+          title: postData.title,
+          content: postData.content,
+          category: postData.category,
+          nickname: postData.nickname,
+          like: postData.like,
+          likeCount: postData.likeCount
+        }));
+
         setFileUrls(postData.files && postData.files.length > 0
           ? postData.files.map(file => file.url)
           : []);
-        setLiked(postData.like);
       } catch (error) {
         console.error('Error fetching post:', error);
         if (error.response && error.response.status === 401) {
@@ -106,9 +112,12 @@ const PetCardPost = () => {
           'Authorization': `Bearer ${token}`
         }
       });
-      setTitle(title);
-      setContent(content);
-      setCategory(category);
+      setPost(prevState => ({
+        ...prevState,
+        title: title,
+        content: content,
+        category: category,
+      }));
       alert(`게시물 수정 완료: ${title}`);
       setIsEditing(false);
     } catch (error) {
@@ -179,20 +188,28 @@ const PetCardPost = () => {
     }
   };
 
-  const toggleLike = () => {
-    setLiked(!liked);
-  };
+  const handleLikeChange = (newLiked, newLikeCount) => {
+    setPost(prevPost => ({
+      ...prevPost,
+      like: newLiked,
+      likeCount: newLikeCount
+    }));
+  }
 
   const handleBoardClick = () => {
     navigate('/community');
   };
+
+  if (!post) {
+    return <div>게시물을 찾을 수 없습니다.</div>;
+  }
 
   return (
     <div className="card">
       <div className="card-header">
         <div>
           <FaArrowLeft className="backButton" onClick={handleBoardClick} />
-          <span className="card-title">{title}</span>
+          <span className="card-title">{post.title}</span>
         </div>
         <div className={styles.icons}>
           <MdEdit className={styles.editIcon} onClick={handleEditClick} title="게시물 수정" />
@@ -203,28 +220,21 @@ const PetCardPost = () => {
       {/* 파일이 있는 경우에만 ImageSlider를 렌더링합니다. */}
       {fileUrls.length > 0 && <ImageSlider fileUrls={fileUrls} />}
       <div className="card-content">
-        <p>{content}</p>
+        <p>{post.content}</p>
       </div>
       <div className="card-footer">
-        <div className="likes-container">
-          {liked ? (
-            <FaHeart
-              className={`${styles.likeIcon} ${styles.liked}`}
-              onClick={toggleLike}
-            />
-          ) : (
-            <FaRegHeart
-              className={styles.likeIcon}
-              onClick={toggleLike}
-            />
-          )} <strong> {post && post.likeCount} </strong> likes
-        </div>
+        <LikeButton
+          postId={id}
+          initialLiked={post.like}
+          initialLikeCount={post.likeCount}
+          onLikeChange={handleLikeChange}
+        />
       </div>
       {isEditing && (
         <PostEditModal
-          title={title}
-          content={content}
-          category={category}
+          title={post.title}
+          content={post.content}
+          category={post.category}
           onSave={handleSaveModal}
           onClose={handleCloseModal}
         />
@@ -232,7 +242,7 @@ const PetCardPost = () => {
       {isDeleting && (
         <DeleteModal
           title="게시물 삭제"
-          content={<div><strong>"{title}"</strong><br />해당 게시물을 정말로 삭제하시겠습니까?</div>}
+          content={<div><strong>"{post.title}"</strong><br />해당 게시물을 정말로 삭제하시겠습니까?</div>}
           onClose={handleCloseModal}
           onConfirm={handleConfirmDelete}
           confirmText="삭제"
