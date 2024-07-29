@@ -29,15 +29,18 @@ const PetCardPost = () => {
   const [isReporting, setIsReporting] = useState(false);
 
   useEffect(() => {
-    const fetchPost = async () => {
+    const fetchPost = async (token = null) => {
       try {
-        const token = getAuthTokenFromLocalStorage();
-        const response = await axios.get(`http://localhost:8080/api/posts/${id}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        const postData = response.data.data;
+        if (!token) {
+          token = getAuthTokenFromLocalStorage();
+        }
+        const config = {
+          headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+        };
+
+        const postResponse = await axios.get(`http://localhost:8080/api/posts/${id}`, config);
+
+        const postData = postResponse.data.data;
 
         setPost(prevState => ({
           ...prevState,
@@ -48,7 +51,7 @@ const PetCardPost = () => {
           nickname: postData.nickname,
           like: postData.like,
           likeCount: postData.likeCount
-      }));
+        }));
 
         setFileUrls(postData.files && postData.files.length > 0
           ? postData.files.map(file => file.url)
@@ -114,7 +117,7 @@ const PetCardPost = () => {
         title: title,
         content: content,
         category: category,
-    }));
+      }));
       alert(`게시물 수정 완료: ${title}`);
       setIsEditing(false);
     } catch (error) {
@@ -220,7 +223,7 @@ const PetCardPost = () => {
         <p>{post.content}</p>
       </div>
       <div className="card-footer">
-      <LikeButton
+        <LikeButton
           postId={id}
           initialLiked={post.like}
           initialLikeCount={post.likeCount}
