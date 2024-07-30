@@ -11,7 +11,7 @@ import DeleteModal from './DeleteModal';
 import ReportModal from './ReportModal';
 import styles from '../styles/PostDetail.module.css';
 import '../styles/PetCardPost.css';
-import RefreshToken from './RefreshToken';
+import refreshToken from './RefreshToken';
 import LikeButton from './LikeButton';
 
 function getAuthTokenFromLocalStorage() {
@@ -62,8 +62,8 @@ const PetCardPost = () => {
           : []);
       } catch (error) {
         console.error('Error fetching post:', error);
-        if (error.response?.status === 401 && error.response.data.data === 'Expired-Token') {
-          await handleTokenRefresh();
+        if (error.response && error.response.status === 401) {
+          await handleUnauthorizedError();
         }
       }
     };
@@ -71,12 +71,13 @@ const PetCardPost = () => {
     fetchPost();
   }, [id]);
 
-  const handleTokenRefresh = async () => {
+  const handleUnauthorizedError = async () => {
     try {
-      await RefreshToken(navigate); // 리프레시 토큰으로 액세스 토큰 갱신
+      await refreshToken(); // 리프레시 토큰으로 액세스 토큰 갱신
       window.location.reload(); // 페이지 새로고침하여 원래 요청 재시도
     } catch (refreshError) {
-      console.error('Token refresh error:', refreshError);
+      console.error('토큰 갱신 중 오류:', refreshError);
+      window.location.href = '/login'; // 로그인 페이지로 리다이렉트
     }
   };
 
@@ -128,17 +129,18 @@ const PetCardPost = () => {
         alert(`게시물 수정 완료: ${title}`);
         setIsEditing(false);
       } catch (error) {
-        if (error.response?.status === 401 && error.response.data.data === 'Expired-Token') {
+        if (error.response?.status === 401) {
           try {
-            await RefreshToken(navigate);
+            await refreshToken();
             await handleUpdatePost();
           } catch (refreshError) {
-            console.error('Token refresh error:', refreshError);
+            console.error('토큰 갱신 중 오류:', refreshError);
+            alert('토큰 갱신 중 오류가 발생했습니다. 다시 로그인해 주세요.');
+            window.location.href = '/login';
           }
-
         } else {
           console.error('Error saving post:', error);
-          alert("게시물 수정에 실패했습니다.");
+          alert("게시물을 수정할 권한이 없습니다.");
         }
       }
     };
@@ -165,11 +167,11 @@ const PetCardPost = () => {
       navigate('/community');
 
     } catch (error) {
-      if (error.response?.status === 401 && error.response.data.data === 'Expired-Token') {
-        await handleTokenRefresh();
+      if (error.response?.status === 401) {
+        await handleUnauthorizedError();
       } else {
         console.error("게시물 삭제 중 오류:", error);
-        alert("게시물 삭제에 실패했습니다.");
+        alert("게시물을 삭제할 권한이 없습니다.");
       }
     }
   };
@@ -200,17 +202,18 @@ const PetCardPost = () => {
       alert('유저 신고가 접수되었습니다.');
       navigate('/community');
     } catch (error) {
-      if (error.response?.status === 401 && error.response.data.data === 'Expired-Token') {
+      if (error.response?.status === 401) {
         try {
-          await RefreshToken(navigate);
+          await refreshToken();
           await handleReportModal();
         } catch (refreshError) {
-          console.error('Token refresh error:', refreshError);
+          console.error('토큰 갱신 중 오류:', refreshError);
+          alert('토큰 갱신 중 오류가 발생했습니다. 다시 로그인해 주세요.');
+          window.location.href = '/login';
         }
-      } else {
-        console.error("유저 신고 중 오류:", error);
-        alert("유저 신고에 실패했습니다.");
       }
+      console.error("유저 신고 중 오류:", error);
+      alert("유저 신고에 실패했습니다.");
     }
   };
 
@@ -231,8 +234,8 @@ const PetCardPost = () => {
   }
 
 
-  const currentUserId = getUserIdFromLocalStorage();
-  const isOwner = currentUserId === post.postUserId;
+  // const currentUserId = getUserIdFromLocalStorage();
+  // const isOwner = currentUserId === post.postUserId;
 
   return (
     <div className="card">
@@ -242,7 +245,7 @@ const PetCardPost = () => {
           <span className="card-title">{post.title}</span>
         </div>
         <div className={styles.icons}>
-          {isOwner && (
+          {(
             <>
               <MdEdit className={styles.editIcon} onClick={handleEditClick} title="게시물 수정" />
               <FaTrashAlt className={styles.deleteIcon} onClick={handleDeleteClick} title="게시물 삭제" />

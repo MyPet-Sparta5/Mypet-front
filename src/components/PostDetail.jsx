@@ -10,7 +10,7 @@ import Comment from '../components/Comment';
 import PostEditModal from './PostEditModal';
 import DeleteModal from './DeleteModal';
 import ReportModal from './ReportModal';
-import RefreshToken from './RefreshToken';
+import refreshToken from './RefreshToken';
 import PaginationButton from './PaginationButton';
 import LikeButton from './LikeButton';
 
@@ -41,13 +41,14 @@ const PostDetail = () => {
     //#region 토큰 갱신
     const handleTokenRefresh = useCallback(async (retryFunc, ...args) => {
         try {
-            await RefreshToken(navigate);
+            await refreshToken();
             const newToken = getAuthTokenFromLocalStorage();
             return await retryFunc(newToken, ...args);
         } catch (refreshError) {
             console.error('Token refresh error:', refreshError);
+            throw new Error('토큰 갱신 중 오류가 발생했습니다.');
         }
-    }, [navigate]);
+    }, []);
     //#endregion
 
     //#region 댓글 가져오기
@@ -94,9 +95,14 @@ const PostDetail = () => {
 
             } catch (error) {
                 console.error('Error fetching post details:', error);
-                if (error.response?.status === 401 && error.response.data.data === 'Expired-Token') {
-                    const newToken = await handleTokenRefresh();
-                    await fetchPostDetails(newToken);
+                if (error.response && error.response.status === 401) {
+                    try {
+                        const newToken = await handleTokenRefresh();
+                        await fetchPostDetails(newToken);
+                    } catch (refreshError) {
+                        console.error('Token refresh failed:', refreshError);
+                        alert('인증에 실패했습니다. 다시 로그인해주세요.');
+                    }
                 } else {
                     alert('게시물을 불러오는데 실패했습니다.');
                 }
@@ -112,6 +118,7 @@ const PostDetail = () => {
 
 
     //#region 댓글 작성
+
     const handleSendClick = async () => {
         const newComment = commentInput.current.value.trim();
         if (!newComment) return;
@@ -137,7 +144,7 @@ const PostDetail = () => {
         try {
             await sendCommentRequest(token, content);
         } catch (error) {
-            if (error.response?.status === 401 && error.response.data.data === 'Expired-Token') {
+            if (error.response?.status === 401) {
                 await handleTokenRefresh(sendCommentRequest, content);
             } else {
                 throw error;
@@ -188,7 +195,7 @@ const PostDetail = () => {
         try {
             await sendDeleteRequest(token, commentId);
         } catch (error) {
-            if (error.response?.status === 401 && error.response.data.data === 'Expired-Token') {
+            if (error.response?.status === 401) {
                 await handleTokenRefresh(sendDeleteRequest, commentId);
             } else {
                 throw error;
@@ -261,11 +268,17 @@ const PostDetail = () => {
             setIsEditing(false);
 
         } catch (error) {
-            if (error.response?.status === 401 && error.response.data.data === 'Expired-Token') {
-                await handleTokenRefresh(handleSaveModal, { category, title, content });
+            if (error.response?.status === 401) {
+                try {
+                    await handleTokenRefresh(handleSaveModal, { category, title, content });
+                } catch (refreshError) {
+                    console.error('토큰 갱신 중 오류:', refreshError);
+                    alert('토큰 갱신 중 오류가 발생했습니다. 다시 로그인해 주세요.');
+                    window.location.href = '/login';
+                }
             } else {
                 console.error('Error saving post:', error);
-                alert("게시물 수정에 실패했습니다.");
+                alert("게시물을 수정할 권한이 없습니다.");
             }
         }
     };
@@ -286,13 +299,19 @@ const PostDetail = () => {
 
             alert('게시물이 삭제되었습니다.');
             navigate('/community');
-
+            
         } catch (error) {
-            if (error.response?.status === 401 && error.response.data.data === 'Expired-Token') {
-                await handleTokenRefresh(handleConfirmDelete);
+            if (error.response?.status === 401) {
+                try {
+                    await handleTokenRefresh(handleConfirmDelete);
+                } catch (refreshError) {
+                    console.error('토큰 갱신 중 오류:', refreshError);
+                    alert('토큰 갱신 중 오류가 발생했습니다. 다시 로그인해 주세요.');
+                    window.location.href = '/login';
+                }
             } else {
                 console.error('Error deleting post:', error);
-                alert("게시물 삭제에 실패했습니다.");
+                alert("게시물을 삭제할 권한이 없습니다.");
             }
         }
     };
@@ -323,8 +342,14 @@ const PostDetail = () => {
             alert('유저 신고가 접수되었습니다.');
             navigate('/community');
         } catch (error) {
-            if (error.response?.status === 401 && error.response.data.data === 'Expired-Token') {
-                await handleTokenRefresh(handleReportModal, { text });
+            if (error.response?.status === 401) {
+                try {
+                    await handleTokenRefresh(handleReportModal, { text });
+                } catch (refreshError) {
+                    console.error('토큰 갱신 중 오류:', refreshError);
+                    alert('토큰 갱신 중 오류가 발생했습니다. 다시 로그인해 주세요.');
+                    window.location.href = '/login';
+                }
             }
             console.error("유저 신고 중 오류:", error);
             alert("유저 신고에 실패했습니다.");
@@ -341,8 +366,8 @@ const PostDetail = () => {
         return <div>게시물을 찾을 수 없습니다.</div>;
     }
 
-    const currentUserId = getUserIdFromLocalStorage();
-    const isOwner = currentUserId === post.postUserId;
+    // const currentUserId = getUserIdFromLocalStorage();
+    // const isOwner = currentUserId === post.postUserId;
 
     return (
         <div className={styles.container}>
@@ -351,7 +376,7 @@ const PostDetail = () => {
                     <div className={styles.postHeader}>
                         <span className={styles.postTitle}>{post.title}</span>
                         <div className={styles.icons}>
-                            {isOwner && (
+                            {(
                                 <>
                                     <MdEdit className={styles.editIcon} onClick={handleEditClick} title="게시물 수정" />
                                     <FaTrashAlt className={styles.deleteIcon} onClick={handleDeleteClick} title="게시물 삭제" />
