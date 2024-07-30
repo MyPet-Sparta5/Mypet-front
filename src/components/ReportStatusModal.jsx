@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styles from '../styles/Modal.module.css';
 
-const ReportStatusModal = ({ status, onSave, onClose }) => {
+const ReportStatusModal = ({ issue, status, onSave, onClose }) => {
     const [selectedStatus, setSelectedStatus] = useState(status);
 
     const handleSave = () => {
@@ -13,6 +13,7 @@ const ReportStatusModal = ({ status, onSave, onClose }) => {
         <div className={styles.modalOverlay}>
             <div className={styles.modal}>
                 <h2>신고 상태 수정</h2>
+                <h4>신고 사유 : {issue}</h4>
                 <div className={styles.inputGroup}>
                     <label htmlFor="reportStatus">신고 상태</label>
                     <select
@@ -21,10 +22,9 @@ const ReportStatusModal = ({ status, onSave, onClose }) => {
                         value={selectedStatus}
                         onChange={(e) => setSelectedStatus(e.target.value)}
                     >
-                        <option value="처리 전">처리 전</option>
-                        <option value="처리 중">처리 중</option>
-                        <option value="처리 완료">처리 완료</option>
-                        <option value="반려">반려</option>
+                        <option value="PENDING">처리 전</option>
+                        <option value="IN_PROGRESS">처리 중</option>
+                        <option value="REJECTED">반려</option>
                     </select>
                 </div>
                 <div className={styles.modalButtons}>
