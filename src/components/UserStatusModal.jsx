@@ -12,7 +12,8 @@ const UserStatusModal = ({ email, status, onSave, onClose }) => {
     return (
         <div className={styles.modalOverlay}>
             <div className={styles.modal}>
-                <h2>"{email}" 유저 상태 수정</h2>
+                <h2>유저 상태 수정</h2>
+                <h4>유저 이메일 : {email}</h4>
                 <div className={styles.inputGroup}>
                     <label htmlFor="userStatus">유저 상태</label>
                     <select
