@@ -1,13 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import styles from '../styles/Modal.module.css';
-import { useNavigate } from 'react-router-dom';
-import RefreshToken from './RefreshToken';
-
-
-function getAuthTokenFromLocalStorage() {
-    return localStorage.getItem('accessToken');
-}
 
 function PostCreateModal({ category, onSave, onClose }) {
     const [title, setTitle] = useState('');
@@ -15,92 +7,40 @@ function PostCreateModal({ category, onSave, onClose }) {
     const [selectedCategory, setSelectedCategory] = useState(category === 'DEFAULT' ? '' : category);
     const [files, setFiles] = useState([]);
     const [error, setError] = useState('');
-    const navigate = useNavigate();
 
     const handleFileChange = (e) => {
         setFiles(Array.from(e.target.files).slice(0, 5));
     };
 
-    const handleSave = async () => {
-        const formData = new FormData();
-        formData.append('requestDto', new Blob([JSON.stringify({ title, content })], { type: 'application/json' }));
-        formData.append('category', selectedCategory);
-        files.forEach(file => {
-            formData.append('file', file);
-        });
+    const handleSave = () => {
+        const postData = {
+            title,
+            content,
+            category: selectedCategory,
+            files: files // 직접 파일 객체를 전달하지 않고, 파일 이름만 전달
+        };
 
-        try {
-            const token = getAuthTokenFromLocalStorage();
-            if (!token) {
-                setError('로그인이 필요합니다.');
-                return;
-            }
-
-            await axios.post('http://localhost:8080/api/posts', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    'Authorization': `Bearer ${token}`,
-                }
-            });
-
-            window.location.reload();
-        } catch (error) {
-            if (error.response?.status === 401 && error.response.data.data === 'Expired-Token') {
-                // 토큰 만료시 토큰 갱신 시도
-                try {
-                    await RefreshToken(navigate);
-                    // 갱신된 토큰으로 다시 시도
-                    const newToken = getAuthTokenFromLocalStorage();
-                    await axios.post('http://localhost:8080/api/posts', formData, {
-                        headers: {
-                            'Content-Type': 'multipart/form-data',
-                            'Authorization': `Bearer ${newToken}`,
-                        }
-                    });
-
-                    window.location.reload();
-                } catch (refreshError) {
-                    console.error('Token refresh error:', refreshError);
-                }
-            } else {
-                console.error('error edit post:', error);
-                alert('게시물 작성 중 오류가 발생했습니다. 다시 시도해 주세요.');
-            }
-        }
+        onSave(postData);
     };
-
 
     return (
         <div className={styles.modalOverlay}>
             <div className={styles.modal}>
                 <h2>게시글 작성</h2>
-                {category === 'DEFAULT' ? (
-                    <div className={styles.inputGroup}>
-                        <label htmlFor="postCategory">카테고리</label>
-                        <select
-                            id="postCategory"
-                            value={selectedCategory}
-                            onChange={(e) => setSelectedCategory(e.target.value)}
-                            className={styles.selectCategory}
-                        >
-                            <option value="">카테고리 선택</option>
-                            <option value="BOAST">자랑하기</option>
-                            <option value="FREEDOM">자유게시판</option>
-                        </select>
-                    </div>
-                ) : (
-                    <div className={styles.inputGroup}>
-                        <label htmlFor="postCategory">카테고리</label>
-                        <select
-                            id="postCategory"
-                            value={selectedCategory}
-                            disabled
-                            className={styles.selectCategory}
-                        >
-                            <option value="">{selectedCategory === 'BOAST' ? '자랑하기' : '자유게시판'}</option>
-                        </select>
-                    </div>
-                )}
+                <div className={styles.inputGroup}>
+                    <label htmlFor="postCategory">카테고리</label>
+                    <select
+                        id="postCategory"
+                        value={selectedCategory}
+                        onChange={(e) => setSelectedCategory(e.target.value)}
+                        className={styles.selectCategory}
+                        disabled={category !== 'DEFAULT'}
+                    >
+                        <option value="">카테고리 선택</option>
+                        <option value="BOAST">자랑하기</option>
+                        <option value="FREEDOM">자유게시판</option>
+                    </select>
+                </div>
                 <div className={styles.inputGroup}>
                     <label htmlFor="postTitle">게시물 제목</label>
                     <input
