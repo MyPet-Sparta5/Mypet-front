@@ -366,8 +366,6 @@ const PostDetail = () => {
         return <div>게시물을 찾을 수 없습니다.</div>;
     }
 
-    // const currentUserId = getUserIdFromLocalStorage();
-    // const isOwner = currentUserId === post.postUserId;
 
     return (
         <div className={styles.container}>
