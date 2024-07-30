@@ -12,6 +12,7 @@ import PetCardPostPage from './pages/PetCardPostPage';
 import FacilityFinderPage from './pages/FacilityFinderPage';
 import AdminUserListPage from './pages/Admin/AdminUserListPage';
 import AdminReportListPage from './pages/Admin/AdminReportListPage';
+import ProfilePage from './pages/ProfilePage';
 
 const MainLayout = () => (
   <>
@@ -44,6 +45,7 @@ function App() {
             <Route path="/pet/:id" element={<PetCardPostPage />} />
             <Route path="/posts/:id" element={<PostDetailPage />} />
             <Route path="/facility-finder" element={<FacilityFinderPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
           </Route>
 
           {/* 백오피스 경로 */}
