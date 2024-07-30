@@ -14,29 +14,28 @@ import '../styles/PetCardPost.css';
 import RefreshToken from './RefreshToken';
 import LikeButton from './LikeButton';
 
-function getAuthTokenFromLocalStorage() {
-  return localStorage.getItem('accessToken');
-}
-
-function getUserIdFromLocalStorage() {
-  return Number(localStorage.getItem('userId'));
-}
+const getFromLocalStorage = key => localStorage.getItem(key);
+const getAuthToken = () => getFromLocalStorage('accessToken');
+const getUserId = () => Number(getFromLocalStorage('userId'));
+const getUserRole = () => getFromLocalStorage('userRole');
 
 const PetCardPost = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [post, setPost] = useState(null);
-  const [userName, setUser] = useState('');
   const [fileUrls, setFileUrls] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isReporting, setIsReporting] = useState(false);
 
+  const userRole = getUserRole();
+  const currentUserId = getUserId();
+
   useEffect(() => {
     const fetchPost = async (token = null) => {
       try {
         if (!token) {
-          token = getAuthTokenFromLocalStorage();
+          token = getAuthToken();
         }
         const config = {
           headers: token ? { 'Authorization': `Bearer ${token}` } : {}
@@ -80,18 +79,9 @@ const PetCardPost = () => {
     }
   };
 
-  const handleEditClick = () => {
-    setIsEditing(true);
-  };
-
-  const handleDeleteClick = () => {
-    setIsDeleting(true);
-  };
-
-  const handleReportClick = () => {
-    setIsReporting(true);
-  };
-
+  const handleEditClick = () => setIsEditing(true);
+  const handleDeleteClick = () => setIsDeleting(true);
+  const handleReportClick = () => setIsReporting(true);
   const handleCloseModal = () => {
     setIsEditing(false);
     setIsDeleting(false);
@@ -112,7 +102,7 @@ const PetCardPost = () => {
 
     const handleUpdatePost = async () => {
       try {
-        const token = getAuthTokenFromLocalStorage();
+        const token = getAuthToken();
         if (!token) {
           throw new Error('로그인이 필요합니다.');
         }
@@ -151,7 +141,7 @@ const PetCardPost = () => {
     setIsDeleting(false);
 
     try {
-      const token = getAuthTokenFromLocalStorage();
+      const token = getAuthToken();
       if (!token) {
         alert('로그인이 필요합니다.');
         return;
@@ -180,7 +170,6 @@ const PetCardPost = () => {
 
     // 현재 포스트의 작성자 ID를 가져오기
     const postUserId = post.postUserId;
-    const currentUserId = getUserIdFromLocalStorage();
 
     if (currentUserId === postUserId) {
       alert('자신의 게시물을 신고할 수 없습니다.');
@@ -188,11 +177,11 @@ const PetCardPost = () => {
     }
 
     try {
-      const token = getAuthTokenFromLocalStorage();
+      const token = getAuthToken();
       if (!token) {
         throw new Error('로그인이 필요합니다.');
       }
-      console.log(token, postUserId)
+
       await axios.post(`http://localhost:8080/api/reports/users/${postUserId}`,
         { reportIssue: text }, // 신고 사유를 포함한 요청 본문
         { headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' } }
@@ -226,6 +215,13 @@ const PetCardPost = () => {
     navigate('/community');
   };
 
+  const isPostOwner = post && post.postUserId === currentUserId;
+
+  const shouldShowEditIcon = userRole && isPostOwner;
+  const shouldShowDeleteIcon = userRole && (userRole === "ROLE_ADMIN" || userRole === "ROLE_MANAGER" || isPostOwner);
+  const shouldShowReportIcon = userRole &&  !(userRole === "ROLE_ADMIN" || userRole === "ROLE_MANAGER" || isPostOwner);
+
+
   if (!post) {
     return <div>게시물을 찾을 수 없습니다.</div>;
   }
@@ -239,13 +235,15 @@ const PetCardPost = () => {
           <span className="card-title">{post.title}</span>
         </div>
         <div className={styles.icons}>
-          {(
-            <>
-              <MdEdit className={styles.editIcon} onClick={handleEditClick} title="게시물 수정" />
-              <FaTrashAlt className={styles.deleteIcon} onClick={handleDeleteClick} title="게시물 삭제" />
-            </>
+          {shouldShowEditIcon && (
+            <MdEdit className={styles.editIcon} onClick={handleEditClick} title="게시물 수정" />
           )}
-          <GoAlertFill className={styles.reportIcon} onClick={handleReportClick} title="해당 게시물 유저 신고" />
+          {shouldShowDeleteIcon && (
+            <FaTrashAlt className={styles.deleteIcon} onClick={handleDeleteClick} title="게시물 삭제" />
+          )}
+          {shouldShowReportIcon && (
+            <GoAlertFill className={styles.reportIcon} onClick={handleReportClick} title="해당 게시물 유저 신고" />
+          )}
         </div>
       </div>
       {/* 파일이 있는 경우에만 ImageSlider를 렌더링합니다. */}

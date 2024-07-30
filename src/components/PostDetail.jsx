@@ -14,9 +14,11 @@ import RefreshToken from './RefreshToken';
 import PaginationButton from './PaginationButton';
 import LikeButton from './LikeButton';
 
-function getUserIdFromLocalStorage() {
-    return Number(localStorage.getItem('userId'));
-}
+const getFromLocalStorage = key => localStorage.getItem(key);
+const getAuthTokenFromLocalStorage = () => getFromLocalStorage('accessToken');
+const getUserId = () => Number(getFromLocalStorage('userId'));
+const getUserRole = () => getFromLocalStorage('userRole');
+
 
 const PostDetail = () => {
     const navigate = useNavigate();
@@ -26,17 +28,14 @@ const PostDetail = () => {
     const [isDeleting, setIsDeleting] = useState(false);
     const [isReporting, setIsReporting] = useState(false);
 
-    const [userName, setUser] = useState('');
-
     const [comments, setComments] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
 
-    const commentInput = useRef();
+    const userRole = getUserRole();
+    const currentUserId = getUserId();
 
-    function getAuthTokenFromLocalStorage() {
-        return localStorage.getItem('accessToken');
-    }
+    const commentInput = useRef();
 
     //#region 토큰 갱신
     const handleTokenRefresh = useCallback(async (retryFunc, ...args) => {
@@ -213,19 +212,9 @@ const PostDetail = () => {
     }
 
     //#region Modal handler
-
-    const handleEditClick = () => {
-        setIsEditing(true);
-    };
-
-    const handleDeleteClick = () => {
-        setIsDeleting(true);
-    };
-
-    const handleReportClick = () => {
-        setIsReporting(true);
-    };
-
+    const handleEditClick = () => setIsEditing(true);
+    const handleDeleteClick = () => setIsDeleting(true);
+    const handleReportClick = () => setIsReporting(true);
     const handleCloseModal = () => {
         setIsEditing(false);
         setIsDeleting(false);
@@ -303,7 +292,6 @@ const PostDetail = () => {
 
         // 현재 포스트의 작성자 ID를 가져오기
         const postUserId = post.postUserId;
-        const currentUserId = getUserIdFromLocalStorage();
 
         if (currentUserId === postUserId) {
             alert('자신의 게시물을 신고할 수 없습니다.');
@@ -331,11 +319,16 @@ const PostDetail = () => {
         }
     };
 
-
-
     const handleBoardClick = () => {
         navigate('/community');
     };
+
+    const isPostOwner = post && post.postUserId === currentUserId;
+
+    const shouldShowEditIcon = userRole && isPostOwner;
+    const shouldShowDeleteIcon = userRole && (userRole === "ROLE_ADMIN" || userRole === "ROLE_MANAGER" || isPostOwner);
+    const shouldShowReportIcon = userRole && !(userRole === "ROLE_ADMIN" || userRole === "ROLE_MANAGER" || isPostOwner);
+    const isLoggedIn = !!getAuthTokenFromLocalStorage();
 
     if (!post) {
         return <div>게시물을 찾을 수 없습니다.</div>;
@@ -349,13 +342,15 @@ const PostDetail = () => {
                     <div className={styles.postHeader}>
                         <span className={styles.postTitle}>{post.title}</span>
                         <div className={styles.icons}>
-                            {(
-                                <>
-                                    <MdEdit className={styles.editIcon} onClick={handleEditClick} title="게시물 수정" />
-                                    <FaTrashAlt className={styles.deleteIcon} onClick={handleDeleteClick} title="게시물 삭제" />
-                                </>
+                            {shouldShowEditIcon && (
+                                <MdEdit className={styles.editIcon} onClick={handleEditClick} title="게시물 수정" />
                             )}
-                            <GoAlertFill className={styles.reportIcon} onClick={handleReportClick} title="해당 게시물 유저 신고" />
+                            {shouldShowDeleteIcon && (
+                                <FaTrashAlt className={styles.deleteIcon} onClick={handleDeleteClick} title="게시물 삭제" />
+                            )}
+                            {shouldShowReportIcon && (
+                                <GoAlertFill className={styles.reportIcon} onClick={handleReportClick} title="해당 게시물 유저 신고" />
+                            )}
                         </div>
                     </div>
                     <div className={styles.postBody}>
@@ -424,10 +419,14 @@ const PostDetail = () => {
                     <div className={styles.commentInputContainer}>
                         <input
                             className={styles.commentInput}
-                            placeholder="댓글 작성"
+                            placeholder={isLoggedIn ? "댓글 작성" : "로그인 후 작성 가능"}
                             ref={commentInput}
+                            disabled={!isLoggedIn}
                         />
-                        <SlArrowUpCircle className={styles.sendIcon} onClick={handleSendClick} />
+                        <SlArrowUpCircle
+                            className={`${styles.sendIcon} ${!isLoggedIn ? styles.disabled : ''}`}
+                            onClick={isLoggedIn ? handleSendClick : null}
+                        />
                     </div>
                 </div>
             </main>
