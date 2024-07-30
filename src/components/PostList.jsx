@@ -100,7 +100,7 @@ const PostList = ({ category }) => {
             });
 
             const postId = response.data.data.id;
-            const targetPath = category === '자랑하기' ? `/pet/${postId}` : `/posts/${postId}`;
+            const targetPath = category === 'BOAST' ? `/pet/${postId}` : `/posts/${postId}`;
             navigate(targetPath);
             closeModal();
         } catch (error) {
