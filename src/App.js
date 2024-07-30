@@ -13,6 +13,8 @@ import FacilityFinderPage from './pages/FacilityFinderPage';
 import AdminUserListPage from './pages/Admin/AdminUserListPage';
 import AdminReportListPage from './pages/Admin/AdminReportListPage';
 import ProfilePage from './pages/ProfilePage';
+import AccessDeniedPage from './pages/AccessDeniedPage'; // 접근 불가 페이지 추가
+import ProtectedRoute from './ProtectedRoute';
 
 const MainLayout = () => (
   <>
@@ -21,7 +23,6 @@ const MainLayout = () => (
   </>
 );
 
-// Admin 페이지 헤더 지정
 const AdminLayout = () => (
   <>
     <AdminHeader />
@@ -46,12 +47,15 @@ function App() {
             <Route path="/posts/:id" element={<PostDetailPage />} />
             <Route path="/facility-finder" element={<FacilityFinderPage />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/access-denied" element={<AccessDeniedPage />} /> {/* 접근 불가 페이지 추가 */}
           </Route>
 
           {/* 백오피스 경로 */}
-          <Route path="/admin/*" element={<AdminLayout />}>
-            <Route path="user-list" element={<AdminUserListPage />} />
-            <Route path="report-list" element={<AdminReportListPage />} />
+          <Route path="/admin" element={<ProtectedRoute allowedRoles={['ROLE_ADMIN', 'ROLE_MANAGER']} />}>
+            <Route element={<AdminLayout />}>
+              <Route path="user-list" element={<AdminUserListPage />} />
+              <Route path="report-list" element={<AdminReportListPage />} />
+            </Route>
           </Route>
         </Routes>
       </div>
