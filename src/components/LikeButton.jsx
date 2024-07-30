@@ -2,7 +2,8 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { FaRegHeart, FaHeart } from 'react-icons/fa';
 import axios from 'axios';
-import refreshToken from './refreshToken';
+import { useNavigate } from 'react-router-dom';
+import RefreshToken from './RefreshToken';
 import debounce from 'lodash/debounce';
 import styles from '../styles/LikeButton.module.css'; // 스타일 파일 생성 필요
 
@@ -13,17 +14,17 @@ function getAuthTokenFromLocalStorage() {
 const LikeButton = ({ postId, initialLiked, initialLikeCount, onLikeChange }) => {
     const [liked, setLiked] = useState(initialLiked);
     const [likeCount, setLikeCount] = useState(initialLikeCount);
+    const navigate = useNavigate();
 
     const handleTokenRefresh = useCallback(async (retryFunc) => {
         try {
-            await refreshToken();
+            await RefreshToken(navigate);
             const newToken = getAuthTokenFromLocalStorage();
             return await retryFunc(newToken);
-        } catch (refreshError) {
+        } catch (refreshError){
             console.error('Token refresh error:', refreshError);
-            throw new Error('토큰 갱신 중 오류가 발생했습니다.');
         }
-    }, []);
+    }, [navigate]);
 
     const sendLikeRequest = useCallback(async (token) => {
         return await axios.post(`http://localhost:8080/api/posts/${postId}/likes`, {}, {
@@ -53,19 +54,13 @@ const LikeButton = ({ postId, initialLiked, initialLikeCount, onLikeChange }) =>
             }
         } catch (error) {
             console.error('Error toggling like:', error);
-            if (error.response?.status === 401) {
-                try {
-                    await handleTokenRefresh(toggleLike);
-                } catch (refreshError) {
-                    console.error('Token refresh failed:', refreshError);
-                    alert('인증에 실패했습니다. 다시 로그인해주세요.');
-                }
+            if (error.response?.status === 401 && error.response.data.data === 'Expired-Token') {
+                await handleTokenRefresh(toggleLike);
             } else {
                 alert('좋아요 처리에 실패했습니다.');
             }
         }
     }, [liked, likeCount, sendLikeRequest, sendUnlikeRequest, handleTokenRefresh, onLikeChange]);
-
 
     const debouncedToggleLike = useCallback(
         debounce(async () => {

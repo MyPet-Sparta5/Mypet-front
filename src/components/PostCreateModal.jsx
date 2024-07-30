@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import styles from '../styles/Modal.module.css';
-import refreshToken from './refreshToken';
+import { useNavigate } from 'react-router-dom';
+import RefreshToken from './RefreshToken';
 
 
 function getAuthTokenFromLocalStorage() {
@@ -14,6 +15,7 @@ function PostCreateModal({ category, onSave, onClose }) {
     const [selectedCategory, setSelectedCategory] = useState(category === 'DEFAULT' ? '' : category);
     const [files, setFiles] = useState([]);
     const [error, setError] = useState('');
+    const navigate = useNavigate();
 
     const handleFileChange = (e) => {
         setFiles(Array.from(e.target.files).slice(0, 5));
@@ -26,7 +28,7 @@ function PostCreateModal({ category, onSave, onClose }) {
         files.forEach(file => {
             formData.append('file', file);
         });
-    
+
         try {
             const token = getAuthTokenFromLocalStorage();
             if (!token) {
@@ -41,12 +43,12 @@ function PostCreateModal({ category, onSave, onClose }) {
                 }
             });
 
-            window.location.reload(); 
+            window.location.reload();
         } catch (error) {
-            if (error.response && error.response.status === 401) {
+            if (error.response?.status === 401 && error.response.data.data === 'Expired-Token') {
                 // 토큰 만료시 토큰 갱신 시도
                 try {
-                    await refreshToken();
+                    await RefreshToken(navigate);
                     // 갱신된 토큰으로 다시 시도
                     const newToken = getAuthTokenFromLocalStorage();
                     await axios.post('http://localhost:8080/api/posts', formData, {
@@ -56,16 +58,17 @@ function PostCreateModal({ category, onSave, onClose }) {
                         }
                     });
 
-                    window.location.reload(); 
+                    window.location.reload();
                 } catch (refreshError) {
-                    setError('토큰 갱신 중 오류가 발생했습니다. 다시 시도해 주세요.');
+                    console.error('Token refresh error:', refreshError);
                 }
             } else {
-                setError('게시물 작성 중 오류가 발생했습니다. 다시 시도해 주세요.');
+                console.error('error edit post:', error);
+                alert('게시물 작성 중 오류가 발생했습니다. 다시 시도해 주세요.');
             }
         }
     };
-    
+
 
     return (
         <div className={styles.modalOverlay}>

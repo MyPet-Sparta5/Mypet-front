@@ -4,7 +4,8 @@ import PaginationButton from '../components/PaginationButton';
 import UserRoleModal from '../components/UserRoleModal';
 import UserStatusModal from '../components/UserStatusModal';
 import axios from 'axios';
-import refreshAccessToken from './refreshToken';
+import { useNavigate } from 'react-router-dom';
+import RefreshToken from './RefreshToken';
 
 const UserList = () => {
     const [users, setUsers] = useState([]);
@@ -15,6 +16,7 @@ const UserList = () => {
     const [selectedUser, setSelectedUser] = useState(null);
     const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
     const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+    const navigate = useNavigate();
 
     const axiosInstance = axios.create({
         baseURL: 'http://localhost:8080',
@@ -30,10 +32,14 @@ const UserList = () => {
             return await apiCall();
         } catch (error) {
             if (error.response && error.response.status === 401 && error.response.data.data === 'Expired-Token') {
-                await refreshAccessToken();
-                // 토큰 갱신 후 헤더 업데이트
-                axiosInstance.defaults.headers['Authorization'] = `Bearer ${localStorage.getItem('accessToken')}`;
-                return await apiCall();
+                try {
+                    await RefreshToken(navigate);
+                    // 토큰 갱신 후 헤더 업데이트
+                    axiosInstance.defaults.headers['Authorization'] = `Bearer ${localStorage.getItem('accessToken')}`;
+                    return await apiCall();
+                } catch (refreshError) {
+                    console.error('Token refresh error:', refreshError);
+                }
             }
             throw error;
         }
