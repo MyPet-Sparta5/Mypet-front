@@ -169,7 +169,7 @@ const PetCardPost = () => {
         await handleTokenRefresh();
       } else {
         console.error("게시물 삭제 중 오류:", error);
-        alert("게시물 삭제에 실패했습니다.");
+        alert("게시물을 삭제할 권한이 없습니다.");
       }
     }
   };
@@ -231,9 +231,6 @@ const PetCardPost = () => {
   }
 
 
-  const currentUserId = getUserIdFromLocalStorage();
-  const isOwner = currentUserId === post.postUserId;
-
   return (
     <div className="card">
       <div className="card-header">
@@ -242,7 +239,7 @@ const PetCardPost = () => {
           <span className="card-title">{post.title}</span>
         </div>
         <div className={styles.icons}>
-          {isOwner && (
+          {(
             <>
               <MdEdit className={styles.editIcon} onClick={handleEditClick} title="게시물 수정" />
               <FaTrashAlt className={styles.deleteIcon} onClick={handleDeleteClick} title="게시물 삭제" />

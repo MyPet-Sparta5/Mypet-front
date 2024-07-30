@@ -292,7 +292,7 @@ const PostDetail = () => {
                 await handleTokenRefresh(handleConfirmDelete);
             } else {
                 console.error('Error deleting post:', error);
-                alert("게시물 삭제에 실패했습니다.");
+                alert("게시물을 삭제할 권한이 없습니다.");
             }
         }
     };
@@ -341,8 +341,6 @@ const PostDetail = () => {
         return <div>게시물을 찾을 수 없습니다.</div>;
     }
 
-    const currentUserId = getUserIdFromLocalStorage();
-    const isOwner = currentUserId === post.postUserId;
 
     return (
         <div className={styles.container}>
@@ -351,7 +349,7 @@ const PostDetail = () => {
                     <div className={styles.postHeader}>
                         <span className={styles.postTitle}>{post.title}</span>
                         <div className={styles.icons}>
-                            {isOwner && (
+                            {(
                                 <>
                                     <MdEdit className={styles.editIcon} onClick={handleEditClick} title="게시물 수정" />
                                     <FaTrashAlt className={styles.deleteIcon} onClick={handleDeleteClick} title="게시물 삭제" />
