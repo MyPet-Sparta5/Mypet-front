@@ -1,5 +1,5 @@
 import axios from 'axios';
-import refreshAccessToken from './refreshToken';
+import RefreshToken from './RefreshToken';
 
 const handleLogout = async (navigate) => {
 
@@ -19,12 +19,12 @@ const handleLogout = async (navigate) => {
       withCredentials: true
     });
 
-    if (response.status == 200) {
+    if (response.status === 200) {
       // 로컬 스토리지에서 사용자 정보 제거
       localStorage.removeItem('accessToken');
       localStorage.removeItem('nickname');
       localStorage.removeItem('userRole');
-      localStorage.removeItem('userId')
+      localStorage.removeItem('userId');
 
       alert('로그아웃이 완료 되었습니다.');
 
@@ -38,9 +38,13 @@ const handleLogout = async (navigate) => {
     console.error('로그아웃 중 오류가 발생했습니다.', error);
 
     // 에러 상태코드 '401' 이고, 서버의 응답 데이터가 'Expired-Token'인 경우 토큰 리프레쉬
-    if (error.response.status == 401 && error.response.data.data == 'Expired-Token') {
-      await refreshAccessToken();
-      handleLogout(navigate); // 다시 수행하고 있던 함수 재호출
+    if (error.response?.status === 401 && error.response.data.data === 'Expired-Token') {
+      try {
+        await RefreshToken(navigate);
+        handleLogout(navigate); // 다시 수행하고 있던 함수 재호출
+      } catch (refreshError) {
+        console.error('Token refresh error:', refreshError);
+      }
     } else {
       alert(`${error.response.data.message}` || '로그아웃 중 오류가 발생했습니다.');
     }
