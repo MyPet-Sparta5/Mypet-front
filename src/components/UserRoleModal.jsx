@@ -19,7 +19,8 @@ const UserRoleModal = ({ email, role, onSave, onClose }) => {
     return (
         <div className={styles.modalOverlay}>
             <div className={styles.modal}>
-                <h2>"{email}" 유저 권한 수정</h2>
+                <h2>유저 권한 수정</h2>
+                <h4>유저 이메일 : {email}</h4>
                 <div className={styles.inputGroup}>
                     <label htmlFor="userRole">유저 권한</label>
                     <select

@@ -92,3 +92,17 @@
     font-weight: bold;
     margin-top: 10px;
 }
+
+.selectCategory {
+    width: 100%;
+    /* 선택 필드 너비를 100%로 설정 */
+    border: 1px solid #C4C4C4;
+    align-items: center;
+    box-sizing: border-box;
+    border-radius: 10px;
+    padding: 10px 10px;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 16px;
+} 
