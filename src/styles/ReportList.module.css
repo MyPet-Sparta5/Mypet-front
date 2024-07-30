@@ -42,21 +42,29 @@
 /* 신고사유 */
 .table th:nth-child(1),
 .table td:nth-child(1) {
-    width: 30%; /* 원하는 너비로 조정 */
+    width: 50%; /* 원하는 너비로 조정 */
 }
 
 /* 신고상태, 신고일시 */
 .table th:nth-child(2),
-.table td:nth-child(2),
-.table th:nth-child(3),
-.table td:nth-child(3) {
-    width: 12%; /* 원하는 너비로 조정 */
+.table td:nth-child(2){
+    width: 12%;
 }
 
-/* 신고당한 유저, 신고한 유저 */
+.table th:nth-child(3),
+.table td:nth-child(3) {
+    width: 20%; /* 원하는 너비로 조정 */
+}
+
+/* 신고당한 유저*/
 .table th:nth-child(4),
-.table td:nth-child(4),
-.table th:nth-child(5),
-.table td:nth-child(5) {
-    width: 23%; /* 원하는 너비로 조정 */
+.table td:nth-child(4) {
+    width: 18%; /* 원하는 너비로 조정 */
+}
+
+.reportEdit {
+    cursor: pointer;
+    text-decoration-line: underline;
+    text-underline-offset: 5px; /* 밑줄 간격 조정 */
+    text-decoration-color: #864e5d;
 }
