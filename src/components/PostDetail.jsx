@@ -292,7 +292,7 @@ const PostDetail = () => {
                 await handleTokenRefresh(handleConfirmDelete);
             } else {
                 console.error('Error deleting post:', error);
-                alert("게시물 삭제에 실패했습니다.");
+                alert("게시물을 삭제할 권한이 없습니다.");
             }
         }
     };
