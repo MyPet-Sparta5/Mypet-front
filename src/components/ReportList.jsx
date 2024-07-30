@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from '../styles/ReportList.module.css';
 import PaginationButton from '../components/PaginationButton';
 import ReportStatusModal from '../components/ReportStatusModal';
 import axios from 'axios';
-import refreshAccessToken from './RefreshToken';
+import RefreshToken from './RefreshToken';
 
 const ReportList = () => {
+    const navigate = useNavigate();
     const [reports, setReports] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -27,9 +29,13 @@ const ReportList = () => {
             return await apiCall();
         } catch (error) {
             if (error.response && error.response.status === 401 && error.response.data.data === 'Expired-Token') {
-                await refreshAccessToken();
-                axiosInstance.defaults.headers['Authorization'] = `Bearer ${localStorage.getItem('accessToken')}`;
-                return await apiCall();
+                try {
+                    await RefreshToken(navigate);
+                    axiosInstance.defaults.headers['Authorization'] = `Bearer ${localStorage.getItem('accessToken')}`;
+                    return await apiCall();
+                } catch (refreshError) {
+                    console.error('Token refresh error:', refreshError);
+                }
             }
             throw error;
         }
