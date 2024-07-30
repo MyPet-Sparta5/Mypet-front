@@ -25,6 +25,13 @@ function DropdownMenu({ nickname, role }) {
         };
     }, []);
 
+    const handleLogoutWithAlert = () => {
+        handleLogout();
+        alert('로그아웃 되었습니다!');
+        navigate('/');
+        window.location.reload();
+    };
+
     return (
         <div className={styles.dropdownMenu} ref={menuRef}>
             <button onClick={toggleMenu} className={styles.button}>{nickname}</button>
@@ -33,7 +40,7 @@ function DropdownMenu({ nickname, role }) {
                 {(role === 'ROLE_ADMIN' || role === 'ROLE_MANAGER') && (
                     <NavLink to="/admin/user-list">BackOffice</NavLink>
                 )}
-                <button onClick={() => handleLogout(navigate)} className={styles.logoutButton}>Log Out</button>
+                <button onClick={handleLogoutWithAlert} className={styles.logoutButton}>Log Out</button>
             </div>
         </div>
     );
