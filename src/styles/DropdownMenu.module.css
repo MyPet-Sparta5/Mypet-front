@@ -38,6 +38,7 @@
     background-color: #5f3742;
     border: none;
     border-radius: 0.25rem;
+    cursor: pointer;
 }
 
 .logoutButton {
@@ -45,7 +46,7 @@
     min-width: 160px;
     padding: 12px 16px;
     font-size: 1rem;
-    color: black;
+    color: #d9534f;
     background-color: #fff;
     border: none;
 }

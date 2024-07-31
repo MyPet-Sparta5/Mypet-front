@@ -49,6 +49,7 @@ const Profile = () => {
                 if (!accessToken) {
                     console.error('액세스 토큰이 없습니다.');
                     navigate('/');
+                    window.location.reload();
                     return;
                 }
 
@@ -123,10 +124,10 @@ const Profile = () => {
             });
 
             if (response.status === 200) {
-                setNickname(data.nickname);
+                localStorage.setItem('nickname', response.data.data.newNickname); // 로컬 스토리지에 수정된 닉네임으로 교체
                 alert(`닉네임이 "${response.data.data.newNickname}"(으)로 수정되었습니다.`);
                 handleCloseUserEditModal();
-                navigate('/profile')
+                window.location.reload();
             }
         } catch (error) {
             if (error.response?.status === 401 && error.response.data.data === 'Expired-Token') {
