@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import styles from '../styles/PostDetail.module.css';
 import { SlArrowUpCircle } from "react-icons/sl";
-import { MdEdit, MdAddCircleOutline } from 'react-icons/md';
+import { MdEdit } from 'react-icons/md';
 import { GoAlertFill } from "react-icons/go";
 import { FaTrashAlt } from 'react-icons/fa';
 import Comment from '../components/Comment';
@@ -320,7 +320,7 @@ const PostDetail = () => {
     };
 
     const handleBoardClick = () => {
-        navigate('/community');
+        navigate(-1);
     };
 
     const isPostOwner = post && post.postUserId === currentUserId;

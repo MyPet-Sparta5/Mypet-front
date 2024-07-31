@@ -78,19 +78,22 @@
     box-shadow: 0 0 0 2px #3e232c;
 }
 
-.rightContainer>div {
-    flex: 1;
-    background-color: #ffffff;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-    padding: 15px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+.rightContainer {
+    flex: 2; /* flex 속성을 조정하여 더 많은 공간을 차지하도록 설정 */
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 .tableContainer {
     background-color: #ffffff; /* 흰색 배경 */
     border-radius: 8px;
+    border: 1px solid #ddd;
     padding: 15px;
+    max-width: 90%; /* 최대 너비를 90%로 설정하여 줄임 */
+    width: 100%; /* 상자의 너비를 100%로 설정 */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .table {
@@ -147,13 +150,13 @@
 /* 작성 일자 */
 .table th:nth-child(3),
 .table td:nth-child(3) {
-    width: 22%; /* 원하는 너비로 조정 */
+    width: 20%; /* 원하는 너비로 조정 */
 }
 
 /* 좋아요 수 */
 .table th:nth-child(4),
-.table td:nth-child(5) {
-    width: 18%;
+.table td:nth-child(4) {
+    width: 20%;
 }
 
 .postLink {

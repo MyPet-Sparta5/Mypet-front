@@ -13,7 +13,8 @@ import FacilityFinderPage from './pages/FacilityFinderPage';
 import AdminUserListPage from './pages/Admin/AdminUserListPage';
 import AdminReportListPage from './pages/Admin/AdminReportListPage';
 import ProfilePage from './pages/ProfilePage';
-import AccessDeniedPage from './pages/AccessDeniedPage'; // 접근 불가 페이지 추가
+import MyPostListPage from './pages/MyPostListPage';
+import AccessDeniedPage from './pages/AccessDeniedPage';
 import ProtectedRoute from './ProtectedRoute';
 
 const MainLayout = () => (
@@ -47,7 +48,8 @@ function App() {
             <Route path="/posts/:id" element={<PostDetailPage />} />
             <Route path="/facility-finder" element={<FacilityFinderPage />} />
             <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/access-denied" element={<AccessDeniedPage />} /> {/* 접근 불가 페이지 추가 */}
+            <Route path="/my-post-list/:email" element={<MyPostListPage />} />
+            <Route path="/access-denied" element={<AccessDeniedPage />} />
           </Route>
 
           {/* 백오피스 경로 */}

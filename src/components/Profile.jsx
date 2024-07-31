@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import UserEditModal from '../components/UserEditModal';
 import ChangePasswordModal from './ChangePasswordModal';
 import WithdrawModal from '../components/WithdrawModal';
 import styles from '../styles/Profile.module.css';
-import { useNavigate } from 'react-router-dom';
 import RefreshToken from './RefreshToken';
 import handleLogout from './Logout';
 
@@ -242,7 +241,7 @@ const Profile = () => {
                 </div>
                 <div className={styles.rightContainer}>
                     <div className={styles.tableContainer}>
-                        <h2 className={styles.heading}>나의 최근 게시글 목록 [10개]</h2>
+                        <h2 className={styles.heading}>나의 최근 게시글 목록</h2>
                         <table className={styles.table}>
                             <thead>
                                 <tr>
@@ -264,12 +263,12 @@ const Profile = () => {
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan="3">게시물이 없습니다.</td>
+                                        <td colSpan="4">게시물이 없습니다.</td>
                                     </tr>
                                 )}
                             </tbody>
                         </table>
-                        <Link to="/community" className={styles.viewMore}>통합 게시판</Link>
+                        <Link to={`/my-post-list/${email}`} className={styles.viewMore}>더보기</Link>
                     </div>
                 </div>
             </div>
