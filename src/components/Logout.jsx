@@ -25,12 +25,6 @@ const handleLogout = async (navigate) => {
       localStorage.removeItem('nickname');
       localStorage.removeItem('userRole');
       localStorage.removeItem('userId');
-
-      alert('로그아웃이 완료 되었습니다.');
-
-      // 로그아웃 후 리다이렉트
-      navigate('/');
-      window.location.reload();
     } else {
       console.log('로그아웃 중 오류가 발생했습니다.');
     }
