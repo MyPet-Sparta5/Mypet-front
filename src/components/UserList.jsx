@@ -16,6 +16,7 @@ const UserList = () => {
     const [selectedUser, setSelectedUser] = useState(null);
     const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
     const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);  // Admin 권한 상태 추가
     const navigate = useNavigate();
 
     const axiosInstance = axios.create({
@@ -34,7 +35,7 @@ const UserList = () => {
             if (error.response && error.response.status === 401 && error.response.data.data === 'Expired-Token') {
                 try {
                     await RefreshToken(navigate);
-                    // 토큰 갱신 후 헤더 업데이트
+                    // Update headers after refreshing token
                     axiosInstance.defaults.headers['Authorization'] = `Bearer ${localStorage.getItem('accessToken')}`;
                     return await apiCall();
                 } catch (refreshError) {
@@ -67,6 +68,9 @@ const UserList = () => {
     };
 
     useEffect(() => {
+        // localStorage에서 userRole 가져오기
+        const role = localStorage.getItem('userRole');
+        setIsAdmin(role === 'ROLE_ADMIN');
         fetchUsers(currentPage);
     }, [currentPage]);
 
@@ -75,8 +79,12 @@ const UserList = () => {
     };
 
     const openRoleModal = (user) => {
-        setSelectedUser(user);
-        setIsRoleModalOpen(true);
+        if (isAdmin) {
+            setSelectedUser(user);
+            setIsRoleModalOpen(true);
+        } else {
+            alert('해당 작업은 ADMIN 권한만 가능합니다.');
+        }
     };
 
     const openStatusModal = (user) => {
@@ -158,7 +166,7 @@ const UserList = () => {
                 onPageChange={handlePageChange}
             />
 
-            {isRoleModalOpen && (
+            {isRoleModalOpen && isAdmin && (
                 <UserRoleModal
                     email={selectedUser.email}
                     role={selectedUser.userRole}
