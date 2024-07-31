@@ -26,7 +26,8 @@ function DropdownMenu({ nickname, role }) {
     }, []);
 
     const handleLogoutWithAlert = () => {
-        handleLogout();
+        handleLogout(navigate);
+        toggleMenu();
         alert('로그아웃 되었습니다!');
         navigate('/');
         window.location.reload();
@@ -36,11 +37,11 @@ function DropdownMenu({ nickname, role }) {
         <div className={styles.dropdownMenu} ref={menuRef}>
             <button onClick={toggleMenu} className={styles.button}>{nickname}</button>
             <div className={`${styles.dropdownContent} ${isOpen ? styles.show : ''}`}>
-                <NavLink to="/profile">MyPage</NavLink>
+                <NavLink to="/profile" onClick={toggleMenu}>MyPage</NavLink>
                 {(role === 'ROLE_ADMIN' || role === 'ROLE_MANAGER') && (
-                    <NavLink to="/admin/user-list">BackOffice</NavLink>
+                    <NavLink to="/admin/user-list" onClick={toggleMenu}>BackOffice</NavLink>
                 )}
-                <button onClick={handleLogoutWithAlert} className={styles.logoutButton}>Log Out</button>
+                <button onClick={handleLogoutWithAlert} className={styles.logoutButton}>LogOut</button>
             </div>
         </div>
     );
