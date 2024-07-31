@@ -110,9 +110,9 @@ const ReportList = () => {
                 <thead>
                     <tr>
                         <th>신고 사유</th>
+                        <th>신고당한 유저</th>
                         <th>신고 상태</th>
                         <th>신고 일시</th>
-                        <th>신고당한 유저</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -120,11 +120,11 @@ const ReportList = () => {
                         reports.map(report => (
                             <tr key={report.id}>
                                 <td>{report.reportIssue}</td>
+                                <td>{report.reportedUserEmail}</td>
                                 <td className={styles.reportEdit} onClick={() => handleStatusChange(report)}>
                                     {report.reportStatus}
                                 </td>
-                                <td>{formatDate(report.createdAt)}</td> 
-                                <td>{report.reportedUserNickname}</td>
+                                <td>{formatDate(report.createdAt)}</td>
                             </tr>
                         ))
                     ) : (

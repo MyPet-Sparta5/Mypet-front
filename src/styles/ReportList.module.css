@@ -45,22 +45,25 @@
     width: 50%; /* 원하는 너비로 조정 */
 }
 
-/* 신고상태, 신고일시 */
+/* 신고당한 유저*/
 .table th:nth-child(2),
-.table td:nth-child(2){
-    width: 12%;
-}
-
-.table th:nth-child(3),
-.table td:nth-child(3) {
+.table td:nth-child(2) {
     width: 20%; /* 원하는 너비로 조정 */
 }
 
-/* 신고당한 유저*/
+/* 신고상태 */
+.table th:nth-child(3),
+.table td:nth-child(3){
+    width: 10%;
+}
+
+/* 신고일자*/
 .table th:nth-child(4),
 .table td:nth-child(4) {
-    width: 18%; /* 원하는 너비로 조정 */
+    width: 20%; /* 원하는 너비로 조정 */
 }
+
+
 
 .reportEdit {
     cursor: pointer;
