@@ -4,6 +4,7 @@ import axios from 'axios';
 import styles from '../styles/PostList.module.css';
 import PaginationButton from '../components/PaginationButton';
 import PostCreateModal from '../components/PostCreateModal';
+import RefreshToken from './RefreshToken';
 
 const PostList = ({ category }) => {
     const navigate = useNavigate();
@@ -27,10 +28,7 @@ const PostList = ({ category }) => {
                 });
 
                 const { content, totalPages, totalElements } = response.data.data;
-
-                const transformedData = transformPostData(content);
-
-                setPosts(transformedData);
+                setPosts(transformPostData(content));
                 setTotalPages(totalPages);
                 setTotalElements(totalElements);
             } catch (error) {
@@ -66,11 +64,8 @@ const PostList = ({ category }) => {
     };
 
     const navigateToPost = (post) => {
-        if (post.category === '자랑하기') {
-            navigate(`/pet/${post.id}`);
-        } else {
-            navigate(`/posts/${post.id}`);
-        }
+        const targetPath = post.category === '자랑하기' ? `/pet/${post.id}` : `/posts/${post.id}`;
+        navigate(targetPath);
     };
 
     const openModal = () => {
@@ -81,9 +76,57 @@ const PostList = ({ category }) => {
         setIsModalOpen(false);
     };
 
-    const handleSave = (newPost) => {
-        // 게시글 저장 로직 추가
-        console.log('새 게시글:', newPost);
+    const handleSave = async (postData) => {
+        const { title, content, category, files } = postData;
+        const formData = new FormData();
+        formData.append('requestDto', new Blob([JSON.stringify({ title, content })], { type: 'application/json' }));
+        formData.append('category', category);
+        files.forEach(file => {
+            formData.append('files', file); // 파일 객체를 전송
+        });
+
+        try {
+            const token = localStorage.getItem('accessToken');
+            if (!token) {
+                alert('로그인이 필요합니다.');
+                return;
+            }
+
+            const response = await axios.post('http://localhost:8080/api/posts', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${token}`,
+                }
+            });
+
+            const postId = response.data.data.id;
+            const targetPath = category === 'BOAST' ? `/pet/${postId}` : `/posts/${postId}`;
+            navigate(targetPath);
+            closeModal();
+        } catch (error) {
+            if (error.response?.status === 401 && error.response.data.data === 'Expired-Token') {
+                try {
+                    await RefreshToken(navigate);
+                    const newToken = localStorage.getItem('accessToken');
+                    const response = await axios.post('http://localhost:8080/api/posts', formData, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data',
+                            'Authorization': `Bearer ${newToken}`,
+                        }
+                    });
+
+                    const postId = response.data.data.id;
+                    const targetPath = category === '자랑하기' ? `/pet/${postId}` : `/posts/${postId}`;
+                    navigate(targetPath);
+                    closeModal();
+                } catch (refreshError) {
+                    console.error('Token refresh error:', refreshError);
+                }
+            } else {
+                console.error('Error creating post:', error);
+                alert('게시물 작성 중 오류가 발생했습니다. 다시 시도해 주세요.');
+            }
+        }
     };
 
     return (
