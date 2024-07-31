@@ -25,7 +25,7 @@ function ChangePasswordModal({ onSave, onClose }) {
             return;
         }
 
-        onSave({ currentPassword, newPassword });
+        onSave({ currentPassword, newPassword, confirmNewPassword });
         onClose();
     };
 

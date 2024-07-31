@@ -1,30 +1,83 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 import UserEditModal from '../components/UserEditModal';
 import ChangePasswordModal from './ChangePasswordModal';
 import WithdrawModal from '../components/WithdrawModal';
 import styles from '../styles/Profile.module.css';
-
-const dummyPosts = [
-    { id: 1, category: '자랑하기', title: '자랑글 1', likes: 10 },
-    { id: 2, category: '자유게시판', title: '자유게시글 1', likes: 5 },
-    { id: 3, category: '자랑하기', title: '자랑글 2', likes: 8 },
-    { id: 4, category: '자유게시판', title: '자유게시글 2', likes: 15 },
-    { id: 5, category: '자랑하기', title: '자랑글 3', likes: 7 },
-    { id: 6, category: '자유게시판', title: '자유게시글 3', likes: 12 },
-    { id: 7, category: '자랑하기', title: '자랑글 4', likes: 3 },
-    { id: 8, category: '자유게시판', title: '자유게시글 4', likes: 9 },
-    { id: 9, category: '자랑하기', title: '자랑글 5', likes: 6 },
-    { id: 10, category: '자유게시판', title: '자유게시글 5', likes: 4 },
-];
+import { useNavigate } from 'react-router-dom';
+import RefreshToken from './RefreshToken';
+import handleLogout from './Logout';
 
 const Profile = () => {
     const [isUserEditModalOpen, setIsUserEditModalOpen] = useState(false);
     const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
     const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
-    const [nickname, setNickname] = useState('홍길동');
-    const [email, setEmail] = useState('hong@example.com');
-    const [posts] = useState(dummyPosts);
+    const [nickname, setNickname] = useState('');
+    const [email, setEmail] = useState('');
+    const [postList, setPostList] = useState([]);
+    const navigate = useNavigate();
+
+    const transformPostData = (data) => {
+        const categoryMapping = {
+            "BOAST": "자랑하기",
+            "FREEDOM": "자유게시판"
+        };
+
+        return data.map(post => ({
+            id: post.id,
+            category: categoryMapping[post.category] || post.category,
+            title: post.title,
+            createdTime: new Date(post.createAt).toLocaleDateString(),
+            likes: post.likeCount,
+        }));
+    };
+
+    const navigateToPost = (post) => {
+        if (post.category === '자랑하기') {
+            navigate(`/pet/${post.id}`);
+        } else {
+            navigate(`/posts/${post.id}`);
+        }
+    };
+
+    useEffect(() => {
+        // 사용자 정보를 불러오는 API 호출
+        const fetchUserData = async () => {
+            try {
+                const accessToken = localStorage.getItem('accessToken');
+                if (!accessToken) {
+                    console.error('액세스 토큰이 없습니다.');
+                    navigate('/');
+                    return;
+                }
+
+                const response = await axios.get(
+                    'http://localhost:8080/api/users', {
+                    headers: { Authorization: `Bearer ${accessToken}` },
+                    withCredentials: true
+                });
+
+                const userData = response.data.data;
+                setNickname(userData.nickname);
+                setEmail(userData.email);
+                setPostList(transformPostData(userData.postList));
+            } catch (error) {
+                if (error.response?.status === 401 && error.response.data.data === 'Expired-Token') {
+                    try {
+                        await RefreshToken(navigate);
+                        fetchUserData();
+                    } catch (refreshError) {
+                        console.error('Token refresh error:', refreshError);
+                    }
+                } else {
+                    alert(`${error.response.data.message}` || '사용자 정보를 불러오는 데 실패했습니다.');
+                }
+            }
+        };
+
+        fetchUserData();
+    }, [navigate]);
 
     const handleOpenUserEditModal = () => {
         setIsUserEditModalOpen(true);
@@ -50,20 +103,121 @@ const Profile = () => {
         setIsWithdrawModalOpen(false);
     };
 
-    const handleUserEditConfirm = (data) => {
+    const handleUserEditConfirm = async (data) => {
         console.log('회원정보 수정:', data);
-        setNickname(data.nickname);
-        handleCloseUserEditModal();
+        try {
+            const accessToken = localStorage.getItem('accessToken');
+            if (!accessToken) {
+                console.error('액세스 토큰이 없습니다.');
+                return;
+            }
+
+            const response = await axios.put(
+                'http://localhost:8080/api/users',
+                {
+                    newNickname: data.nickname,
+                    currentPassword: data.password
+                }, {
+                headers: { Authorization: `Bearer ${accessToken}` },
+                withCredentials: true
+            });
+
+            if (response.status === 200) {
+                setNickname(data.nickname);
+                alert(`닉네임이 "${response.data.data.newNickname}"(으)로 수정되었습니다.`);
+                handleCloseUserEditModal();
+                navigate('/profile')
+            }
+        } catch (error) {
+            if (error.response?.status === 401 && error.response.data.data === 'Expired-Token') {
+                try {
+                    await RefreshToken(navigate);
+                    handleUserEditConfirm(data);
+                } catch (refreshError) {
+                    console.error('Token refresh error:', refreshError);
+                }
+            } else {
+                alert(`${error.response.data.message}` || '회원정보 수정이 실패했습니다.');
+            }
+        }
     };
 
-    const handleChangePasswordConfirm = (data) => {
+    const handleChangePasswordConfirm = async (data) => {
         console.log('비밀번호 변경:', data);
-        handleCloseChangePasswordModal();
+        try {
+            const accessToken = localStorage.getItem('accessToken');
+            if (!accessToken) {
+                console.error('액세스 토큰이 없습니다.');
+                return;
+            }
+
+            const response = await axios.put(
+                'http://localhost:8080/api/users/password',
+                {
+                    currentPassword: data.currentPassword,
+                    newPassword: data.newPassword,
+                    newRepeatPassword: data.confirmNewPassword
+                }, {
+                headers: { Authorization: `Bearer ${accessToken}` },
+                withCredentials: true
+            });
+
+            if (response.status === 200) {
+                handleLogout(navigate);
+                handleCloseChangePasswordModal();
+                alert('비밀번호 변경이 완료 되었습니다. 다시 로그인 해주세요!');
+                navigate('/login');
+                window.location.reload();
+            }
+        } catch (error) {
+            if (error.response?.status === 401 && error.response.data.data === 'Expired-Token') {
+                try {
+                    await RefreshToken(navigate);
+                    handleChangePasswordConfirm(data);
+                } catch (refreshError) {
+                    console.error('Token refresh error:', refreshError);
+                }
+            } else {
+                alert(`${error.response.data.message}` || '비밀번호 변경이 실패했습니다.');
+            }
+        }
     };
 
-    const handleWithdrawConfirm = () => {
+    const handleWithdrawConfirm = async () => {
         console.log('회원탈퇴 확인');
-        handleCloseWithdrawModal();
+        try {
+            const accessToken = localStorage.getItem('accessToken');
+            if (!accessToken) {
+                console.error('액세스 토큰이 없습니다.');
+                return;
+            }
+
+            const response = await axios.put(
+                'http://localhost:8080/api/users/withdraw',
+                {}, {
+                headers: { Authorization: `Bearer ${accessToken}` },
+                withCredentials: true
+            });
+
+            if (response.status === 200) {
+                handleLogout(navigate);
+                handleCloseWithdrawModal();
+                alert('회원탈퇴가 완료 되었습니다. 메인 페이지로 이동합니다.');
+                navigate('/');
+                window.location.reload();
+            }
+        } catch (error) {
+            if (error.response?.status === 401 && error.response.data.data === 'Expired-Token') {
+                try {
+                    await RefreshToken(navigate);
+                    handleWithdrawConfirm();
+                } catch (refreshError) {
+                    console.error('Token refresh error:', refreshError);
+                }
+            } else {
+                alert(`${error.response.data.message}` || '회원탈퇴가 실패했습니다.');
+            }
+        }
     };
 
     return (
@@ -93,15 +247,17 @@ const Profile = () => {
                                 <tr>
                                     <th>카테고리</th>
                                     <th>제목</th>
+                                    <th>작성 일자</th>
                                     <th>좋아요 수</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {posts.length > 0 ? (
-                                    posts.map(post => (
+                                {postList.length > 0 ? (
+                                    postList.map(post => (
                                         <tr key={post.id} className={styles.clickableRow}>
                                             <td>{post.category}</td>
-                                            <td><Link to={`/posts/${post.id}`} className={styles.postLink}>{post.title}</Link></td>
+                                            <td key={post.id} onClick={() => navigateToPost(post)} className={styles.postLink}>{post.title}</td>
+                                            <td>{post.createdTime}</td>
                                             <td>{post.likes}</td>
                                         </tr>
                                     ))
@@ -120,7 +276,6 @@ const Profile = () => {
             {isUserEditModalOpen && (
                 <UserEditModal
                     nickname={nickname}
-                    email={email}
                     onSave={handleUserEditConfirm}
                     onClose={handleCloseUserEditModal}
                 />

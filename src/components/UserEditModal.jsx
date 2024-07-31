@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styles from '../styles/Modal.module.css';
 
-function UserEditModal({ nickname, email, onSave, onClose }) {
+function UserEditModal({ nickname, onSave, onClose }) {
     const [nicknameValue, setNickname] = useState(nickname);
     const [currentPassword, setCurrentPassword] = useState('');
     const [error, setError] = useState('');
