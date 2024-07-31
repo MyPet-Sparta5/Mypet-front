@@ -13,7 +13,7 @@ import FacilityFinderPage from './pages/FacilityFinderPage';
 import AdminUserListPage from './pages/Admin/AdminUserListPage';
 import AdminReportListPage from './pages/Admin/AdminReportListPage';
 import ProfilePage from './pages/ProfilePage';
-import MyPostListPage from './pages/MyPostListPage'; // 페이지 이름이 아니라 컴포넌트 이름이 일치하는지 확인
+import MyPostListPage from './pages/MyPostListPage';
 import AccessDeniedPage from './pages/AccessDeniedPage';
 import ProtectedRoute from './ProtectedRoute';
 
@@ -48,7 +48,7 @@ function App() {
             <Route path="/posts/:id" element={<PostDetailPage />} />
             <Route path="/facility-finder" element={<FacilityFinderPage />} />
             <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/my-post-list/:email" element={<MyPostListPage />} /> {/* 수정된 부분 확인 */}
+            <Route path="/my-post-list/:email" element={<MyPostListPage />} />
             <Route path="/access-denied" element={<AccessDeniedPage />} />
           </Route>
 

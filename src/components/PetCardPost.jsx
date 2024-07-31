@@ -212,7 +212,7 @@ const PetCardPost = () => {
   }
 
   const handleBoardClick = () => {
-    navigate('/gallery');
+    navigate(-1);
   };
 
   const isPostOwner = post && post.postUserId === currentUserId;

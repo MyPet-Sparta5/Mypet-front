@@ -320,7 +320,7 @@ const PostDetail = () => {
     };
 
     const handleBoardClick = () => {
-        navigate('/freedom');
+        navigate(-1);
     };
 
     const isPostOwner = post && post.postUserId === currentUserId;
