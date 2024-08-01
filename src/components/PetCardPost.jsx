@@ -181,24 +181,26 @@ const PetCardPost = () => {
       if (!token) {
         throw new Error('로그인이 필요합니다.');
       }
-
-      await axios.post(`http://localhost:8080/api/reports/users/${postUserId}`,
+      // 게시물 신고 API 호출
+      await axios.post(
+        `http://localhost:8080/api/reports/posts/${id}`, // 게시물 신고 엔드포인트
         { reportIssue: text }, // 신고 사유를 포함한 요청 본문
         { headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' } }
       );
-      alert('유저 신고가 접수되었습니다.');
-      navigate('/community');
+
+      alert('게시물 신고가 접수되었습니다.');
+      navigate('/community'); // 신고 후 이동할 페이지
     } catch (error) {
       if (error.response?.status === 401 && error.response.data.data === 'Expired-Token') {
         try {
           await RefreshToken(navigate);
-          await handleReportModal();
+          await handleReportModal({ text }); // 토큰 갱신 후 재시도
         } catch (refreshError) {
           console.error('Token refresh error:', refreshError);
         }
       } else {
-        console.error("유저 신고 중 오류:", error);
-        alert("유저 신고에 실패했습니다.");
+        console.error("게시물 신고 중 오류:", error);
+        alert("게시물 신고에 실패했습니다.");
       }
     }
   };
@@ -219,7 +221,7 @@ const PetCardPost = () => {
 
   const shouldShowEditIcon = userRole && isPostOwner;
   const shouldShowDeleteIcon = userRole && (userRole === "ROLE_ADMIN" || userRole === "ROLE_MANAGER" || isPostOwner);
-  const shouldShowReportIcon = userRole &&  !(userRole === "ROLE_ADMIN" || userRole === "ROLE_MANAGER" || isPostOwner);
+  const shouldShowReportIcon = userRole && !(userRole === "ROLE_ADMIN" || userRole === "ROLE_MANAGER" || isPostOwner);
 
 
   if (!post) {
