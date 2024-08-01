@@ -12,6 +12,8 @@ import PetCardPostPage from './pages/PetCardPostPage';
 import FacilityFinderPage from './pages/FacilityFinderPage';
 import AdminUserListPage from './pages/Admin/AdminUserListPage';
 import AdminReportListPage from './pages/Admin/AdminReportListPage';
+import AdminSuspensionListPage from './pages/Admin/AdminSuspensionListPage';
+import AdminPostListPage from './pages/Admin/AdminPostListPage';
 import ProfilePage from './pages/ProfilePage';
 import MyPostListPage from './pages/MyPostListPage';
 import AccessDeniedPage from './pages/AccessDeniedPage';
@@ -57,6 +59,8 @@ function App() {
             <Route element={<AdminLayout />}>
               <Route path="user-list" element={<AdminUserListPage />} />
               <Route path="report-list" element={<AdminReportListPage />} />
+              <Route path="suspension-list" element={<AdminSuspensionListPage />} />
+              <Route path="post-list" element={<AdminPostListPage />} />
             </Route>
           </Route>
         </Routes>
