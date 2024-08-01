@@ -313,12 +313,8 @@ const PostDetail = () => {
             navigate('/community'); // 신고 후 이동할 페이지
         } catch (error) {
             if (error.response?.status === 401 && error.response.data.data === 'Expired-Token') {
-                try {
-                    await RefreshToken(navigate);
-                    await handleReportModal({ text }); // 토큰 갱신 후 재시도
-                } catch (refreshError) {
-                    console.error('Token refresh error:', refreshError);
-                }
+                await RefreshToken(navigate);
+                await handleReportModal({ text }); // 토큰 갱신 후 재시도
             } else {
                 console.error("게시물 신고 중 오류:", error);
                 alert("게시물 신고에 실패했습니다.");
