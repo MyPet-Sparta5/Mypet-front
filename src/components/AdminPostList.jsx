@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from '../styles/PostList.module.css';
-import PaginationButton from '../components/PaginationButton';
+import PaginationButton from './PaginationButton';
+import PostStatusModal from './PostStatusModal';
 
 const AdminPostList = () => {
     // 예시 데이터
@@ -21,13 +22,25 @@ const AdminPostList = () => {
     const navigate = useNavigate();
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    
+    const [selectedUser, setSelectedUser] = useState(null);
+    const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+
     const handlePageChange = (pageNumber) => {
         setCurrentPage(pageNumber);
     };
 
     const navigateToPost = (postId) => {
         navigate(`/posts/${postId}`);
+    };
+
+    const openStatusModal = (user) => {
+        setSelectedUser(user);
+        setIsStatusModalOpen(true);
+    };
+
+    const handleStatusSave = async (newStatus) => {
+        //api 연동
+        setIsStatusModalOpen(false);
     };
 
     return (
@@ -53,10 +66,10 @@ const AdminPostList = () => {
                 <tbody>
                     {posts.length > 0 ? (
                         posts.map(post => (
-                            <tr key={post.id} onClick={() => navigateToPost(post)} className={styles.clickableRow}>
+                            <tr key={post.id}>
                                 <td>{post.category}</td>
-                                <td>{post.title}</td>
-                                <td className={styles.userEdit} >{post.status}</td>
+                                <td onClick={() => navigateToPost(post)} className={styles.adminPost}>{post.title}</td>
+                                <td className={styles.adminPost} onClick={() => openStatusModal(post)}>{post.status}</td>
                                 <td>{post.nickname}</td>
                                 <td>{post.createdTime}</td>
                             </tr>
@@ -74,6 +87,14 @@ const AdminPostList = () => {
                 totalPages={totalPages}
                 onPageChange={handlePageChange}
             />
+
+            {isStatusModalOpen && (
+                <PostStatusModal
+                    status={selectedUser.status}
+                    onSave={handleStatusSave}
+                    onClose={() => setIsStatusModalOpen(false)}
+                />
+            )}
         </div>
     );
 };
