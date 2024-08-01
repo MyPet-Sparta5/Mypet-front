@@ -35,6 +35,12 @@ function Header() {
                     <NavLink to="/admin/report-list" className={({ isActive }) => isActive ? styles.navLink + ' ' + styles.active : styles.navLink}>
                         신고 목록
                     </NavLink>
+                    <NavLink to="/admin/suspension-list" className={({ isActive }) => isActive ? styles.navLink + ' ' + styles.active : styles.navLink}>
+                        회원 정지 목록
+                    </NavLink>
+                    <NavLink to="/admin/post-list" className={({ isActive }) => isActive ? styles.navLink + ' ' + styles.active : styles.navLink}>
+                        게시물 관리
+                    </NavLink>
                 </nav>
                 <div className={styles.headerButtons}>
                     <DropdownMenu nickname={user.nickname} role={user.role} />
