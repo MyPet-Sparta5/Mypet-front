@@ -87,6 +87,7 @@ const AdminPostList = () => {
             fetchPosts(currentPage, statusFilter);
         } catch (error) {
             console.error("Failed to update post status", error);
+            alert("동일 상태로는 변경이 불가능합니다.");
         }
     };
 
