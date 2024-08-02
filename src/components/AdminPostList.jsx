@@ -1,29 +1,69 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import styles from '../styles/PostList.module.css';
 import PaginationButton from './PaginationButton';
 import PostStatusModal from './PostStatusModal';
+import RefreshToken from './RefreshToken';
 
 const AdminPostList = () => {
-    // 예시 데이터
-    const posts = [
-        { id: 1, category: "자랑하기", title: "첫 번째 게시물", content: "내용 1", nickname: "test", createdTime: "2024-07-20", likes: 10, status: "active" },
-        { id: 2, category: "자유게시판", title: "두 번째 게시물", content: "내용 2", nickname: "test", createdTime: "2024-07-21", likes: 20, status: "active" },
-        { id: 3, category: "자랑하기", title: "세 번째 게시물", content: "내용 3", nickname: "test", createdTime: "2024-07-22", likes: 30, status: "active" },
-        { id: 4, category: "자랑하기", title: "네 번째 게시물", content: "내용 4", nickname: "test", createdTime: "2024-07-23", likes: 40, status: "active" },
-        { id: 5, category: "자유게시판", title: "다섯 번째 게시물", content: "내용 5", nickname: "test", createdTime: "2024-07-24", likes: 50, status: "active" },
-        { id: 6, category: "자랑하기", title: "여섯 번째 게시물", content: "내용 6", nickname: "test", createdTime: "2024-07-25", likes: 60, status: "active" },
-        { id: 7, category: "자랑하기", title: "7번째 게시물", content: "내용 7", nickname: "test", createdTime: "2024-07-23", likes: 40, status: "active" },
-        { id: 8, category: "자유게시판", title: "8번째 게시물", content: "내용 8", nickname: "test", createdTime: "2024-07-24", likes: 50, status: "active" },
-        { id: 9, category: "자랑하기", title: "9번째 게시물", content: "내용 9", nickname: "test", createdTime: "2024-07-25", likes: 60, status: "active" },
-        { id: 10, category: "자랑하기", title: "10번째 게시물", content: "내용 10", nickname: "test", createdTime: "2024-07-23", likes: 40, status: "active" }
-    ];
-
     const navigate = useNavigate();
+    const [posts, setPosts] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [selectedUser, setSelectedUser] = useState(null);
+    const [selectedPost, setSelectedPost] = useState(null);
     const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+    const [statusFilter, setStatusFilter] = useState("ALL");
+    const postsPerPage = 10;
+
+    useEffect(() => {
+        fetchPosts(currentPage, statusFilter);
+    }, [currentPage, statusFilter]);
+
+    const axiosInstance = axios.create({
+        baseURL: 'http://localhost:8080/api',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+            'Content-Type': 'application/json'
+        },
+        withCredentials: true
+    });
+
+    const handleApiCall = async (apiCall) => {
+        try {
+            return await apiCall();
+        } catch (error) {
+            if (error.response && error.response.status === 401 && error.response.data.data === 'Expired-Token') {
+                try {
+                    await RefreshToken(navigate);
+                    // Update headers after refreshing token
+                    axiosInstance.defaults.headers['Authorization'] = `Bearer ${localStorage.getItem('accessToken')}`;
+                    return await apiCall();
+                } catch (refreshError) {
+                    console.error('Token refresh error:', refreshError);
+                }
+            }
+            throw error;
+        }
+    };
+
+    const fetchPosts = async (page, status) => {
+        try {
+            const response = await handleApiCall(() => axiosInstance.get(`/admin/post-manage`, {
+                params: {
+                    page: currentPage,
+                    pageSize: postsPerPage,
+                    sortBy: 'createdAt,desc',
+                    postStatus: status
+                }
+            }));
+            const { content, totalPages } = response.data.data;
+            setPosts(transformPostData(content));
+            setTotalPages(totalPages);
+        } catch (error) {
+            console.error("Failed to fetch posts", error);
+        }
+    };
 
     const handlePageChange = (pageNumber) => {
         setCurrentPage(pageNumber);
@@ -33,14 +73,50 @@ const AdminPostList = () => {
         navigate(`/posts/${postId}`);
     };
 
-    const openStatusModal = (user) => {
-        setSelectedUser(user);
+    const openStatusModal = (post) => {
+        setSelectedPost(post);
         setIsStatusModalOpen(true);
     };
 
     const handleStatusSave = async (newStatus) => {
-        //api 연동
-        setIsStatusModalOpen(false);
+        try {
+            await handleApiCall(() => axiosInstance.put(`/admin/post-manage/${selectedPost.id}/post-status`, {
+                postStatus: newStatus
+            }));
+            setIsStatusModalOpen(false);
+            fetchPosts(currentPage, statusFilter);
+        } catch (error) {
+            console.error("Failed to update post status", error);
+        }
+    };
+
+    const handleStatusFilterChange = (event) => {
+        setStatusFilter(event.target.value);
+        setCurrentPage(1);
+    };
+
+    const transformPostData = (data) => {
+        const categoryMapping = {
+            "BOAST": "자랑하기",
+            "FREEDOM": "자유게시판"
+        };
+
+        const statusMapping = {
+            "ACTIVE": "공개",
+            "INACTIVE": "비공개"
+        }
+
+        return data.map(post => ({
+            id: post.id,
+            category: categoryMapping[post.category] || post.category,
+            title: post.title,
+            content: post.content,
+            nickname: post.nickname,
+            createdTime: new Date(post.createAt).toLocaleDateString(),
+            postStatusName: statusMapping[post.postStatus] || post.postStatus,
+            postStatus: post.postStatus,
+            fileUrls: post.files.map(file => file.url),
+        }));
     };
 
     return (
@@ -48,10 +124,10 @@ const AdminPostList = () => {
             <div className={styles.header}>
                 <h2 className={styles.heading}>상태별 게시물 관리</h2>
             </div>
-            <select className={styles.option}>
-                <option>전체</option>
-                <option>공개</option>
-                <option>비공개</option>
+            <select className={styles.option} value={statusFilter} onChange={handleStatusFilterChange}>
+                <option value="ALL">전체</option>
+                <option value="ACTIVE">공개</option>
+                <option value="INACTIVE">비공개</option>
             </select>
             <table className={styles.table}>
                 <thead>
@@ -68,10 +144,10 @@ const AdminPostList = () => {
                         posts.map(post => (
                             <tr key={post.id}>
                                 <td>{post.category}</td>
-                                <td onClick={() => navigateToPost(post)} className={styles.adminPost}>{post.title}</td>
-                                <td className={styles.adminPost} onClick={() => openStatusModal(post)}>{post.status}</td>
+                                <td onClick={() => navigateToPost(post.id)} className={styles.adminPost}>{post.title}</td>
+                                <td className={styles.adminPost} onClick={() => openStatusModal(post)}>{post.postStatusName}</td>
                                 <td>{post.nickname}</td>
-                                <td>{post.createdTime}</td>
+                                <td>{post.createAt}</td>
                             </tr>
                         ))
                     ) : (
@@ -90,7 +166,7 @@ const AdminPostList = () => {
 
             {isStatusModalOpen && (
                 <PostStatusModal
-                    status={selectedUser.status}
+                    status={selectedPost.postStatus}
                     onSave={handleStatusSave}
                     onClose={() => setIsStatusModalOpen(false)}
                 />

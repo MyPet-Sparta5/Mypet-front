@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 import styles from '../styles/Modal.module.css';
 
+const statusMapping = {
+    ACTIVE: "공개",
+    INACTIVE: "비공개"
+};
+
 const PostStatusModal = ({ status, onSave, onClose }) => {
     const [selectedStatus, setSelectedStatus] = useState(status);
 
@@ -13,7 +18,7 @@ const PostStatusModal = ({ status, onSave, onClose }) => {
         <div className={styles.modalOverlay}>
             <div className={styles.modal}>
                 <h2>게시물 상태 수정</h2>
-                <h4>게시물 현재 상태 : {status}</h4>
+                <h4>게시물 현재 상태: {statusMapping[status]}</h4>
                 <div className={styles.inputGroup}>
                     <label htmlFor="postStatus">게시물 상태</label>
                     <select

@@ -377,7 +377,7 @@ const PostDetail = () => {
                                 <p className={styles.infoContent}>{post.content}</p>
                             </div>
                         </div>
-                        <button className={styles.backButton} onClick={handleBoardClick}>게시판으로 돌아가기</button>
+                        <button className={styles.backButton} onClick={handleBoardClick}>뒤로 돌아가기</button>
                     </div>
                     {isEditing && (
                         <PostEditModal
