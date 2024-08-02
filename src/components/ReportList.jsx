@@ -103,6 +103,11 @@ const ReportList = () => {
         return new Date(dateString).toLocaleString('ko-KR', options).replace(/\.\s/g, '. ').replace(/:\d{2}\s/, ' ');
     };
 
+    const navigateToPost = (report) => {
+        const targetPath = report.reportedPostCategory === 'BOAST' ? `/pet/${report.reportedPostId}` : `/posts/${report.reportedPostId}`;
+        navigate(targetPath);
+    };
+
     return (
         <div className={styles.container}>
             <h2 className={styles.heading}>신고 목록</h2>
@@ -110,7 +115,7 @@ const ReportList = () => {
                 <thead>
                     <tr>
                         <th>신고 사유</th>
-                        <th>신고당한 유저</th>
+                        <th>신고당한 게시물 ID</th>
                         <th>신고 상태</th>
                         <th>신고 일시</th>
                     </tr>
@@ -120,7 +125,7 @@ const ReportList = () => {
                         reports.map(report => (
                             <tr key={report.id}>
                                 <td>{report.reportIssue}</td>
-                                <td>{report.reportedUserEmail}</td>
+                                <td className={styles.reportEdit} onClick={() => navigateToPost(report)}>{report.reportedPostId}</td>
                                 <td className={styles.reportEdit} onClick={() => handleStatusChange(report)}>
                                     {report.reportStatus}
                                 </td>
