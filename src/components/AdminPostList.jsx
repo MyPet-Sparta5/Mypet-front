@@ -69,8 +69,9 @@ const AdminPostList = () => {
         setCurrentPage(pageNumber);
     };
 
-    const navigateToPost = (postId) => {
-        navigate(`/posts/${postId}`);
+    const navigateToPost = (post) => {
+        const targetPath = post.category === '자랑하기' ? `/pet/${post.id}` : `/posts/${post.id}`;
+        navigate(targetPath);
     };
 
     const openStatusModal = (post) => {
@@ -145,7 +146,7 @@ const AdminPostList = () => {
                         posts.map(post => (
                             <tr key={post.id}>
                                 <td>{post.category}</td>
-                                <td onClick={() => navigateToPost(post.id)} className={styles.adminPost}>{post.title}</td>
+                                <td onClick={() => navigateToPost(post)} className={styles.adminPost}>{post.title}</td>
                                 <td className={styles.adminPost} onClick={() => openStatusModal(post)}>{post.postStatusName}</td>
                                 <td>{post.nickname}</td>
                                 <td>{post.createdTime}</td>
