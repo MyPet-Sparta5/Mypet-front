@@ -147,7 +147,7 @@ const AdminPostList = () => {
                                 <td onClick={() => navigateToPost(post.id)} className={styles.adminPost}>{post.title}</td>
                                 <td className={styles.adminPost} onClick={() => openStatusModal(post)}>{post.postStatusName}</td>
                                 <td>{post.nickname}</td>
-                                <td>{post.createAt}</td>
+                                <td>{post.createdTime}</td>
                             </tr>
                         ))
                     ) : (
