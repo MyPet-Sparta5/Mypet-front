@@ -148,7 +148,7 @@ const UserList = () => {
                                 <td>{user.email}</td>
                                 <td className={styles.userEdit} onClick={() => openRoleModal(user)}>{user.userRole}</td>
                                 <td className={styles.userEdit} onClick={() => openStatusModal(user)}>{user.userStatus}</td>
-                                <td>{user.penaltyCount}</td>
+                                <td>{user.suspensionCount}</td>
                                 <td>{user.createAt.split('T')[0]}</td>
                             </tr>
                         ))
