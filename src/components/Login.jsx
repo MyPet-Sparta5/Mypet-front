@@ -13,7 +13,7 @@ function Login() {
     const handleLoginClick = async (e) => {
         e.preventDefault();
 
-        if (!emailInput.current || !passwordInput.current) {
+        if (!emailInput.current.value || !passwordInput.current.value) {
             alert('빈 칸을 전부 입력 해주세요.');
             return;
         }
@@ -47,10 +47,10 @@ function Login() {
                 navigate('/');
                 window.location.reload();
             } else {
-                alert('로그인 중 오류가 발생했습니다.')
+                alert('아이디 또는 비밀번호가 맞지 않습니다. 다시 시도해 주세요.')
             }
         } catch (error) {
-            alert(`${error.response.data.message}` || '로그인 중 오류가 발생했습니다.');
+            alert('아이디 또는 비밀번호가 맞지 않습니다. 다시 시도해 주세요.');
         }
     };
 
