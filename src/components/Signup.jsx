@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef } from 'react';
 import axios from 'axios';
 import styles from '../styles/Signup.module.css';
 import { useNavigate } from 'react-router-dom';
@@ -11,9 +11,20 @@ function Signup() {
 
     const navigate = useNavigate();
 
+    const validateEmail = (email) => {
+        // 이메일 형식 정규 표현식
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    };
+
     const handleSignupClick = async () => {
-        if (!emailInput.current || !passwordInput.current || !repeatPasswordInput.current || !nicknameInput.current) {
+        if (!emailInput.current.value || !passwordInput.current.value || !repeatPasswordInput.current.value || !nicknameInput.current.value) {
             alert('빈 칸을 전부 입력 해주세요.');
+            return;
+        }
+
+        if (!validateEmail(emailInput.current.value)) {
+            alert('올바른 이메일 형식이 아닙니다. 이메일 형식으로 입력해 주세요.');
             return;
         }
 
@@ -30,7 +41,7 @@ function Signup() {
                 nickname: nicknameInput.current.value
             });
 
-            if (response.status == 201) { // 201 Created
+            if (response.status === 201) { // 201 Created
                 alert('회원가입이 성공적으로 완료되었습니다.');
                 navigate('/login');
             } else {
