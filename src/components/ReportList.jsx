@@ -116,6 +116,7 @@ const ReportList = () => {
                     <tr>
                         <th>신고 사유</th>
                         <th>신고당한 게시물 ID</th>
+                        <th>게시물 작성자 id</th>
                         <th>신고 상태</th>
                         <th>신고 일시</th>
                     </tr>
@@ -126,6 +127,7 @@ const ReportList = () => {
                             <tr key={report.id}>
                                 <td>{report.reportIssue}</td>
                                 <td className={styles.reportEdit} onClick={() => navigateToPost(report)}>{report.reportedPostId}</td>
+                                <td>{report.reportedPostUserId}</td>
                                 <td className={styles.reportEdit} onClick={() => handleStatusChange(report)}>
                                     {report.reportStatus}
                                 </td>
