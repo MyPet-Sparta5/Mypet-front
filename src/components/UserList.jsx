@@ -110,15 +110,13 @@ const UserList = () => {
         setIsRoleModalOpen(false);
     };
 
-    const handleStatusSave = async (newStatus) => {
+    const handleStatusSave = async (newStatusObj) => {
         try {
-            const response = await handleApiCall(() => axiosInstance.put(`/api/admin/user-manage/${selectedUser.id}/status`, {
-                status: newStatus
-            }));
+            const response = await handleApiCall(() => axiosInstance.put(`/api/admin/user-manage/${selectedUser.id}/status`, newStatusObj));
 
             if (response.status === 200) {
                 fetchUsers(currentPage);
-                alert(`${selectedUser.email} 유저의 상태를 ${newStatus}로 변경했습니다`);
+                alert(`${selectedUser.email} 유저의 상태를 ${newStatusObj.status}로 변경했습니다`);
             } else {
                 console.error('Failed to save status:', response.data);
             }

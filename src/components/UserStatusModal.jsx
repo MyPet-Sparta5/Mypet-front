@@ -1,13 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styles from '../styles/Modal.module.css';
 
 const UserStatusModal = ({ email, status, onSave, onClose }) => {
     const [selectedStatus, setSelectedStatus] = React.useState(status);
+    const [suspensionIssue, setSuspensionIssue] = useState('');
 
     const handleSave = () => {
-        onSave(selectedStatus);
-        onClose();
-    };
+    onSave({ status: selectedStatus, suspensionIssue: suspensionIssue });
+    onClose();
+};
 
     return (
         <div className={styles.modalOverlay}>
@@ -24,10 +25,21 @@ const UserStatusModal = ({ email, status, onSave, onClose }) => {
                     >
                         <option value="ACTIVE">정상</option>
                         <option value="WITHDRAWAL">탈퇴</option>
-                        <option value="SUSPENSION">일시정지</option>
-                        <option value="BAN">영구정지</option>
+                        <option value="SUSPENSION">정지</option>
                     </select>
                 </div>
+                {selectedStatus === 'SUSPENSION' && (
+                    <div className={styles.inputGroup}>
+                        <label htmlFor="suspensionIssue">정지 사유</label>
+                        <input
+                            className={styles.inputTitle}
+                            id="suspensionIssue"
+                            type="text"
+                            value={suspensionIssue}
+                            onChange={(e) => setSuspensionIssue(e.target.value)}
+                        />
+                    </div>
+                )}
                 <div className={styles.modalButtons}>
                     <button className={styles.saveButton} onClick={handleSave}>저장</button>
                     <button className={styles.cancelButton} onClick={onClose}>취소</button>
