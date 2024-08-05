@@ -111,6 +111,10 @@ const UserList = () => {
     };
 
     const handleStatusSave = async (newStatusObj) => {
+        if(selectedUser.status === newStatusObj.status){
+            alert('변경하려는 상태가 현재 상태와 동일합니다.');
+            return;
+        }
         try {
             const response = await handleApiCall(() => axiosInstance.put(`/api/admin/user-manage/${selectedUser.id}/status`, newStatusObj));
 
@@ -132,6 +136,7 @@ const UserList = () => {
             <table className={styles.table}>
                 <thead>
                     <tr>
+                        <th>유저 id</th>
                         <th>이메일</th>
                         <th>유저 권한</th>
                         <th>유저 상태</th>
@@ -143,6 +148,7 @@ const UserList = () => {
                     {users.length > 0 ? (
                         users.map(user => (
                             <tr key={user.id}>
+                                <td>{user.id}</td>
                                 <td>{user.email}</td>
                                 <td className={styles.userEdit} onClick={() => openRoleModal(user)}>{user.userRole}</td>
                                 <td className={styles.userEdit} onClick={() => openStatusModal(user)}>{user.userStatus}</td>
