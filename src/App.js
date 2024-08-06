@@ -18,6 +18,8 @@ import ProfilePage from './pages/ProfilePage';
 import MyPostListPage from './pages/MyPostListPage';
 import AccessDeniedPage from './pages/AccessDeniedPage';
 import ProtectedRoute from './ProtectedRoute';
+import KakaoLoginCallback from './components/KakaoLoginCallback';
+import KakaoLinkCallback from './components/KakaoLinkCallback';
 
 const MainLayout = () => (
   <>
@@ -52,6 +54,8 @@ function App() {
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/my-post-list/:email" element={<MyPostListPage />} />
             <Route path="/access-denied" element={<AccessDeniedPage />} />
+            <Route path="/kakao/login/callback" element={<KakaoLoginCallback />} />
+            <Route path="/kakao/link/callback" element={<KakaoLinkCallback />} />
           </Route>
 
           {/* 백오피스 경로 */}
