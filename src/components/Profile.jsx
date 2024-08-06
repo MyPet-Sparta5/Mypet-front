@@ -10,6 +10,8 @@ import handleLogout from './Logout';
 import SocialAccountItem from './SocialAccountItem';
 import useUserStore from './user/UserStorage';
 
+
+
 const Profile = () => {
     const { email, nickname, setEmail, setNickname } = useUserStore();
 
@@ -127,8 +129,8 @@ const Profile = () => {
         try {
             const accessToken = localStorage.getItem('accessToken');
             if (!accessToken) {
-                await RefreshToken(navigate);
-                return;
+                alert('로그인이 필요합니다.');
+                navigate('/login');
             }
 
             const isLinked = socialLinkedList.includes(socialType);
@@ -157,8 +159,12 @@ const Profile = () => {
             alert(`${socialType} ${isLinked ? '연동 해제' : '연동'}되었습니다.`);
 
         } catch (error) {
-            console.error(`${socialType} 연동 상태 변경 중 오류 발생:`, error);
-            alert(`${socialType} 연동 상태 변경에 실패했습니다.`);
+            if (error.response?.status === 401 && error.response.data.data === 'Expired-Token'){
+                await RefreshToken(navigate);
+            } else {
+                console.error(`${socialType} 연동 상태 변경 중 오류 발생:`, error);
+                alert(`${socialType} 연동 상태 변경에 실패했습니다.`);
+            }
         }
 
     };
