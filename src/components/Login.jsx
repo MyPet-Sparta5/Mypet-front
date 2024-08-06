@@ -3,6 +3,7 @@ import { useRef } from 'react';
 import styles from '../styles/Login.module.css';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import kakaoLoginButton from '../assets/kakao_login_medium_wide.png';
 
 function Login() {
     const emailInput = useRef();
@@ -58,6 +59,19 @@ function Login() {
         navigate('/signup');
     };
 
+    const handleKakaoLogin = () => {
+        const KAKAO_CLIENT_ID = process.env.REACT_APP_KAKAO_CLIENT_ID;
+        const REDIRECT_URI = process.env.REACT_APP_KAKAO_LOGIN_REDIRECT_URI;
+        const KAKAO_AUTH_URL = 'https://kauth.kakao.com/oauth/authorize?client_id=' +
+            `${KAKAO_CLIENT_ID}` +
+            '&redirect_uri=' +
+            `${REDIRECT_URI}` +
+            '&response_type=code&' +
+            'scope=account_email profile_nickname';
+
+        window.location.href = KAKAO_AUTH_URL;
+    }
+
     return (
         <div className={styles.login}>
             <h2 className={styles.title}>로그인</h2>
@@ -66,6 +80,14 @@ function Login() {
                 <input className={styles.input} type="password" placeholder="Password" ref={passwordInput} />
                 <button className={styles.button} type="submit" onClick={handleLoginClick}>Login</button>
                 <button className={styles.button} type="submit" onClick={handleSignupClick}>Sign up</button>
+                <div className={styles.kakaoLoginWrapper}>
+                    <img
+                        src={kakaoLoginButton}
+                        alt="카카오 로그인"
+                        onClick={handleKakaoLogin}
+                        className={styles.kakaoLoginButton}
+                    />
+                </div>
             </form>
         </div>
     );
