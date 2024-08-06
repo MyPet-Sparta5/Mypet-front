@@ -136,7 +136,7 @@ const Profile = () => {
             const isLinked = socialLinkedList.includes(socialType);
             let response;
             if (isLinked) {
-                response = await axios.post(`http://localhost:8080/api/oauth/${socialType.toLowerCase()}/leave`,
+                response = await axios.delete(`http://localhost:8080/api/oauth/${socialType.toLowerCase()}/leave`,
                     { email: email }, // 현재 사용자의 이메일
                 {
                     headers: { Authorization: `Bearer ${accessToken}` },
