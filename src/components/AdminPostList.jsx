@@ -117,7 +117,6 @@ const AdminPostList = () => {
             createdTime: new Date(post.createAt).toLocaleDateString(),
             postStatusName: statusMapping[post.postStatus] || post.postStatus,
             postStatus: post.postStatus,
-            fileUrls: post.files.map(file => file.url),
         }));
     };
 

@@ -53,7 +53,6 @@ const PostList = ({ category }) => {
             nickname: post.nickname,
             createdTime: new Date(post.createAt).toLocaleDateString(),
             likes: post.likeCount,
-            fileUrls: post.files.map(file => file.url),
         }));
     };
 
