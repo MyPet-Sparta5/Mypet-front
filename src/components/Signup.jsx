@@ -1,7 +1,7 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import axios from 'axios';
 import styles from '../styles/Signup.module.css';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 function Signup() {
     const emailInput = useRef();
@@ -16,8 +16,48 @@ function Signup() {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);
     };
+    const location = useLocation();
+
+    const [email, setEmail] = useState('');
+    const [nickname, setNickname] = useState('');
+    const [isSocialSignup, setIsSocialSignup] = useState(false);
+    const [registrationKey, setRegistrationKey] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const key = params.get('key');
+        if (key) {
+            setIsSocialSignup(true);
+            setRegistrationKey(key);
+            // Redis에서 소셜 로그인 정보 가져오기
+            fetchSocialLoginInfo(key);
+        } else {
+            setIsLoading(false);
+        }
+    }, [location]);
+
+    const fetchSocialLoginInfo = async (key) => {
+        try {
+            const response = await axios.get(`http://localhost:8080/api/users/social-account/infos?key=${key}`);
+            if (response.data) {
+                console.log(response.data);
+                console.log(response.data.data.email);
+                console.log(response.data.data.nickname);
+                // 소셜 로그인 정보로 필드 채우기
+                setEmail(response.data.data.email);
+                setNickname(response.data.data.nickname);
+                // 소셜 로그인의 경우 이메일 필드를 읽기 전용으로 설정
+            }
+        } catch (error) {
+            console.error('소셜 로그인 정보 가져오기 실패:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const handleSignupClick = async () => {
+        console.log(emailInput.current + ", " + passwordInput.current + ", " + repeatPasswordInput.current + ", " + nicknameInput.current);
         if (!emailInput.current.value || !passwordInput.current.value || !repeatPasswordInput.current.value || !nicknameInput.current.value) {
             alert('빈 칸을 전부 입력 해주세요.');
             return;
@@ -34,12 +74,18 @@ function Signup() {
         }
 
         try {
-            const response = await axios.post('http://localhost:8080/api/users', {
+            const signupData = {
                 email: emailInput.current.value,
+                nickname: nicknameInput.current.value,
                 password: passwordInput.current.value,
-                repeatPassword: repeatPasswordInput.current.value,
-                nickname: nicknameInput.current.value
-            });
+                repeatPassword: repeatPasswordInput.current.value
+            };
+
+            if (isSocialSignup) {
+                signupData.registrationKey = registrationKey;
+            }
+
+            const response = await axios.post('http://localhost:8080/api/users', signupData);
 
             if (response.status === 201) { // 201 Created
                 alert('회원가입이 성공적으로 완료되었습니다.');
@@ -53,14 +99,33 @@ function Signup() {
         }
     };
 
+    if (isLoading) {
+        return <div>로딩 중...</div>;  // 로딩 중일 때 표시할 내용
+    }
+
     return (
         <div className={styles.signup}>
             <h2 className={styles.title}>회원가입</h2>
             <div className={styles.form}>
-                <input className={styles.input} type="email" placeholder="Email" ref={emailInput} />
+                <input 
+                    className={styles.input} 
+                    type="email" 
+                    placeholder="Email" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    ref={emailInput}
+                    readOnly={isSocialSignup}
+                />
                 <input className={styles.input} type="password" placeholder="Password" ref={passwordInput} />
                 <input className={styles.input} type="password" placeholder="Repeat Password" ref={repeatPasswordInput} />
-                <input className={styles.input} type="text" placeholder="NickName" ref={nicknameInput} />
+                <input 
+                    className={styles.input} 
+                    type="text" 
+                    placeholder="NickName" 
+                    value={nickname}
+                    ref={nicknameInput}
+                    onChange={(e) => setNickname(e.target.value)}
+                />
                 <button className={styles.button} type="submit" onClick={handleSignupClick}>Sign up</button>
             </div>
         </div>

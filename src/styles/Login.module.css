@@ -42,3 +42,18 @@
     background-color: #4a2b35;
     /* 호버 시 색상 */
 }
+
+.kakaoLoginWrapper {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.kakaoLoginButton {
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+}
+
+.kakaoLoginButton:hover {
+    transform: scale(1.05);
+}

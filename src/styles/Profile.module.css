@@ -197,3 +197,18 @@
 .withdrawText:hover {
     color: black; /* 호버 시 검정색 */
 }
+
+.kakaoUnlinkButtonWrapper {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.kakaoUnlinkButton {
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+}
+
+.kakaoUnlinkButton:hover {
+    transform: scale(1.05);
+}
