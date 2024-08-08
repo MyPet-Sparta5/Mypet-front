@@ -49,6 +49,9 @@ const Profile = () => {
         // 사용자 정보를 불러오는 API 호출
         const fetchUserData = async () => {
             try {
+                
+                localStorage.removeItem('email');
+
                 const accessToken = localStorage.getItem('accessToken');
                 if (!accessToken) {
                     console.error('액세스 토큰이 없습니다.');
@@ -129,6 +132,7 @@ const Profile = () => {
         try {
             const accessToken = localStorage.getItem('accessToken');
             if (!accessToken) {
+                localStorage.removeItem('email');
                 alert('로그인이 필요합니다.');
                 navigate('/login');
             }
@@ -137,7 +141,6 @@ const Profile = () => {
             let response;
             if (isLinked) {
                 response = await axios.delete(`http://localhost:8080/api/oauth/${socialType.toLowerCase()}/leave`,
-                    { email: email }, // 현재 사용자의 이메일
                 {
                     headers: { Authorization: `Bearer ${accessToken}` },
                     withCredentials: true
