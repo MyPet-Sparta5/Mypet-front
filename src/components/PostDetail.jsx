@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { axiosInstance, handleApiCall } from '../setting/api';
 import styles from '../styles/PostDetail.module.css';
 import { SlArrowUpCircle } from "react-icons/sl";
 import { MdEdit } from 'react-icons/md';
@@ -10,7 +10,6 @@ import Comment from '../components/Comment';
 import PostEditModal from './PostEditModal';
 import DeleteModal from './DeleteModal';
 import ReportModal from './ReportModal';
-import RefreshToken from './RefreshToken';
 import PaginationButton from './PaginationButton';
 import LikeButton from './LikeButton';
 
@@ -37,22 +36,10 @@ const PostDetail = () => {
 
     const commentInput = useRef();
 
-    //#region 토큰 갱신
-    const handleTokenRefresh = useCallback(async (retryFunc, ...args) => {
-        try {
-            await RefreshToken(navigate);
-            const newToken = getAuthTokenFromLocalStorage();
-            return await retryFunc(newToken, ...args);
-        } catch (refreshError) {
-            console.error('Token refresh error:', refreshError);
-        }
-    }, [navigate]);
-    //#endregion
-
     //#region 댓글 가져오기
     const fetchComments = useCallback(async (page) => {
         try {
-            const response = await axios.get(`http://localhost:8080/api/posts/${id}/comments?page=${page}&size=10`);
+            const response = await handleApiCall(() => axiosInstance.get(`/api/posts/${id}/comments?page=${page}&size=10`), navigate);
             const { comments, pageInfo } = response.data.data;
             setComments(comments);
             setCurrentPage(pageInfo.pageNumber + 1);
@@ -71,11 +58,7 @@ const PostDetail = () => {
                     token = getAuthTokenFromLocalStorage();
                 }
 
-                const config = {
-                    headers: token ? { 'Authorization': `Bearer ${token}` } : {}
-                };
-
-                const postResponse = await axios.get(`http://localhost:8080/api/posts/${id}`, config);
+                const postResponse = await handleApiCall(() => axiosInstance.get(`/api/posts/${id}`), navigate);
 
                 const postData = postResponse.data.data;
 
@@ -93,17 +76,12 @@ const PostDetail = () => {
 
             } catch (error) {
                 console.error('Error fetching post details:', error);
-                if (error.response?.status === 401 && error.response.data.data === 'Expired-Token') {
-                    const newToken = await handleTokenRefresh();
-                    await fetchPostDetails(newToken);
-                } else {
-                    alert('게시물을 불러오는데 실패했습니다.');
-                }
+                alert('게시물을 불러오는데 실패했습니다.');
             }
         };
 
         fetchPostDetails();
-    }, [id, handleTokenRefresh]);
+    }, [id]);
 
     useEffect(() => {
         fetchComments(currentPage);
@@ -136,19 +114,14 @@ const PostDetail = () => {
         try {
             await sendCommentRequest(token, content);
         } catch (error) {
-            if (error.response?.status === 401 && error.response.data.data === 'Expired-Token') {
-                await handleTokenRefresh(sendCommentRequest, content);
-            } else {
-                throw error;
-            }
+            throw error;
         }
     };
 
-    const sendCommentRequest = async (token, content) => {
-        await axios.post(`http://localhost:8080/api/posts/${id}/comments`,
-            { content },
-            { headers: { 'Authorization': `Bearer ${token}` } }
-        );
+    const sendCommentRequest = async (content) => {
+        await handleApiCall(() => axiosInstance.post(`/api/posts/${id}/comments`,
+            { content }
+        ), navigate);
     };
 
     //#endregion
@@ -185,20 +158,14 @@ const PostDetail = () => {
         }
 
         try {
-            await sendDeleteRequest(token, commentId);
+            await sendDeleteRequest(commentId);
         } catch (error) {
-            if (error.response?.status === 401 && error.response.data.data === 'Expired-Token') {
-                await handleTokenRefresh(sendDeleteRequest, commentId);
-            } else {
-                throw error;
-            }
+            throw error;
         }
     };
 
-    const sendDeleteRequest = async (token, commentId) => {
-        await axios.delete(`http://localhost:8080/api/comments/${commentId}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
+    const sendDeleteRequest = async (commentId) => {
+        await handleApiCall(() => axiosInstance.delete(`/api/comments/${commentId}`), navigate);
     };
 
     //#endregion
@@ -236,9 +203,7 @@ const PostDetail = () => {
                 throw new Error('로그인이 필요합니다.');
             }
 
-            await axios.put(`http://localhost:8080/api/posts/${id}`, { category, title, content }, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
+            await handleApiCall(() => axiosInstance.put(`/api/posts/${id}`, { category, title, content }), navigate);
 
             setPost(prevState => ({
                 ...prevState,
@@ -250,12 +215,8 @@ const PostDetail = () => {
             setIsEditing(false);
 
         } catch (error) {
-            if (error.response?.status === 401 && error.response.data.data === 'Expired-Token') {
-                await handleTokenRefresh(handleSaveModal, { category, title, content });
-            } else {
-                console.error('Error saving post:', error);
-                alert("게시물 수정에 실패했습니다.");
-            }
+            console.error('Error saving post:', error);
+            alert("게시물 수정에 실패했습니다.");
         }
     };
 
@@ -269,20 +230,14 @@ const PostDetail = () => {
                 throw new Error('로그인이 필요합니다.');
             }
 
-            await axios.delete(`http://localhost:8080/api/posts/${id}`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
+            await handleApiCall(() => axiosInstance.delete(`/api/posts/${id}`), navigate);
 
             alert('게시물이 삭제되었습니다.');
             navigate('/community');
 
         } catch (error) {
-            if (error.response?.status === 401 && error.response.data.data === 'Expired-Token') {
-                await handleTokenRefresh(handleConfirmDelete);
-            } else {
-                console.error('Error deleting post:', error);
-                alert("게시물을 삭제할 권한이 없습니다.");
-            }
+            console.error('Error deleting post:', error);
+            alert("게시물을 삭제할 권한이 없습니다.");
         }
     };
 
@@ -303,22 +258,16 @@ const PostDetail = () => {
             if (!token) {
                 throw new Error('로그인이 필요합니다.');
             }
-            await axios.post(
-                `http://localhost:8080/api/reports/posts/${id}`, // 게시물 신고 엔드포인트
+            await handleApiCall(() => axiosInstance.post(
+                `/api/reports/posts/${id}`, // 게시물 신고 엔드포인트
                 { reportIssue: text }, // 신고 사유를 포함한 요청 본문
-                { headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' } }
-            );
+            ), navigate);
 
             alert('게시물 신고가 접수되었습니다.');
             navigate('/community'); // 신고 후 이동할 페이지
         } catch (error) {
-            if (error.response?.status === 401 && error.response.data.data === 'Expired-Token') {
-                await RefreshToken(navigate);
-                await handleReportModal({ text }); // 토큰 갱신 후 재시도
-            } else {
-                console.error("게시물 신고 중 오류:", error);
-                alert("게시물 신고에 실패했습니다.");
-            }
+            console.error("게시물 신고 중 오류:", error);
+            alert("게시물 신고에 실패했습니다.");
         }
     };
 

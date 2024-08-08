@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import styles from '../styles/PostList.module.css';
 import PaginationButton from '../components/PaginationButton';
 import PostCreateModal from '../components/PostCreateModal';
-import RefreshToken from './RefreshToken';
+import { axiosInstance, handleApiCall } from '../setting/api'; 
 
 const PostList = ({ category }) => {
     const navigate = useNavigate();
@@ -17,16 +16,17 @@ const PostList = ({ category }) => {
 
     useEffect(() => {
         const fetchPosts = async () => {
-            try {
-                const response = await axios.get('http://localhost:8080/api/posts', {
-                    params: {
-                        page: currentPage,
-                        pageSize: postsPerPage,
-                        sortBy: 'createdAt,desc',
-                        category: category
-                    },
-                });
+            const apiCall = () => axiosInstance.get('/api/posts', {
+                params: {
+                    page: currentPage,
+                    pageSize: postsPerPage,
+                    sortBy: 'createdAt,desc',
+                    category: category
+                }
+            });
 
+            try {
+                const response = await handleApiCall(apiCall, navigate);
                 const { content, totalPages, totalElements } = response.data.data;
                 setPosts(transformPostData(content));
                 setTotalPages(totalPages);
@@ -37,7 +37,7 @@ const PostList = ({ category }) => {
         };
 
         fetchPosts();
-    }, [currentPage, category]);
+    }, [currentPage, category, navigate]);
 
     const transformPostData = (data) => {
         const categoryMapping = {
@@ -84,47 +84,21 @@ const PostList = ({ category }) => {
             formData.append('files', file); // 파일 객체를 전송
         });
 
-        try {
-            const token = localStorage.getItem('accessToken');
-            if (!token) {
-                alert('로그인이 필요합니다.');
-                return;
+        const apiCall = () => axiosInstance.post('/api/posts', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
             }
+        });
 
-            const response = await axios.post('http://localhost:8080/api/posts', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    'Authorization': `Bearer ${token}`,
-                }
-            });
-
+        try {
+            const response = await handleApiCall(apiCall, navigate);
             const postId = response.data.data.id;
             const targetPath = category === 'BOAST' ? `/pet/${postId}` : `/posts/${postId}`;
             navigate(targetPath);
             closeModal();
         } catch (error) {
-            if (error.response?.status === 401 && error.response.data.data === 'Expired-Token') {
-                try {
-                    await RefreshToken(navigate);
-                    const newToken = localStorage.getItem('accessToken');
-                    const response = await axios.post('http://localhost:8080/api/posts', formData, {
-                        headers: {
-                            'Content-Type': 'multipart/form-data',
-                            'Authorization': `Bearer ${newToken}`,
-                        }
-                    });
-
-                    const postId = response.data.data.id;
-                    const targetPath = category === '자랑하기' ? `/pet/${postId}` : `/posts/${postId}`;
-                    navigate(targetPath);
-                    closeModal();
-                } catch (refreshError) {
-                    console.error('Token refresh error:', refreshError);
-                }
-            } else {
-                console.error('Error creating post:', error);
-                alert('게시물 작성 중 오류가 발생했습니다. 다시 시도해 주세요.');
-            }
+            console.error('Error creating post:', error);
+            alert('게시물 작성 중 오류가 발생했습니다. 다시 시도해 주세요.');
         }
     };
 

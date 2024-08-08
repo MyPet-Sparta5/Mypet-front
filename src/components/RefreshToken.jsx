@@ -1,12 +1,9 @@
-import axios from 'axios';
+import {axiosNonAuthorization} from '../setting/api'; 
 
 const RefreshToken = async (navigate) => {
     try {
         // refresh token을 포함한 요청을 서버로 보냄
-        const response = await axios.post(
-            'http://localhost:8080/api/auth/refresh', {
-        }, { withCredentials: true } // 쿠키를 포함하여 요청
-        );
+        const response = await axiosNonAuthorization.post('/api/auth/refresh');
 
         if (response.status === 200) {
             // 새로운 액세스 토큰을 로컬 스토리지에 저장

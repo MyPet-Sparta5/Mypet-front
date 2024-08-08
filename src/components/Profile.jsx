@@ -1,16 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { axiosInstance, handleApiCall } from '../setting/api';
 import UserEditModal from '../components/UserEditModal';
 import ChangePasswordModal from './ChangePasswordModal';
 import WithdrawModal from '../components/WithdrawModal';
 import styles from '../styles/Profile.module.css';
-import RefreshToken from './RefreshToken';
 import handleLogout from './Logout';
 import SocialAccountItem from './SocialAccountItem';
 import useUserStore from './user/UserStorage';
-
-
 
 const Profile = () => {
     const { email, nickname, setEmail, setNickname } = useUserStore();
@@ -49,7 +46,7 @@ const Profile = () => {
         // 사용자 정보를 불러오는 API 호출
         const fetchUserData = async () => {
             try {
-                
+
                 localStorage.removeItem('email');
 
                 const accessToken = localStorage.getItem('accessToken');
@@ -60,11 +57,7 @@ const Profile = () => {
                     return;
                 }
 
-                const response = await axios.get(
-                    'http://localhost:8080/api/users', {
-                    headers: { Authorization: `Bearer ${accessToken}` },
-                    withCredentials: true
-                });
+                const response = await handleApiCall(() => axiosInstance.get('/api/users'), navigate);
 
                 const userData = response.data.data;
                 setNickname(userData.nickname);
@@ -72,16 +65,7 @@ const Profile = () => {
                 setPostList(transformPostData(userData.postList));
                 setSocialLinkedList(userData.socialLinkedList);
             } catch (error) {
-                if (error.response?.status === 401 && error.response.data.data === 'Expired-Token') {
-                    try {
-                        await RefreshToken(navigate);
-                        fetchUserData();
-                    } catch (refreshError) {
-                        console.error('Token refresh error:', refreshError);
-                    }
-                } else {
-                    alert(`${error.response.data.message}` || '사용자 정보를 불러오는 데 실패했습니다.');
-                }
+                alert(`${error.response.data.message}` || '사용자 정보를 불러오는 데 실패했습니다.');
             }
         };
 
@@ -140,11 +124,7 @@ const Profile = () => {
             const isLinked = socialLinkedList.includes(socialType);
             let response;
             if (isLinked) {
-                response = await axios.delete(`http://localhost:8080/api/oauth/${socialType.toLowerCase()}/leave`,
-                {
-                    headers: { Authorization: `Bearer ${accessToken}` },
-                    withCredentials: true
-                });
+                response = await handleApiCall(() => axiosInstance.delete(`/api/oauth/${socialType.toLowerCase()}/leave`), navigate);
 
             } else {
                 if (socialType === 'KAKAO') {
@@ -153,8 +133,8 @@ const Profile = () => {
                 return;
             }
 
-            if(response.status === 200 || response.status === 204){
-                setSocialLinkedList(prevList => isLinked ? 
+            if (response.status === 200 || response.status === 204) {
+                setSocialLinkedList(prevList => isLinked ?
                     prevList.filter(item => item !== socialType)
                     : [...prevList, socialType]
                 );
@@ -162,12 +142,8 @@ const Profile = () => {
             alert(`${socialType} ${isLinked ? '연동 해제' : '연동'}되었습니다.`);
 
         } catch (error) {
-            if (error.response?.status === 401 && error.response.data.data === 'Expired-Token'){
-                await RefreshToken(navigate);
-            } else {
-                console.error(`${socialType} 연동 상태 변경 중 오류 발생:`, error);
-                alert(`${socialType} 연동 상태 변경에 실패했습니다.`);
-            }
+            console.error(`${socialType} 연동 상태 변경 중 오류 발생:`, error);
+            alert(`${socialType} 연동 상태 변경에 실패했습니다.`);
         }
 
     };
@@ -181,15 +157,11 @@ const Profile = () => {
                 return;
             }
 
-            const response = await axios.put(
-                'http://localhost:8080/api/users',
+            const response = await handleApiCall(() => axiosInstance.put('/api/users',
                 {
                     newNickname: data.nickname,
                     currentPassword: data.password
-                }, {
-                headers: { Authorization: `Bearer ${accessToken}` },
-                withCredentials: true
-            });
+                }), navigate);
 
             if (response.status === 200) {
                 localStorage.setItem('nickname', response.data.data.newNickname); // 로컬 스토리지에 수정된 닉네임으로 교체
@@ -198,16 +170,7 @@ const Profile = () => {
                 window.location.reload();
             }
         } catch (error) {
-            if (error.response?.status === 401 && error.response.data.data === 'Expired-Token') {
-                try {
-                    await RefreshToken(navigate);
-                    handleUserEditConfirm(data);
-                } catch (refreshError) {
-                    console.error('Token refresh error:', refreshError);
-                }
-            } else {
-                alert(`${error.response.data.message}` || '회원정보 수정이 실패했습니다.');
-            }
+            alert(`${error.response.data.message}` || '회원정보 수정이 실패했습니다.');
         }
     };
 
@@ -220,16 +183,12 @@ const Profile = () => {
                 return;
             }
 
-            const response = await axios.put(
-                'http://localhost:8080/api/users/password',
+            const response = await handleApiCall(() => axiosInstance.put('/api/users/password',
                 {
                     currentPassword: data.currentPassword,
                     newPassword: data.newPassword,
                     newRepeatPassword: data.confirmNewPassword
-                }, {
-                headers: { Authorization: `Bearer ${accessToken}` },
-                withCredentials: true
-            });
+                }), navigate);
 
             if (response.status === 200) {
                 handleLogout(navigate);
@@ -239,16 +198,7 @@ const Profile = () => {
                 window.location.reload();
             }
         } catch (error) {
-            if (error.response?.status === 401 && error.response.data.data === 'Expired-Token') {
-                try {
-                    await RefreshToken(navigate);
-                    handleChangePasswordConfirm(data);
-                } catch (refreshError) {
-                    console.error('Token refresh error:', refreshError);
-                }
-            } else {
-                alert(`${error.response.data.message}` || '비밀번호 변경이 실패했습니다.');
-            }
+            alert(`${error.response.data.message}` || '비밀번호 변경이 실패했습니다.');
         }
     };
 
@@ -261,12 +211,7 @@ const Profile = () => {
                 return;
             }
 
-            const response = await axios.put(
-                'http://localhost:8080/api/users/withdraw',
-                {}, {
-                headers: { Authorization: `Bearer ${accessToken}` },
-                withCredentials: true
-            });
+            const response = await handleApiCall(() => axiosInstance.put('/api/users/withdraw'), navigate);
 
             if (response.status === 200) {
                 handleLogout(navigate);
@@ -276,16 +221,7 @@ const Profile = () => {
                 window.location.reload();
             }
         } catch (error) {
-            if (error.response?.status === 401 && error.response.data.data === 'Expired-Token') {
-                try {
-                    await RefreshToken(navigate);
-                    handleWithdrawConfirm();
-                } catch (refreshError) {
-                    console.error('Token refresh error:', refreshError);
-                }
-            } else {
-                alert(`${error.response.data.message}` || '회원탈퇴가 실패했습니다.');
-            }
+            alert(`${error.response.data.message}` || '회원탈퇴가 실패했습니다.');
         }
     };
 

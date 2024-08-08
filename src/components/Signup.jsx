@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import axios from 'axios';
+import { axiosNonAuthorization } from '../setting/api'; 
 import styles from '../styles/Signup.module.css';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -39,7 +39,7 @@ function Signup() {
 
     const fetchSocialLoginInfo = async (key) => {
         try {
-            const response = await axios.get(`http://localhost:8080/api/users/social-account/infos?key=${key}`);
+            const response = await axiosNonAuthorization.get(`/api/users/social-account/infos?key=${key}`);
             if (response.data) {
                 console.log(response.data);
                 console.log(response.data.data.email);
@@ -85,7 +85,7 @@ function Signup() {
                 signupData.registrationKey = registrationKey;
             }
 
-            const response = await axios.post('http://localhost:8080/api/users', signupData);
+            const response = await axiosNonAuthorization.post('/api/users', signupData);
 
             if (response.status === 201) { // 201 Created
                 alert('회원가입이 성공적으로 완료되었습니다.');

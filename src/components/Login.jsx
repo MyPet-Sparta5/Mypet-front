@@ -1,9 +1,9 @@
 import React from 'react';
 import { useRef } from 'react';
 import styles from '../styles/Login.module.css';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { axiosNonAuthorization } from '../setting/api';
 import kakaoLoginButton from '../assets/kakao_login_medium_wide.png';
+import { useNavigate } from 'react-router-dom';
 
 function Login() {
     const emailInput = useRef();
@@ -21,7 +21,7 @@ function Login() {
 
         try {
             //로그인 백엔드 연결 부분
-            const response = await axios.post('http://localhost:8080/api/auth/login', {
+            const response = await axiosNonAuthorization.post('/api/auth/login', {
                 email: emailInput.current.value,
                 password: passwordInput.current.value
             }, {
