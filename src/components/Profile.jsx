@@ -43,26 +43,25 @@ const Profile = () => {
     };
 
     useEffect(() => {
+        if (localStorage.getItem('email')) {
+            localStorage.removeItem('email');
+        }
+
+        if (!localStorage.getItem('accessToken')) {
+            console.error('액세스 토큰이 없습니다.');
+            navigate('/');
+            window.location.reload();
+            return;
+        }
+
         // 사용자 정보를 불러오는 API 호출
         const fetchUserData = async () => {
             try {
-
-                localStorage.removeItem('email');
-
-                const accessToken = localStorage.getItem('accessToken');
-                if (!accessToken) {
-                    console.error('액세스 토큰이 없습니다.');
-                    navigate('/');
-                    window.location.reload();
-                    return;
-                }
-
                 const response = await handleApiCall(() => axiosInstance.get('/api/users'), navigate);
 
                 const userData = response.data.data;
                 setNickname(userData.nickname);
                 setEmail(userData.email);
-                setPostList(transformPostData(userData.postList));
                 setSocialLinkedList(userData.socialLinkedList);
             } catch (error) {
                 alert(`${error.response.data.message}` || '사용자 정보를 불러오는 데 실패했습니다.');
@@ -71,6 +70,27 @@ const Profile = () => {
 
         fetchUserData();
     }, [navigate]);
+
+    useEffect(() => {
+        // 사용자가 작성한 Post 목록 불러오는 API 호출
+        const fetchPostListByUser = async () => {
+            if (!email) return; // email이 아직 없으면 아무것도 하지 않음
+
+            try {
+                const response = await handleApiCall(() => axiosInstance.get('/api/posts', {
+                    params: {
+                        userName: email
+                    }
+                }), navigate);
+
+                const postListData = response.data.data.content;
+                setPostList(transformPostData(postListData));
+            } catch (error) {
+                alert(`${error.response.data.message}` || '사용자의 게시물 목록을 불러오는 데 실패했습니다.');
+            }
+        };
+        fetchPostListByUser();
+    }, [email, navigate]);
 
     const handleOpenUserEditModal = () => {
         setIsUserEditModalOpen(true);
@@ -230,6 +250,9 @@ const Profile = () => {
             <div className={styles.pageTitle}>마이페이지</div>
             <div className={styles.container}>
                 <div className={styles.leftContainer}>
+                    <div className={styles.withdrawContainer}>
+                        <span className={styles.withdrawText} onClick={handleOpenWithdrawModal}>회원탈퇴</span>
+                    </div>
                     <div className={styles.profileBox}>
                         <div className={styles.profileContent}>
                             <h3>닉네임: {nickname}</h3>
@@ -250,9 +273,6 @@ const Profile = () => {
                                 onToggle={handleSocialToggle}
                             />
                         ))}
-                    </div>
-                    <div className={styles.withdrawContainer}>
-                        <span className={styles.withdrawText} onClick={handleOpenWithdrawModal}>회원탈퇴</span>
                     </div>
                 </div>
                 <div className={styles.rightContainer}>
