@@ -25,8 +25,8 @@ function DropdownMenu({ nickname, role }) {
         };
     }, []);
 
-    const handleLogoutWithAlert = () => {
-        handleLogout(navigate);
+    const handleLogoutWithAlert = async () => {
+        await handleLogout(navigate);
         toggleMenu();
         alert('로그아웃 되었습니다!');
         navigate('/');
