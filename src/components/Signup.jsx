@@ -8,6 +8,7 @@ function Signup() {
     const passwordInput = useRef();
     const repeatPasswordInput = useRef();
     const nicknameInput = useRef();
+    const verificationCodeInput = useRef();
 
     const navigate = useNavigate();
 
@@ -23,6 +24,9 @@ function Signup() {
     const [isSocialSignup, setIsSocialSignup] = useState(false);
     const [registrationKey, setRegistrationKey] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [showVerificationField, setShowVerificationField] = useState(false);
+    const [isEmailVerified, setIsEmailVerified] = useState(false);
+    const [resendCooldown, setResendCooldown] = useState(0);
 
     useEffect(() => {
         const params = new URLSearchParams(location.search);
@@ -37,6 +41,14 @@ function Signup() {
         }
     }, [location]);
 
+    useEffect(() => {
+        let timer;
+        if (resendCooldown > 0) {
+            timer = setTimeout(() => setResendCooldown(resendCooldown - 1), 1000);
+        }
+        return () => clearTimeout(timer);
+    }, [resendCooldown]);
+
     const fetchSocialLoginInfo = async (key) => {
         try {
             const response = await axiosNonAuthorization.get(`/api/users/social-account/infos?key=${key}`);
@@ -47,7 +59,7 @@ function Signup() {
                 // 소셜 로그인 정보로 필드 채우기
                 setEmail(response.data.data.email);
                 setNickname(response.data.data.nickname);
-                // 소셜 로그인의 경우 이메일 필드를 읽기 전용으로 설정
+                setIsEmailVerified(true); // 소셜 로그인의 경우 이메일이 이미 인증되었다고 간주
             }
         } catch (error) {
             console.error('소셜 로그인 정보 가져오기 실패:', error);
@@ -56,7 +68,44 @@ function Signup() {
         }
     };
 
+    const handleSendVerification = async () => {
+        if (!validateEmail(email)) {
+            alert('올바른 이메일 형식이 아닙니다.');
+            return;
+        }
+        try {
+            await axiosNonAuthorization.post('/api/auth/send-verification', { email });
+            setShowVerificationField(true);
+            setResendCooldown(600); // 10분
+            alert('인증 코드가 이메일로 전송되었습니다.');
+        } catch (error) {
+            alert('인증 코드 전송에 실패했습니다.');
+        }
+    };
+
+    const handleVerifyCode = async () => {
+        try {
+            const response = await axiosNonAuthorization.post('/api/auth/verify', {
+                email,
+                code: verificationCodeInput.current.value
+            });
+            if (response.data.status === 200) {
+                setIsEmailVerified(true);
+                alert('이메일이 성공적으로 인증되었습니다.');
+            } else {
+                alert('잘못된 인증 코드입니다.');
+            }
+        } catch (error) {
+            alert('인증 코드 확인에 실패했습니다.');
+        }
+    };
+
     const handleSignupClick = async () => {
+        if (!isEmailVerified) {
+            alert('이메일 인증을 완료해주세요.');
+            return;
+        }
+
         console.log(emailInput.current + ", " + passwordInput.current + ", " + repeatPasswordInput.current + ", " + nicknameInput.current);
         if (!emailInput.current.value || !passwordInput.current.value || !repeatPasswordInput.current.value || !nicknameInput.current.value) {
             alert('빈 칸을 전부 입력 해주세요.');
@@ -107,15 +156,41 @@ function Signup() {
         <div className={styles.signup}>
             <h2 className={styles.title}>회원가입</h2>
             <div className={styles.form}>
-                <input 
-                    className={styles.input} 
-                    type="email" 
-                    placeholder="Email" 
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    ref={emailInput}
-                    readOnly={isSocialSignup}
-                />
+                <div className={styles.inputGroup}>
+                    <input 
+                        className={styles.input} 
+                        type="email" 
+                        placeholder="Email" 
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        ref={emailInput}
+                        readOnly={isSocialSignup}
+                    />
+                    {!isEmailVerified ? (
+                        <button 
+                            className={`${styles.button} ${styles.verifyButton}`} 
+                            onClick={handleSendVerification}
+                            disabled={resendCooldown > 0}
+                        >
+                            {resendCooldown > 0 ? `${Math.floor(resendCooldown / 60)}:${(resendCooldown % 60).toString().padStart(2, '0')}` : '인증하기'}
+                        </button>
+                    ) : (
+                        <span className={styles.verifiedText}>✓</span>
+                    )}
+                </div>
+                <div className={`${styles.verificationField} ${!showVerificationField || isEmailVerified ? styles.hidden : ''}`}>
+                    <div className={styles.inputGroup}>
+                        <input 
+                            className={styles.input} 
+                            type="text" 
+                            placeholder="인증 코드" 
+                            ref={verificationCodeInput}
+                        />
+                        <button className={`${styles.button} ${styles.verificationButton}`} onClick={handleVerifyCode}>
+                            확인
+                        </button>
+                    </div>
+                </div>
                 <input className={styles.input} type="password" placeholder="Password" ref={passwordInput} />
                 <input className={styles.input} type="password" placeholder="Repeat Password" ref={repeatPasswordInput} />
                 <input 
@@ -126,7 +201,14 @@ function Signup() {
                     ref={nicknameInput}
                     onChange={(e) => setNickname(e.target.value)}
                 />
-                <button className={styles.button} type="submit" onClick={handleSignupClick}>Sign up</button>
+                <button 
+                    className={styles.button} 
+                    type="submit" 
+                    onClick={handleSignupClick}
+                    disabled={!isEmailVerified}
+                >
+                    Sign up
+                </button>
             </div>
         </div>
     );
