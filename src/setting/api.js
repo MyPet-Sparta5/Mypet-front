@@ -2,8 +2,10 @@
 import axios from 'axios';
 import RefreshToken from '../components/RefreshToken'; // 경로를 실제 파일 구조에 맞게 수정하세요
 
+const baseURL = process.env.REACT_APP_API_BASE_URL;
+
 const axiosInstance = axios.create({
-    baseURL: 'http://localhost:8080',
+    baseURL: baseURL,
     headers: {
         'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
         'Content-Type': 'application/json'
@@ -12,7 +14,7 @@ const axiosInstance = axios.create({
 });
 
 const axiosNonAuthorization = axios.create({
-    baseURL: 'http://localhost:8080',
+    baseURL: baseURL,
     headers: {
         'Content-Type': 'application/json'
     },
