@@ -1,7 +1,6 @@
-// KakaoLoginCallback.jsx
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { axiosNonAuthorization } from '../setting/api';
 
 function KakaoLoginCallback() {
     const navigate = useNavigate();
@@ -9,7 +8,7 @@ function KakaoLoginCallback() {
     useEffect(() => {
         const sendCodeToBackend = async (code) => {
             try {
-                const response = await axios.post('http://localhost:8080/api/oauth/kakao', { code }, {
+                const response = await axiosNonAuthorization.post('/api/oauth/kakao', { code }, {
                     validateStatus: function (status) {
                         return status < 500; // 500 미만의 상태 코드는 에러로 취급하지 않음
                     }
@@ -20,7 +19,11 @@ function KakaoLoginCallback() {
                     const accessToken = response.headers['authorization']; // 서버에서는  대소문자 구분되지만, 클라이언트는 구분 X
 
                     if (accessToken) {
-                        localStorage.setItem('accessToken', accessToken.replace('Bearer ', ''));
+                        const token = accessToken.replace('Bearer ', '');
+                        localStorage.setItem('accessToken', token);
+                        // axiosInstance 기본 헤더에 토큰 설정
+                        axiosNonAuthorization.defaults.headers['Authorization'] = `Bearer ${token}`;
+                        console.log('토큰 저장 및 설정 완료:', token);
                     } else {
                         alert('access token이 존재하지 않습니다.')
                     }
@@ -36,7 +39,6 @@ function KakaoLoginCallback() {
                     navigate('/');
                     window.location.reload();
                 } else if (response.status === 302) {
-                    
                     // 회원가입 필요
                     if (response.data.data.registrationUrl) {
                         // 백엔드에서 제공한 회원가입 URL로 리다이렉트
@@ -68,7 +70,7 @@ function KakaoLoginCallback() {
         if (code) {
             sendCodeToBackend(code);
         }
-    }); // 의존성 배열 추가
+    }, [navigate]);
 
     return <div>카카오 로그인 처리 중...</div>;
 }

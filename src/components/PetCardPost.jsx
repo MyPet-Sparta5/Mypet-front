@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { axiosInstance, handleApiCall } from '../setting/api';
 import { FaArrowLeft } from 'react-icons/fa';
 import { MdEdit } from 'react-icons/md';
 import { GoAlertFill } from "react-icons/go";
@@ -11,7 +11,6 @@ import DeleteModal from './DeleteModal';
 import ReportModal from './ReportModal';
 import styles from '../styles/PostDetail.module.css';
 import '../styles/PetCardPost.css';
-import RefreshToken from './RefreshToken';
 import LikeButton from './LikeButton';
 
 const getFromLocalStorage = key => localStorage.getItem(key);
@@ -41,7 +40,7 @@ const PetCardPost = () => {
           headers: token ? { 'Authorization': `Bearer ${token}` } : {}
         };
 
-        const postResponse = await axios.get(`http://localhost:8080/api/posts/${id}`, config);
+        const postResponse = await handleApiCall(() => axiosInstance.get(`/api/posts/${id}`, config), navigate);
 
         const postData = postResponse.data.data;
 
@@ -61,23 +60,11 @@ const PetCardPost = () => {
           : []);
       } catch (error) {
         console.error('Error fetching post:', error);
-        if (error.response?.status === 401 && error.response.data.data === 'Expired-Token') {
-          await handleTokenRefresh();
-        }
       }
     };
 
     fetchPost();
   }, [id]);
-
-  const handleTokenRefresh = async () => {
-    try {
-      await RefreshToken(navigate); // 리프레시 토큰으로 액세스 토큰 갱신
-      window.location.reload(); // 페이지 새로고침하여 원래 요청 재시도
-    } catch (refreshError) {
-      console.error('Token refresh error:', refreshError);
-    }
-  };
 
   const handleEditClick = () => setIsEditing(true);
   const handleDeleteClick = () => setIsDeleting(true);
@@ -94,10 +81,8 @@ const PetCardPost = () => {
       return;
     }
 
-    const updatePost = async (token) => {
-      await axios.put(`http://localhost:8080/api/posts/${id}`, { category, title, content }, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+    const updatePost = async () => {
+      await handleApiCall(() => axiosInstance.put(`/api/posts/${id}`, { category, title, content }), navigate);
     };
 
     const handleUpdatePost = async () => {
@@ -120,7 +105,6 @@ const PetCardPost = () => {
       } catch (error) {
         if (error.response?.status === 401 && error.response.data.data === 'Expired-Token') {
           try {
-            await RefreshToken(navigate);
             await handleUpdatePost();
           } catch (refreshError) {
             console.error('Token refresh error:', refreshError);
@@ -147,20 +131,14 @@ const PetCardPost = () => {
         return;
       }
 
-      await axios.delete(`http://localhost:8080/api/posts/${id}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      await handleApiCall(() => axiosInstance.delete(`/api/posts/${id}`), navigate);
 
       alert('게시물이 삭제되었습니다.');
       navigate('/community');
 
     } catch (error) {
-      if (error.response?.status === 401 && error.response.data.data === 'Expired-Token') {
-        await handleTokenRefresh();
-      } else {
-        console.error("게시물 삭제 중 오류:", error);
-        alert("게시물을 삭제할 권한이 없습니다.");
-      }
+      console.error("게시물 삭제 중 오류:", error);
+      alert("게시물을 삭제할 권한이 없습니다.");
     }
   };
 
@@ -182,18 +160,15 @@ const PetCardPost = () => {
         throw new Error('로그인이 필요합니다.');
       }
       // 게시물 신고 API 호출
-      await axios.post(
-        `http://localhost:8080/api/reports/posts/${id}`, // 게시물 신고 엔드포인트
+      await handleApiCall(() => axiosInstance.post(`/api/reports/posts/${id}`, // 게시물 신고 엔드포인트
         { reportIssue: text }, // 신고 사유를 포함한 요청 본문
-        { headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' } }
-      );
+      ), navigate);
 
       alert('게시물 신고가 접수되었습니다.');
       navigate('/community'); // 신고 후 이동할 페이지
     } catch (error) {
       if (error.response?.status === 401 && error.response.data.data === 'Expired-Token') {
         try {
-          await RefreshToken(navigate);
           await handleReportModal({ text }); // 토큰 갱신 후 재시도
         } catch (refreshError) {
           console.error('Token refresh error:', refreshError);

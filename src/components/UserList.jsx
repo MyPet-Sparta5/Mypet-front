@@ -3,9 +3,8 @@ import styles from '../styles/UserList.module.css';
 import PaginationButton from '../components/PaginationButton';
 import UserRoleModal from '../components/UserRoleModal';
 import UserStatusModal from '../components/UserStatusModal';
-import axios from 'axios';
+import { axiosInstance, handleApiCall } from '../setting/api'; 
 import { useNavigate } from 'react-router-dom';
-import RefreshToken from './RefreshToken';
 
 const UserList = () => {
     const [users, setUsers] = useState([]);
@@ -18,33 +17,6 @@ const UserList = () => {
     const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);  // Admin 권한 상태 추가
     const navigate = useNavigate();
-
-    const axiosInstance = axios.create({
-        baseURL: 'http://localhost:8080',
-        headers: {
-            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
-            'Content-Type': 'application/json'
-        },
-        withCredentials: true
-    });
-
-    const handleApiCall = async (apiCall) => {
-        try {
-            return await apiCall();
-        } catch (error) {
-            if (error.response && error.response.status === 401 && error.response.data.data === 'Expired-Token') {
-                try {
-                    await RefreshToken(navigate);
-                    // Update headers after refreshing token
-                    axiosInstance.defaults.headers['Authorization'] = `Bearer ${localStorage.getItem('accessToken')}`;
-                    return await apiCall();
-                } catch (refreshError) {
-                    console.error('Token refresh error:', refreshError);
-                }
-            }
-            throw error;
-        }
-    };
 
     const fetchUsers = async (page) => {
         try {

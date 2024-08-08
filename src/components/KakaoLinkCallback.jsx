@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import useUserStore from './user/UserStorage';
-import axios from 'axios';
+import { axiosInstance } from '../setting/api';
 
 const KakaoLinkCallback = () => {
   const navigate = useNavigate();
@@ -10,15 +9,10 @@ const KakaoLinkCallback = () => {
 
     const sendCodeToBackend = async (email, code) => {
       try {
-        const accessToken = localStorage.getItem('accessToken');
 
-        const response = await axios.post(
-          'http://localhost:8080/api/oauth/kakao/link',
-          { email, code },
-          {
-            headers: { Authorization: `Bearer ${accessToken}` },
-            withCredentials: true
-          }
+        const response = await axiosInstance.post(
+          '/api/oauth/kakao/link',
+          { email, code }
         );
 
         if (response.status === 200) {

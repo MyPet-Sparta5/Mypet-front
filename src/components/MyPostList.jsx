@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import axios from 'axios';
+import { axiosInstance, handleApiCall } from '../setting/api'; 
 import styles from '../styles/PostList.module.css';
 import PaginationButton from '../components/PaginationButton';
 
@@ -23,14 +23,14 @@ const MyPostList = () => {
     // 게시글을 가져오는 함수
     const fetchPosts = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/api/posts', {
+        const response = await handleApiCall(() => axiosInstance.get('/api/posts', {
           params: {
             page: currentPage,
             pageSize: postsPerPage,
             sortBy: 'createdAt,desc',
             userName: email, // 이메일을 userName 파라미터로 설정
           },
-        });
+        }), navigate);
 
         const { content, totalPages } = response.data.data;
         setPosts(transformPostData(content));

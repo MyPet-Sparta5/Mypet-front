@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Map, MapMarker, MarkerClusterer, Circle, useMap } from 'react-kakao-maps-sdk';
-import axios from 'axios';
+import { axiosNonAuthorization } from '../setting/api'; 
 import '../styles/FacilityFinderPage.css';
 import { debounce } from 'lodash';
 
@@ -47,7 +47,7 @@ function FacilityFinderPage() {
     
     setIsLoading(true);
     try {
-      const response = await axios.get('http://localhost:8080/api/facilities/search', {
+      const response = await axiosNonAuthorization.get('/api/facilities/search', {
         params: {
           category: "ANIMAL_HOSPITAL",
           x: centerPoint.getLng(),

@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { axiosInstance, handleApiCall } from '../setting/api';
 import styles from '../styles/PostList.module.css';
 import PaginationButton from './PaginationButton';
 import PostStatusModal from './PostStatusModal';
-import RefreshToken from './RefreshToken';
 
 const AdminPostList = () => {
     const navigate = useNavigate();
@@ -20,43 +19,16 @@ const AdminPostList = () => {
         fetchPosts(currentPage, statusFilter);
     }, [currentPage, statusFilter]);
 
-    const axiosInstance = axios.create({
-        baseURL: 'http://localhost:8080/api',
-        headers: {
-            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
-            'Content-Type': 'application/json'
-        },
-        withCredentials: true
-    });
-
-    const handleApiCall = async (apiCall) => {
-        try {
-            return await apiCall();
-        } catch (error) {
-            if (error.response && error.response.status === 401 && error.response.data.data === 'Expired-Token') {
-                try {
-                    await RefreshToken(navigate);
-                    // Update headers after refreshing token
-                    axiosInstance.defaults.headers['Authorization'] = `Bearer ${localStorage.getItem('accessToken')}`;
-                    return await apiCall();
-                } catch (refreshError) {
-                    console.error('Token refresh error:', refreshError);
-                }
-            }
-            throw error;
-        }
-    };
-
     const fetchPosts = async (page, status) => {
         try {
-            const response = await handleApiCall(() => axiosInstance.get(`/admin/post-manage`, {
+            const response = await handleApiCall(() => axiosInstance.get('/api/admin/post-manage', {
                 params: {
                     page: currentPage,
                     pageSize: postsPerPage,
                     sortBy: 'createdAt,desc',
                     postStatus: status
                 }
-            }));
+            }), navigate);
             const { content, totalPages } = response.data.data;
             setPosts(transformPostData(content));
             setTotalPages(totalPages);
@@ -81,9 +53,9 @@ const AdminPostList = () => {
 
     const handleStatusSave = async (newStatus) => {
         try {
-            await handleApiCall(() => axiosInstance.put(`/admin/post-manage/${selectedPost.id}/post-status`, {
+            await handleApiCall(() => axiosInstance.put(`/api/admin/post-manage/${selectedPost.id}/post-status`, {
                 postStatus: newStatus
-            }));
+            }), navigate);
             setIsStatusModalOpen(false);
             fetchPosts(currentPage, statusFilter);
         } catch (error) {
@@ -106,7 +78,7 @@ const AdminPostList = () => {
         const statusMapping = {
             "ACTIVE": "공개",
             "INACTIVE": "비공개"
-        }
+        };
 
         return data.map(post => ({
             id: post.id,
@@ -114,9 +86,9 @@ const AdminPostList = () => {
             title: post.title,
             content: post.content,
             nickname: post.nickname,
-            createdTime: new Date(post.createAt).toLocaleDateString(),
+            createdTime: new Date(post.createdAt).toLocaleDateString(),
             postStatusName: statusMapping[post.postStatus] || post.postStatus,
-            postStatus: post.postStatus,
+            postStatus: post.postStatus
         }));
     };
 
