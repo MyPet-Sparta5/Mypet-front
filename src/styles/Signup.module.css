@@ -100,10 +100,9 @@
 }
 
 .verificationField {
-    height: 40px;
+    height: 42.5px;
     overflow: hidden;
     transition: height 0.3s ease-out;
-    margin-bottom: 5px;
 }
 
 .verificationField.hidden {

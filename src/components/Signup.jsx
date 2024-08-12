@@ -53,9 +53,6 @@ function Signup() {
         try {
             const response = await axiosNonAuthorization.get(`/api/users/social-account/infos?key=${key}`);
             if (response.data) {
-                console.log(response.data);
-                console.log(response.data.data.email);
-                console.log(response.data.data.nickname);
                 // 소셜 로그인 정보로 필드 채우기
                 setEmail(response.data.data.email);
                 setNickname(response.data.data.nickname);

@@ -1,14 +1,14 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { axiosNonAuthorization } from '../setting/api';
+import { axiosNonAuthorization } from '../../setting/api';
 
-function KakaoLoginCallback() {
+function GoogleLoginCallback() {
     const navigate = useNavigate();
 
     useEffect(() => {
         const sendCodeToBackend = async (code) => {
             try {
-                const response = await axiosNonAuthorization.post('/api/oauth/kakao', { code }, {
+                const response = await axiosNonAuthorization.post('/api/oauth/google', { code }, {
                     validateStatus: function (status) {
                         return status < 500; // 500 미만의 상태 코드는 에러로 취급하지 않음
                     }
@@ -47,12 +47,7 @@ function KakaoLoginCallback() {
                         navigate(`/signup?key=${key}`);
                     } else {
                         // 백엔드에서 URL을 제공하지 않은 경우, 프론트엔드의 회원가입 페이지로 이동
-                        navigate('/signup', { 
-                            state: { 
-                                message: response.data.message,
-                                kakaoData: response.data.kakaoData // 카카오 데이터가 있다면
-                            } 
-                        });
+                        navigate('/signup');
                     }
                 } else {
                     // 기타 상황 처리
@@ -60,7 +55,7 @@ function KakaoLoginCallback() {
                     navigate('/login');
                 }
             } catch (error) {
-                console.error('카카오 로그인 에러:', error);
+                console.error('구글 로그인 에러:', error);
                 alert(error);
                 navigate('/login');
             }
@@ -69,10 +64,14 @@ function KakaoLoginCallback() {
         const code = new URL(window.location.href).searchParams.get("code");
         if (code) {
             sendCodeToBackend(code);
+        } else {
+            const error = new URL(window.location.href).searchParams.get("error");
+            alert(error);
+            navigate('/login');
         }
     }, [navigate]);
 
-    return <div>카카오 로그인 처리 중...</div>;
+    return <div>구글 로그인 처리 중...</div>;
 }
 
-export default KakaoLoginCallback;
+export default GoogleLoginCallback;
