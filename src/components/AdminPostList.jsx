@@ -77,7 +77,8 @@ const AdminPostList = () => {
 
         const statusMapping = {
             "ACTIVE": "공개",
-            "INACTIVE": "비공개"
+            "INACTIVE": "비공개",
+            "DELETED":"삭제됨"
         };
 
         return data.map(post => ({
@@ -101,6 +102,7 @@ const AdminPostList = () => {
                 <option value="ALL">전체</option>
                 <option value="ACTIVE">공개</option>
                 <option value="INACTIVE">비공개</option>
+                <option value="DELETED">삭제됨</option>
             </select>
             <table className={styles.table}>
                 <thead>

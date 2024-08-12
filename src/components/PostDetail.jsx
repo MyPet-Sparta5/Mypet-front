@@ -230,7 +230,7 @@ const PostDetail = () => {
                 throw new Error('로그인이 필요합니다.');
             }
 
-            await handleApiCall(() => axiosInstance.delete(`/api/posts/${id}`), navigate);
+            await handleApiCall(() => axiosInstance.put(`/api/posts/${id}/delete`), navigate);
 
             alert('게시물이 삭제되었습니다.');
             navigate('/community');

@@ -29,6 +29,7 @@ const PostStatusModal = ({ status, onSave, onClose }) => {
                     >
                         <option value="ACTIVE">공개</option>
                         <option value="INACTIVE">비공개</option>
+                        <option value="DELETED">삭제됨</option>
                     </select>
                 </div>
                 <div className={styles.modalButtons}>
