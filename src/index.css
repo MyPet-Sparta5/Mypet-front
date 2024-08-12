@@ -11,3 +11,17 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.react-datepicker__day--outside-month {
+  color: #a8a8a8 !important;
+  pointer-events: none;
+} 
+
+.react-datepicker__close-icon {
+  padding-right: 1rem !important;
+}
+
+.react-datepicker__close-icon::after {
+  background-color: #864e5d !important;
+  padding: 1px !important;
+}
