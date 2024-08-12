@@ -1,8 +1,8 @@
 {
-    "rewrites": [
+    "routes": [
       {
-        "source": "/api/(.*)",
-        "destination": "https://api.petzoa.site/api/$1"
+        "src": "/api/(.*)",
+        "dest": "https://api.petzoa.site/api/$1"
       }
     ]
   }
