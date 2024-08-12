@@ -87,7 +87,7 @@
 }
 
 .error {
-    color: #d9534f; /* 빨간색 */
+    color: #d9534f; 
     font-size: 15px; /* 1포인트 키운 폰트 크기 */
     font-weight: bold;
     margin-top: 10px;
@@ -105,4 +105,40 @@
     font-weight: 400;
     font-size: 14px;
     line-height: 16px;
-} 
+}
+
+.fileList {
+    margin-top: 1rem;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.fileItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    padding: 5px;
+    border: 1px solid #C4C4C4;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.fileItem p {
+    margin: 0;
+    font-size: 14px;
+}
+
+.removeFileButton {
+    background: #864e5d;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 0.2rem 0.5rem;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+
+.removeFileButton:hover {
+    background: #673d48;
+}

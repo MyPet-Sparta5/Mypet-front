@@ -8,11 +8,29 @@ function PostCreateModal({ category, onSave, onClose }) {
     const [files, setFiles] = useState([]);
     const [error, setError] = useState('');
 
+    const allowedFileTypes = ['image/jpeg', 'image/png', 'image/gif', 'video/mp4', 'video/avi'];
+
     const handleFileChange = (e) => {
-        setFiles(Array.from(e.target.files).slice(0, 5));
+        const selectedFiles = Array.from(e.target.files);
+        const validFiles = selectedFiles.filter(file => allowedFileTypes.includes(file.type));
+        if (validFiles.length + files.length > 5) {
+            setError('최대 5개의 파일만 첨부할 수 있습니다.');
+            return;
+        }
+        setFiles(prevFiles => [...prevFiles, ...validFiles]);
+        setError('');
+    };
+
+    const handleRemoveFile = (fileName) => {
+        setFiles(files.filter(file => file.name !== fileName));
     };
 
     const handleSave = () => {
+        if (files.length > 5) {
+            setError('최대 5개의 파일만 첨부할 수 있습니다.');
+            return;
+        }
+
         const postData = {
             title,
             content,
@@ -68,11 +86,20 @@ function PostCreateModal({ category, onSave, onClose }) {
                             id="postFiles"
                             multiple
                             onChange={handleFileChange}
+                            accept=".jpg, .jpeg, .png, .gif, .mp4, .avi"
                         />
                         {files.length > 0 && (
-                            <div>
+                            <div className={styles.fileList}>
                                 {files.map((file, index) => (
-                                    <p key={index}>{file.name}</p>
+                                    <div key={index} className={styles.fileItem}>
+                                        <p>{file.name}</p>
+                                        <button
+                                            className={styles.removeFileButton}
+                                            onClick={() => handleRemoveFile(file.name)}
+                                        >
+                                            X
+                                        </button>
+                                    </div>
                                 ))}
                             </div>
                         )}
