@@ -1,0 +1,8 @@
+{
+    "rewrites": [
+      {
+        "source": "/api/(.*)",
+        "destination": "https://api.petzoa.site/api/$1"
+      }
+    ]
+  }
