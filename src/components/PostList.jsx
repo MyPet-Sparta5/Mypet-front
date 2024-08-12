@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import styles from '../styles/PostList.module.css';
 import PaginationButton from '../components/PaginationButton';
 import PostCreateModal from '../components/PostCreateModal';
+import Loading from '../setting/Loading';
 import { axiosInstance, handleApiCall } from '../setting/api'; 
 
 const PostList = ({ category }) => {
@@ -12,10 +13,12 @@ const PostList = ({ category }) => {
     const [totalPages, setTotalPages] = useState(1);
     const [totalElements, setTotalElements] = useState(0);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [loading, setLoading] = useState(false); // 로딩 상태 추가
     const postsPerPage = 10;
 
     useEffect(() => {
         const fetchPosts = async () => {
+            setLoading(true); // 로딩 시작
             const apiCall = () => axiosInstance.get('/api/posts', {
                 params: {
                     page: currentPage,
@@ -33,6 +36,8 @@ const PostList = ({ category }) => {
                 setTotalElements(totalElements);
             } catch (error) {
                 console.error('Error fetching posts:', error);
+            } finally {
+                setLoading(false); // 로딩 종료
             }
         };
 
@@ -84,6 +89,8 @@ const PostList = ({ category }) => {
             formData.append('files', file); // 파일 객체를 전송
         });
 
+        setLoading(true); // 로딩 시작
+
         const apiCall = () => axiosInstance.post('/api/posts', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
@@ -99,11 +106,15 @@ const PostList = ({ category }) => {
         } catch (error) {
             console.error('Error creating post:', error);
             alert('게시물 작성 중 오류가 발생했습니다. 다시 시도해 주세요.');
+        } finally {
+            setLoading(false); // 로딩 종료
         }
     };
 
     return (
         <div className={styles.container}>
+            {loading && <Loading />} {/* 로딩 상태에 따라 로딩 컴포넌트 표시 */}
+
             <div className={styles.header}>
                 <h2 className={styles.heading}>{category === 'DEFAULT' ? '통합 게시판' : (category === 'BOAST' ? '자랑하기 게시판' : '자유게시판')}</h2>
                 <button onClick={openModal} className={styles.button}>+ 게시글 작성</button>
