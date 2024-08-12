@@ -18,8 +18,12 @@ import ProfilePage from './pages/ProfilePage';
 import MyPostListPage from './pages/MyPostListPage';
 import AccessDeniedPage from './pages/AccessDeniedPage';
 import ProtectedRoute from './ProtectedRoute';
-import KakaoLoginCallback from './components/KakaoLoginCallback';
-import KakaoLinkCallback from './components/KakaoLinkCallback';
+import KakaoLoginCallback from './components/callback/KakaoLoginCallback';
+import KakaoLinkCallback from './components/callback/KakaoLinkCallback';
+import GoogleLoginButton from './components/buttons/GoogleLoginButton';
+import GoogleLinkCallback from './components/callback/GoogleLinkCallback';
+import GoogleLoginCallback from './components/callback/GoogleLoginCallback';
+
 
 const MainLayout = () => (
   <>
@@ -56,6 +60,8 @@ function App() {
             <Route path="/access-denied" element={<AccessDeniedPage />} />
             <Route path="/kakao/login/callback" element={<KakaoLoginCallback />} />
             <Route path="/kakao/link/callback" element={<KakaoLinkCallback />} />
+            <Route path="/google/login/callback" element={<GoogleLoginCallback />} />
+            <Route path="/google/link/callback" element={<GoogleLinkCallback />} />
           </Route>
 
           {/* 백오피스 경로 */}

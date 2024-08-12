@@ -119,16 +119,30 @@ const Profile = () => {
     const handleKakaoLogin = () => {
         const KAKAO_CLIENT_ID = process.env.REACT_APP_KAKAO_CLIENT_ID;
         const REDIRECT_URI = process.env.REACT_APP_KAKAO_LINK_REDIRECT_URI;
-        const KAKAO_AUTH_URL = 'https://kauth.kakao.com/oauth/authorize?client_id=' +
-            `${KAKAO_CLIENT_ID}` +
-            '&redirect_uri=' +
-            `${REDIRECT_URI}` +
-            '&response_type=code&' +
-            'scope=account_email profile_nickname';
+        const KAKAO_AUTH_URL = 'https://kauth.kakao.com/oauth/authorize';
+        const scope = 'account_email profile_nickname';
 
-        localStorage.setItem('email', email); // zu-stand
+        const kakaoLinkUrl = `${KAKAO_AUTH_URL}?client_id=${KAKAO_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=${scope}`
 
-        window.location.href = KAKAO_AUTH_URL;
+        localStorage.setItem('email', email);
+
+        window.location.href = kakaoLinkUrl;
+    }
+
+    const handleGoogleLogin = () => {
+        const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+        const REDIRECT_URL = process.env.REACT_APP_GOOGLE_LINK_REDIRECT_URI;
+        const GOOGLE_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
+        const scope = 'email%20profile%20openid';
+
+        const encodedRedirectUrl = encodeURIComponent(REDIRECT_URL);
+
+        const googleLinkUrl = `${GOOGLE_AUTH_URL}?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${encodedRedirectUrl}&response_type=code&scope=${scope}&access_type=offline`;
+
+        console.log(googleLinkUrl);
+        localStorage.setItem('email', email);
+
+        window.location.href = googleLinkUrl;
     }
 
     const handleSocialToggle = async (socialType) => {
@@ -149,6 +163,8 @@ const Profile = () => {
             } else {
                 if (socialType === 'KAKAO') {
                     handleKakaoLogin();
+                } else if (socialType === 'GOOGLE') {
+                    handleGoogleLogin();
                 }
                 return;
             }
@@ -265,7 +281,7 @@ const Profile = () => {
                     </div>
                     <div className={styles.socialAccountsContainer}>
                         <h3>소셜 계정 연동</h3>
-                        {['KAKAO'].map(socialType => (
+                        {['KAKAO', 'GOOGLE'].map(socialType => (
                             <SocialAccountItem
                                 key={socialType}
                                 type={socialType}
