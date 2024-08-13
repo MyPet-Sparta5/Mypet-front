@@ -11,7 +11,34 @@ function FacilityFinderPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchRadius, setSearchRadius] = useState(250); // 초기 검색 반경 (미터 단위)
 
+  useEffect(() => {
+    // 사용자의 위치를 가져오는 함수
+    const getUserLocation = () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const newCenter = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            };
+            setCenter(newCenter);
+          },
+          (error) => {
+            console.error("Error getting user location:", error);
+            alert("사용자 위치를 가져오는데 실패했습니다. 기본 위치(서울 시청)를 사용합니다.");
+          }
+        );
+      } else {
+        alert("이 브라우저에서는 위치 정보를 지원하지 않습니다. 기본 위치(서울 시청)를 사용합니다.");
+      }
+    };
+
+    getUserLocation();
+  }, []); // 컴포넌트 마운트 시 한 번만 실행
+
   const calculateRadius = useCallback((map) => {
+    if (!map) return 250;
+
     const bounds = map.getBounds();
     const sw = bounds.getSouthWest();
     const ne = bounds.getNorthEast();
@@ -66,28 +93,37 @@ function FacilityFinderPage() {
     } finally {
       setIsLoading(false);
     }
-  }, 500), [calculateRadius]);
+  }), [calculateRadius]);
+
+  const debouncedSearchFacilities = useCallback(debounce(searchFacilities, 200), [searchFacilities]);
 
   const MapEventHandler = () => {
     const map = useMap();
     useEffect(() => {
       if (map) {
+        const handleDragEnd = () => {
+          setLevel(map.getLevel());
+          debouncedSearchFacilities(map);
+        };
+
         const handleMapChange = () => {
           setLevel(map.getLevel());
-          searchFacilities(map);
+          debouncedSearchFacilities(map);
         };
 
-        map.addListener('center_changed', handleMapChange);
-        map.addListener('zoom_changed', handleMapChange);
-        map.addListener('dragend', handleMapChange);
+        const debouncedHandleMapChange = debounce(handleMapChange, 200);
+
+        map.addListener('dragend', handleDragEnd);
+        map.addListener('center_changed', debouncedHandleMapChange);
+        map.addListener('zoom_changed', debouncedHandleMapChange);
 
         return () => {
-          map.removeListener('center_changed', handleMapChange);
-          map.removeListener('zoom_changed', handleMapChange);
-          map.removeListener('dragend', handleMapChange);
+          map.removeListener('dragend', handleDragEnd);
+          map.removeListener('center_changed', debouncedHandleMapChange);
+          map.removeListener('zoom_changed', debouncedHandleMapChange);
         };
       }
-    }, [map, searchFacilities]);
+    }, [map, debouncedSearchFacilities]);
 
     return null;
   };
