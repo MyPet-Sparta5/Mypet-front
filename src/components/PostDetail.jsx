@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { axiosInstance, handleApiCall } from '../setting/api';
+import { axiosInstance, axiosNonAuthorization, handleApiCall } from '../setting/api';
 import styles from '../styles/PostDetail.module.css';
 import { SlArrowUpCircle } from "react-icons/sl";
 import { MdEdit } from 'react-icons/md';
@@ -39,7 +39,7 @@ const PostDetail = () => {
     //#region 댓글 가져오기
     const fetchComments = useCallback(async (page) => {
         try {
-            const response = await handleApiCall(() => axiosInstance.get(`/api/posts/${id}/comments?page=${page}&size=10`), navigate);
+            const response = await handleApiCall(() => axiosNonAuthorization.get(`/api/posts/${id}/comments?page=${page}&size=10`), navigate);
             const { comments, pageInfo } = response.data.data;
             setComments(comments);
             setCurrentPage(pageInfo.pageNumber + 1);
@@ -52,13 +52,16 @@ const PostDetail = () => {
     //#endregion
 
     useEffect(() => {
-        const fetchPostDetails = async (token = null) => {
+        const fetchPostDetails = async () => {
             try {
-                if (!token) {
-                    token = getAuthTokenFromLocalStorage();
-                }
+                const token = getAuthTokenFromLocalStorage();
 
-                const postResponse = await handleApiCall(() => axiosInstance.get(`/api/posts/${id}`), navigate);
+                let postResponse;
+                if (token) { // 로그인 상태
+                    postResponse = await handleApiCall(() => axiosInstance.get(`/api/posts/${id}`), navigate);
+                } else if (!token) { // 비 로그인 상태
+                    postResponse = await handleApiCall(() => axiosNonAuthorization.get(`/api/posts/${id}`), navigate);
+                }
 
                 const postData = postResponse.data.data;
 
@@ -104,15 +107,8 @@ const PostDetail = () => {
     };
 
     const postComment = async (content) => {
-        const token = getAuthTokenFromLocalStorage();
-        if (!token) {
-            throw new Error('로그인이 필요합니다.');
-        }
-        console.log(post.like);
-        console.log(post.likeCount);
-
         try {
-            await sendCommentRequest(token, content);
+            await sendCommentRequest(content);
         } catch (error) {
             throw error;
         }
