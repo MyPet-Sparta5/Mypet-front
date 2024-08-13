@@ -52,8 +52,10 @@ const PostDetail = () => {
     //#endregion
 
     useEffect(() => {
-        const fetchPostDetails = async (token = null) => {
+        const fetchPostDetails = async () => {
             try {
+                const token = getAuthTokenFromLocalStorage();
+
                 let postResponse;
                 if (token) { // 로그인 상태
                     postResponse = await handleApiCall(() => axiosInstance.get(`/api/posts/${id}`), navigate);

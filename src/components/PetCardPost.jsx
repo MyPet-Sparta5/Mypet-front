@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { axiosInstance, handleApiCall } from '../setting/api';
+import { axiosInstance, axiosNonAuthorization, handleApiCall } from '../setting/api';
 import { FaArrowLeft } from 'react-icons/fa';
 import { MdEdit } from 'react-icons/md';
 import { GoAlertFill } from "react-icons/go";
@@ -33,14 +33,14 @@ const PetCardPost = () => {
   useEffect(() => {
     const fetchPost = async (token = null) => {
       try {
-        if (!token) {
-          token = getAuthToken();
-        }
-        const config = {
-          headers: token ? { 'Authorization': `Bearer ${token}` } : {}
-        };
+        const token = getAuthToken();
 
-        const postResponse = await handleApiCall(() => axiosInstance.get(`/api/posts/${id}`, config), navigate);
+        let postResponse;
+        if (token) { // 로그인 상태
+          postResponse = await handleApiCall(() => axiosInstance.get(`/api/posts/${id}`), navigate);
+        } else if (!token) { // 비 로그인 상태
+          postResponse = await handleApiCall(() => axiosNonAuthorization.get(`/api/posts/${id}`), navigate);
+        }
 
         const postData = postResponse.data.data;
 
