@@ -115,6 +115,7 @@
     border: 1px solid #ccc;
     border-radius: 5px;
     padding: 20px;
+    max-width: 35%;
 }
 
 .commentsSection h3 {
@@ -148,8 +149,10 @@
 
 .commentText {
     flex: 1;
+    word-wrap: break-word; /* 단어가 길 경우에도 줄바꿈 */
+    word-break: break-word; /* 긴 단어를 중간에서 줄바꿈 */
+    white-space: pre-wrap; /* 공백과 줄바꿈을 유지하면서 텍스트를 래핑 */
 }
-
 .deleteButton {
     background: none;
     border: none;
