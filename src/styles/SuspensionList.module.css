@@ -71,3 +71,47 @@
     text-underline-offset: 5px; /* 밑줄 간격 조정 */
     text-decoration-color: #864e5d;
 }
+
+
+.searchContainer {
+    float: right;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.search {
+    float: left;
+    display: flex;
+    align-items: center;
+}
+
+.searchContainer label {
+    padding: 10px;
+}
+
+.searchInput {
+    margin-right: 10px;
+    padding: 10px;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+}
+
+.searchDate {
+    margin-right: 10px;
+    width: 200px;
+    padding: 10px;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+}
+
+.searchButton {
+    padding: 10px;
+    background-color: #864e5d;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
