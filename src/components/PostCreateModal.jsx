@@ -4,7 +4,7 @@ import styles from '../styles/Modal.module.css';
 function PostCreateModal({ category, onSave, onClose }) {
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
-    const [selectedCategory, setSelectedCategory] = useState(category === 'DEFAULT' ? '' : category);
+    const [selectedCategory, setSelectedCategory] = useState(category === '' ? '' : category);
     const [files, setFiles] = useState([]);
     const [error, setError] = useState('');
 
@@ -52,7 +52,7 @@ function PostCreateModal({ category, onSave, onClose }) {
                         value={selectedCategory}
                         onChange={(e) => setSelectedCategory(e.target.value)}
                         className={styles.selectCategory}
-                        disabled={category !== 'DEFAULT'}
+                        disabled={category !== ''}
                     >
                         <option value="">카테고리 선택</option>
                         <option value="BOAST">자랑하기</option>

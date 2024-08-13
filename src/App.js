@@ -24,7 +24,6 @@ import GoogleLoginButton from './components/buttons/GoogleLoginButton';
 import GoogleLinkCallback from './components/callback/GoogleLinkCallback';
 import GoogleLoginCallback from './components/callback/GoogleLoginCallback';
 
-
 const MainLayout = () => (
   <>
     <Header />
@@ -49,7 +48,7 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
-            <Route path="/community" element={<PostListPage category="DEFAULT" />} />
+            <Route path="/community" element={<PostListPage category="" />} />
             <Route path="/gallery" element={<PostListPage category="BOAST" />} />
             <Route path="/freedom" element={<PostListPage category="FREEDOM" />} />
             <Route path="/pet/:id" element={<PetCardPostPage />} />
