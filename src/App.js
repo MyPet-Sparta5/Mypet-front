@@ -20,7 +20,6 @@ import AccessDeniedPage from './pages/AccessDeniedPage';
 import ProtectedRoute from './ProtectedRoute';
 import KakaoLoginCallback from './components/callback/KakaoLoginCallback';
 import KakaoLinkCallback from './components/callback/KakaoLinkCallback';
-import GoogleLoginButton from './components/buttons/GoogleLoginButton';
 import GoogleLinkCallback from './components/callback/GoogleLinkCallback';
 import GoogleLoginCallback from './components/callback/GoogleLoginCallback';
 
