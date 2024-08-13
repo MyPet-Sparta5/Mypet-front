@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { axiosNonAuthorization } from '../setting/api'; 
+import { axiosNonAuthorization } from '../setting/api';
 import styles from '../styles/Signup.module.css';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -141,7 +141,13 @@ function Signup() {
             }
         } catch (error) {
             console.error('회원가입 중 오류 발생:', error);
-            alert('회원가입 중 오류가 발생했습니다. 다시 시도해 주세요.');
+
+            if (error.response && error.response.data && error.response.data.message) {
+                const errorMessage = error.response.data.message;
+                alert(`회원가입 실패: ${errorMessage.replace('Exception caught: ', '')}`);
+            } else {
+                alert('회원가입 중 오류가 발생했습니다. 다시 시도해 주세요.');
+            }
         }
     };
 
@@ -154,18 +160,18 @@ function Signup() {
             <h2 className={styles.title}>회원가입</h2>
             <div className={styles.form}>
                 <div className={styles.inputGroup}>
-                    <input 
-                        className={styles.input} 
-                        type="email" 
-                        placeholder="Email" 
+                    <input
+                        className={styles.input}
+                        type="email"
+                        placeholder="Email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         ref={emailInput}
                         readOnly={isSocialSignup}
                     />
                     {!isEmailVerified ? (
-                        <button 
-                            className={`${styles.button} ${styles.verifyButton}`} 
+                        <button
+                            className={`${styles.button} ${styles.verifyButton}`}
                             onClick={handleSendVerification}
                             disabled={resendCooldown > 0}
                         >
@@ -177,10 +183,10 @@ function Signup() {
                 </div>
                 <div className={`${styles.verificationField} ${!showVerificationField || isEmailVerified ? styles.hidden : ''}`}>
                     <div className={styles.inputGroup}>
-                        <input 
-                            className={styles.input} 
-                            type="text" 
-                            placeholder="인증 코드" 
+                        <input
+                            className={styles.input}
+                            type="text"
+                            placeholder="인증 코드"
                             ref={verificationCodeInput}
                         />
                         <button className={`${styles.button} ${styles.verificationButton}`} onClick={handleVerifyCode}>
@@ -190,17 +196,17 @@ function Signup() {
                 </div>
                 <input className={styles.input} type="password" placeholder="Password" ref={passwordInput} />
                 <input className={styles.input} type="password" placeholder="Repeat Password" ref={repeatPasswordInput} />
-                <input 
-                    className={styles.input} 
-                    type="text" 
-                    placeholder="NickName" 
+                <input
+                    className={styles.input}
+                    type="text"
+                    placeholder="NickName"
                     value={nickname}
                     ref={nicknameInput}
                     onChange={(e) => setNickname(e.target.value)}
                 />
-                <button 
-                    className={styles.button} 
-                    type="submit" 
+                <button
+                    className={styles.button}
+                    type="submit"
                     onClick={handleSignupClick}
                     disabled={!isEmailVerified}
                 >
