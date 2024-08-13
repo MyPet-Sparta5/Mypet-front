@@ -3,24 +3,41 @@ import { useNavigate } from 'react-router-dom';
 import styles from '../styles/ReportList.module.css';
 import PaginationButton from '../components/PaginationButton';
 import ReportStatusModal from '../components/ReportStatusModal';
-import { axiosInstance, handleApiCall } from '../setting/api'; 
+import { axiosInstance, handleApiCall } from '../setting/api';
+import DatePicker, { registerLocale } from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import { ko } from 'date-fns/locale';
+import { format } from 'date-fns';
+
+registerLocale('ko', ko);
 
 const ReportList = () => {
     const navigate = useNavigate();
     const [reports, setReports] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const [statusSearch, setStatusSearch] = useState('');
+    const [emailSearch, setEmailSearch] = useState('');
+    const [dateRange, setDateRange] = useState([null, null]);
+    const [startDate, endDate] = dateRange;
     const reportsPerPage = 10;
 
     const [selectedReport, setSelectedReport] = useState(null);
 
     const fetchReports = async (page) => {
+        const formattedStartDate = startDate ? format(startDate, 'yyyy-MM-dd') : undefined;
+        const formattedEndDate = endDate ? format(endDate, 'yyyy-MM-dd') : undefined;
+
         try {
             const response = await handleApiCall(() => axiosInstance.get('/api/admin/report-view', {
                 params: {
                     page,
                     pageSize: reportsPerPage,
-                    sortBy: 'createdAt,desc'
+                    sortBy: 'createdAt,desc',
+                    email: emailSearch,
+                    status: statusSearch,
+                    startDate: formattedStartDate,
+                    endDate: formattedEndDate
                 }
             }));
             const data = response.data;
@@ -84,6 +101,44 @@ const ReportList = () => {
     return (
         <div className={styles.container}>
             <h2 className={styles.heading}>신고 목록</h2>
+            <div className={styles.searchContainer}>
+                <div>
+                    <label>이메일 : </label>
+                    <input
+                        type="text"
+                        placeholder="이메일 검색"
+                        value={emailSearch}
+                        onChange={(e) => setEmailSearch(e.target.value)}
+                        className={styles.searchInput}
+                    /> <label>상태 : </label>
+                    <select className={styles.searchInput} value={statusSearch} onChange={(e) => {
+                        const value = e.target.value === '전체' ? '' : e.target.value;
+                        setStatusSearch(value);
+                    }}>
+                        <option>전체</option>
+                        <option value="PENDING">처리 전</option>
+                        <option value="IN_PROGRESS">처리 중</option>
+                        <option value="COMPLETED">처리 완료</option>
+                        <option value="REJECTED">보류</option>
+                    </select>
+                    <label>기간 조회 : </label>
+                    <DatePicker
+                        className={styles.searchDate}
+                        locale="ko"
+                        dateFormat='yyyy-MM-dd'
+                        selectsRange={true}
+                        startDate={startDate}
+                        endDate={endDate}
+                        onChange={(update) => {
+                            setDateRange(update);
+                        }}
+                        isClearable
+                    />
+                </div>
+                <div>
+                    <button onClick={() => fetchReports(1)} className={styles.searchButton}>검색</button>
+                </div>
+            </div>
             <table className={styles.table}>
                 <thead>
                     <tr>
@@ -109,7 +164,7 @@ const ReportList = () => {
                         ))
                     ) : (
                         <tr>
-                            <td colSpan="5">No reports available.</td>
+                            <td colSpan="5">신고 목록이 없습니다.</td>
                         </tr>
                     )}
                 </tbody>
