@@ -29,7 +29,7 @@ const Profile = () => {
             id: post.id,
             category: categoryMapping[post.category] || post.category,
             title: post.title,
-            createdTime: new Date(post.createAt).toLocaleDateString(),
+            createdTime: new Date(post.createdAt).toLocaleDateString(),
             likes: post.likeCount,
         }));
     };
@@ -79,7 +79,7 @@ const Profile = () => {
             try {
                 const response = await handleApiCall(() => axiosInstance.get('/api/posts', {
                     params: {
-                        userName: email
+                        email: email
                     }
                 }), navigate);
 

@@ -1,62 +1,81 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import styles from '../styles/PostList.module.css';
 import PaginationButton from '../components/PaginationButton';
 import PostCreateModal from '../components/PostCreateModal';
 import Loading from '../setting/Loading';
-import { axiosInstance, handleApiCall } from '../setting/api'; 
+import { axiosInstance, axiosNonAuthorization, handleApiCall } from '../setting/api';
+import { GoSearch } from "react-icons/go";
 
 const PostList = ({ category }) => {
     const navigate = useNavigate();
+    const location = useLocation();
     const [posts, setPosts] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [totalElements, setTotalElements] = useState(0);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [loading, setLoading] = useState(false); // 로딩 상태 추가
+    const [loading, setLoading] = useState(false);
+    const [nicknameSearch, setNicknameSearch] = useState('');
+    const [titleSearch, setTitleSearch] = useState('');
+    const [searchVisible, setSearchVisible] = useState(false);
     const postsPerPage = 10;
 
+    // 상태를 초기화하는 함수
+    const resetState = () => {
+        setSearchVisible(false);
+        setCurrentPage(1);
+        setNicknameSearch('');
+        setTitleSearch('');
+    };
+
+    // 위치 객체나 카테고리 변경 시 상태를 초기화합니다.
     useEffect(() => {
-        const fetchPosts = async () => {
-            setLoading(true); // 로딩 시작
-            const apiCall = () => axiosInstance.get('/api/posts', {
-                params: {
-                    page: currentPage,
-                    pageSize: postsPerPage,
-                    sortBy: 'createdAt,desc',
-                    category: category
-                }
-            });
+        resetState();
+    }, [category, location.key]);
 
-            try {
-                const response = await handleApiCall(apiCall, navigate);
-                const { content, totalPages, totalElements } = response.data.data;
-                setPosts(transformPostData(content));
-                setTotalPages(totalPages);
-                setTotalElements(totalElements);
-            } catch (error) {
-                console.error('Error fetching posts:', error);
-            } finally {
-                setLoading(false); // 로딩 종료
-            }
-        };
-
+    useEffect(() => {
         fetchPosts();
-    }, [currentPage, category, navigate]);
+    }, [currentPage, category]);
+
+    const fetchPosts = async () => {
+        setLoading(true);
+        const apiCall = () => axiosNonAuthorization.get('/api/posts', {
+            params: {
+                page: currentPage,
+                pageSize: postsPerPage,
+                sortBy: 'createdAt,desc',
+                category: category,
+                status: 'ACTIVE',
+                nickname: nicknameSearch || undefined,
+                title: titleSearch || undefined
+            }
+        });
+        try {
+            const response = await handleApiCall(apiCall, navigate);
+            const { content, totalPages, totalElements } = response.data.data;
+            setPosts(transformPostData(content));
+            setTotalPages(totalPages);
+            setTotalElements(totalElements);
+        } catch (error) {
+            console.error('Error fetching posts:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const transformPostData = (data) => {
         const categoryMapping = {
             "BOAST": "자랑하기",
             "FREEDOM": "자유게시판"
         };
-
         return data.map(post => ({
             id: post.id,
             category: categoryMapping[post.category] || post.category,
             title: post.title,
             content: post.content,
             nickname: post.nickname,
-            createdTime: new Date(post.createAt).toLocaleDateString(),
+            createdTime: new Date(post.createdAt).toLocaleDateString(),
             likes: post.likeCount,
         }));
     };
@@ -86,10 +105,10 @@ const PostList = ({ category }) => {
         formData.append('requestDto', new Blob([JSON.stringify({ title, content })], { type: 'application/json' }));
         formData.append('category', category);
         files.forEach(file => {
-            formData.append('files', file); // 파일 객체를 전송
+            formData.append('files', file);
         });
 
-        setLoading(true); // 로딩 시작
+        setLoading(true);
 
         const apiCall = () => axiosInstance.post('/api/posts', formData, {
             headers: {
@@ -107,16 +126,53 @@ const PostList = ({ category }) => {
             console.error('Error creating post:', error);
             alert('게시물 작성 중 오류가 발생했습니다. 다시 시도해 주세요.');
         } finally {
-            setLoading(false); // 로딩 종료
+            setLoading(false);
+        }
+    };
+
+    const toggleSearchVisibility = () => {
+        setSearchVisible(!searchVisible);
+    };
+
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            fetchPosts();
         }
     };
 
     return (
         <div className={styles.container}>
-            {loading && <Loading />} {/* 로딩 상태에 따라 로딩 컴포넌트 표시 */}
-
+            {loading && <Loading />}
             <div className={styles.header}>
-                <h2 className={styles.heading}>{category === 'DEFAULT' ? '통합 게시판' : (category === 'BOAST' ? '자랑하기 게시판' : '자유게시판')}</h2>
+                <h2 className={styles.heading}>{category === '' ? '통합 게시판' : (category === 'BOAST' ? '자랑하기 게시판' : '자유게시판')}</h2>
+            </div>
+            <div>
+                <div className={styles.search}>
+                    <GoSearch onClick={toggleSearchVisibility} className={styles.searchIcon} />
+                    {searchVisible && (
+                        <>
+                            <label>제목 : &nbsp;</label>
+                            <input
+                                type="text"
+                                placeholder="제목 검색"
+                                value={titleSearch}
+                                onChange={(e) => setTitleSearch(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                                className={styles.searchInput}
+                            />
+                            <label>작성자 : &nbsp;</label>
+                            <input
+                                type="text"
+                                placeholder="작성자 검색"
+                                value={nicknameSearch}
+                                onChange={(e) => setNicknameSearch(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                                className={styles.searchInput}
+                            />
+                            <button onClick={() => fetchPosts()} className={styles.searchButton}>검색</button>
+                        </>
+                    )}
+                </div>
                 <button onClick={openModal} className={styles.button}>+ 게시글 작성</button>
             </div>
             <table className={styles.table}>
