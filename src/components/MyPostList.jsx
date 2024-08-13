@@ -28,7 +28,7 @@ const MyPostList = () => {
             page: currentPage,
             pageSize: postsPerPage,
             sortBy: 'createdAt,desc',
-            userName: email, // 이메일을 userName 파라미터로 설정
+            email: email, // 이메일을 userName 파라미터로 설정
           },
         }), navigate);
 

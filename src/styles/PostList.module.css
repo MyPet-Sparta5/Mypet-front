@@ -134,6 +134,26 @@
     margin-bottom: 20px;
 }
 
+.search {
+    float: left;
+    display: flex;
+    align-items: center;
+}
+
+.searchIcon {
+    cursor: pointer;
+    padding: 10px;
+}
+
+.searchField {
+    display: none; /* 기본적으로 숨김 */
+}
+
+.searchField.show {
+    display: block; /* show 클래스가 추가되면 보이게 함 */
+}
+
+
 .searchContainer label {
     padding: 10px;
 }
