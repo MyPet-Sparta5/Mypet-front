@@ -10,7 +10,7 @@ function PostCreateModal({ category, onSave, onClose }) {
 
     const allowedFileTypes = ['image/jpeg', 'image/png', 'image/gif', 'video/mp4', 'video/avi'];
     const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB for images
-    const MAX_VIDEO_SIZE = 10 * 1024 * 1024; // 100 MB for videos
+    const MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 100 MB for videos
 
     const handleFileChange = (e) => {
         const selectedFiles = Array.from(e.target.files);
