@@ -22,11 +22,13 @@ import KakaoLoginCallback from './components/callback/KakaoLoginCallback';
 import KakaoLinkCallback from './components/callback/KakaoLinkCallback';
 import GoogleLinkCallback from './components/callback/GoogleLinkCallback';
 import GoogleLoginCallback from './components/callback/GoogleLoginCallback';
+import Footer from './components/Footer';
 
 const MainLayout = () => (
   <>
     <Header />
     <Outlet />
+    <Footer />
   </>
 );
 
@@ -34,6 +36,7 @@ const AdminLayout = () => (
   <>
     <AdminHeader />
     <Outlet />
+    <Footer />
   </>
 );
 
