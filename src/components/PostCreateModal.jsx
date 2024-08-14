@@ -4,21 +4,41 @@ import styles from '../styles/Modal.module.css';
 function PostCreateModal({ category, onSave, onClose }) {
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
-    const [selectedCategory, setSelectedCategory] = useState(category === '' ? '' : category);
+    const [selectedCategory, setSelectedCategory] = useState(category === 'DEFAULT' ? '' : category);
     const [files, setFiles] = useState([]);
     const [error, setError] = useState('');
 
     const allowedFileTypes = ['image/jpeg', 'image/png', 'image/gif', 'video/mp4', 'video/avi'];
+    const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB for images
+    const MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 100 MB for videos
 
     const handleFileChange = (e) => {
         const selectedFiles = Array.from(e.target.files);
-        const validFiles = selectedFiles.filter(file => allowedFileTypes.includes(file.type));
+        const validFiles = [];
+        const errorMessages = [];
+
+        selectedFiles.forEach(file => {
+            if (!allowedFileTypes.includes(file.type)) {
+                errorMessages.push(`${file.name}은 허용되지 않는 파일 형식입니다.`);
+            } else if (file.type.startsWith('video/') && file.size > MAX_VIDEO_SIZE) {
+                errorMessages.push(`${file.name}은 동영상 파일 용량이 ${MAX_VIDEO_SIZE / (1024 * 1024)}MB를 초과합니다.`);
+            } else if (file.size > MAX_FILE_SIZE) {
+                errorMessages.push(`${file.name}은 이미지 파일 용량이 ${MAX_FILE_SIZE / (1024 * 1024)}MB를 초과합니다.`);
+            } else {
+                validFiles.push(file);
+            }
+        });
+
         if (validFiles.length + files.length > 5) {
-            setError('최대 5개의 파일만 첨부할 수 있습니다.');
-            return;
+            errorMessages.push('최대 5개의 파일만 첨부할 수 있습니다.');
         }
-        setFiles(prevFiles => [...prevFiles, ...validFiles]);
-        setError('');
+
+        if (errorMessages.length > 0) {
+            setError(errorMessages.join(' '));
+        } else {
+            setFiles(prevFiles => [...prevFiles, ...validFiles]);
+            setError('');
+        }
     };
 
     const handleRemoveFile = (fileName) => {
@@ -52,7 +72,7 @@ function PostCreateModal({ category, onSave, onClose }) {
                         value={selectedCategory}
                         onChange={(e) => setSelectedCategory(e.target.value)}
                         className={styles.selectCategory}
-                        disabled={category !== ''}
+                        disabled={category !== 'DEFAULT'}
                     >
                         <option value="">카테고리 선택</option>
                         <option value="BOAST">자랑하기</option>
