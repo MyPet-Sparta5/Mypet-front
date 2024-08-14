@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { axiosNonAuthorization } from '../setting/api';
 import styles from '../styles/Signup.module.css';
+import Loading from '../setting/Loading';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 function Signup() {
@@ -23,7 +24,7 @@ function Signup() {
     const [nickname, setNickname] = useState('');
     const [isSocialSignup, setIsSocialSignup] = useState(false);
     const [registrationKey, setRegistrationKey] = useState(null);
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
     const [showVerificationField, setShowVerificationField] = useState(false);
     const [isEmailVerified, setIsEmailVerified] = useState(false);
     const [resendCooldown, setResendCooldown] = useState(0);
@@ -59,7 +60,7 @@ function Signup() {
                 setIsEmailVerified(true); // 소셜 로그인의 경우 이메일이 이미 인증되었다고 간주
             }
         } catch (error) {
-            console.error('소셜 로그인 정보 가져오기 실패:', error);
+            alert('소셜 로그인 정보를 가져오는데 문제가 발생했습니다.');
         } finally {
             setIsLoading(false);
         }
@@ -70,31 +71,44 @@ function Signup() {
             alert('올바른 이메일 형식이 아닙니다.');
             return;
         }
+
+        setIsLoading(true);
+
         try {
             await axiosNonAuthorization.post('/api/auth/send-verification', { email });
             setShowVerificationField(true);
             setResendCooldown(600); // 10분
-            alert('인증 코드가 이메일로 전송되었습니다.');
         } catch (error) {
-            alert('인증 코드 전송에 실패했습니다.');
+            const status =  error.response.data.status;
+            const remainTime = error.response.data.data.remainingTime;
+            if (status === 429 && remainTime > 0){
+                alert(`이메일 전송 빈도 제한으로 인해 대기 시간이 발생합니다.\n${remainTime}초 후에 다시 시도해 주세요.`);
+            } else {
+                alert('인증 코드 전송에 실패했습니다. 잠시 후 다시 시도해 주세요.');
+            }
+            return; // 오류 발생 시 함수 종료
+        } finally {
+            setIsLoading(false);
         }
+
+        alert('인증 코드가 이메일로 전송되었습니다.');
     };
 
     const handleVerifyCode = async () => {
+        setIsLoading(true);
         try {
-            const response = await axiosNonAuthorization.post('/api/auth/verify', {
+            await axiosNonAuthorization.post('/api/auth/verify', {
                 email,
                 code: verificationCodeInput.current.value
             });
-            if (response.data.status === 200) {
-                setIsEmailVerified(true);
-                alert('이메일이 성공적으로 인증되었습니다.');
-            } else {
-                alert('잘못된 인증 코드입니다.');
-            }
         } catch (error) {
-            alert('인증 코드 확인에 실패했습니다.');
+            alert('잘못된 인증 코드입니다.');
+            return;
+        } finally {
+            setIsLoading(false);
         }
+        setIsEmailVerified(true);
+        alert('이메일이 성공적으로 인증되었습니다.');
     };
 
     const handleSignupClick = async () => {
@@ -103,7 +117,6 @@ function Signup() {
             return;
         }
 
-        console.log(emailInput.current + ", " + passwordInput.current + ", " + repeatPasswordInput.current + ", " + nicknameInput.current);
         if (!emailInput.current.value || !passwordInput.current.value || !repeatPasswordInput.current.value || !nicknameInput.current.value) {
             alert('빈 칸을 전부 입력 해주세요.');
             return;
@@ -140,8 +153,6 @@ function Signup() {
                 alert('회원가입에 실패했습니다.');
             }
         } catch (error) {
-            console.error('회원가입 중 오류 발생:', error);
-
             if (error.response && error.response.data && error.response.data.message) {
                 const errorMessage = error.response.data.message;
                 alert(`회원가입 실패: ${errorMessage.replace('Exception caught: ', '')}`);
@@ -150,10 +161,6 @@ function Signup() {
             }
         }
     };
-
-    if (isLoading) {
-        return <div>로딩 중...</div>;  // 로딩 중일 때 표시할 내용
-    }
 
     return (
         <div className={styles.signup}>
@@ -212,6 +219,7 @@ function Signup() {
                 >
                     Sign up
                 </button>
+                {isLoading && <Loading />}
             </div>
         </div>
     );
