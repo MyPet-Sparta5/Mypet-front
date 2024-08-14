@@ -1,0 +1,183 @@
+/* src/styles/PostList.module.css */
+.container {
+    padding: 20px;
+}
+
+.heading {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    /* 셀 사이의 경계선 병합 */
+}
+
+.table th,
+.table td {
+    padding: 12px 15px;
+    text-align: left;
+}
+
+.table th {
+    background-color: white;
+    font-weight: bold;
+    text-transform: uppercase;
+    border-bottom: 2px solid #ddd;
+    /* 헤더와 본문 사이의 두꺼운 하단 경계선 */
+}
+
+.table td {
+    background-color: #fff;
+    border-bottom: 1px solid #ddd;
+    /* 각 행의 하단 경계선 */
+}
+
+/* 세로선을 숨기기 위한 스타일 */
+.table td {
+    border-right: none;
+    /* 오른쪽 경계선 숨김 */
+}
+
+.table tr:last-child td {
+    border-bottom: none;
+    /* 마지막 행의 하단 경계선 제거 */
+}
+
+.table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.table tr:hover {
+    background-color: #f1f1f1;
+}
+
+.clickableRow {
+    cursor: pointer;
+    /* 마우스 커서를 링크 클릭할 때처럼 바꾸기 위한 스타일 */
+}
+
+/* 카테고리 */
+.table th:nth-child(1),
+.table td:nth-child(1) {
+    width: 15%;
+    /* 원하는 너비로 조정 */
+}
+
+/* 제목 */
+.table th:nth-child(2),
+.table td:nth-child(2) {
+    width: 50%;
+    /* 원하는 너비로 조정 */
+}
+
+/* 좋아요, 작성자, 작성일자 */
+.table th:nth-child(3),
+.table td:nth-child(3),
+.table th:nth-child(4),
+.table td:nth-child(4),
+.table th:nth-child(5),
+.table td:nth-child(5) {
+    width: 10%;
+    /* 원하는 너비로 조정 */
+}
+
+.button {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    color: #fff;
+    background-color: #5f3742;
+    border: none;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+}
+
+.button:hover {
+    background-color: #4a2b35;
+}
+
+.button:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #3e232c;
+}
+
+.option {
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.adminPost {
+    cursor: pointer;
+    text-decoration-line: underline;
+    text-underline-offset: 5px;
+    text-decoration-color: #864e5d;
+}
+
+.searchContainer {
+    float: right;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.search {
+    float: left;
+    display: flex;
+    align-items: center;
+}
+
+.searchIcon {
+    cursor: pointer;
+    padding: 10px;
+}
+
+.searchField {
+    display: none; /* 기본적으로 숨김 */
+}
+
+.searchField.show {
+    display: block; /* show 클래스가 추가되면 보이게 함 */
+}
+
+
+.searchContainer label {
+    padding: 10px;
+}
+
+.searchInput {
+    margin-right: 10px;
+    padding: 10px;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+}
+
+.searchDate {
+    margin-right: 10px;
+    width: 200px;
+    padding: 10px;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+}
+
+.searchButton {
+    padding: 10px;
+    background-color: #864e5d;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}

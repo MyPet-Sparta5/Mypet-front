@@ -1,0 +1,91 @@
+.footer {
+    background-color: #f7f7f7;
+    margin-top: 200px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.footer-wrapper {
+    border-top: 1px solid #e7e7e7;
+    border-bottom: 1px solid #e7e7e7;
+    width: 100%;
+}
+
+.footer-nav-wrapper {
+    margin: 0 auto;
+    width: 1180px;
+    padding: 10px 0;
+    display: flex;
+    justify-content: center;
+}
+
+.footer-item-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.footer-table-wrapper {
+    width: 100%;
+    border-collapse: collapse; 
+    table-layout: fixed;
+}
+
+.footer-info-item th, .footer-info-item td {
+    width: 33.33%; 
+    text-align: left; 
+    padding: 10px;
+    vertical-align: top;
+}
+
+.footer-item {
+    font-size: 13px;
+    color: #4a4a4a;
+}
+
+.footer-item a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+}
+
+.footer-item a svg {
+    margin-right: 5px; /* 아이콘과 텍스트 사이의 간격 조정 */
+    vertical-align: middle; /* 아이콘을 텍스트의 중간에 맞추기 */
+}
+
+.footer-item a:hover,
+.footer-item a:focus {
+    color: inherit;
+}
+
+.border {
+    border-left: 1px solid #e7e7e7;
+    height: 20px;
+}
+
+.info-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #686868;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.info-description {
+    font-size: 13px;
+    font-weight: 400;
+    color: #939393;
+    line-height: 17px;
+    margin-top: 5px;
+}
+
+.copyright {
+    color: #939393;
+    padding: 10px 0;
+    font-size: 10px;
+}

@@ -1,0 +1,138 @@
+/* src/styles/UserList.module.css */
+.container {
+    padding: 20px;
+}
+
+.heading {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse; /* 셀 사이의 경계선 병합 */
+}
+
+.table th, .table td {
+    padding: 12px 15px;
+    text-align: left;
+}
+
+.table th {
+    background-color: white;
+    /* color: white; */
+    font-weight: bold;
+    text-transform: uppercase;
+    border-bottom: 2px solid #ddd; /* 헤더와 본문 사이의 두꺼운 하단 경계선 */
+}
+
+.table td {
+    background-color: #fff;
+    border-bottom: 1px solid #ddd; /* 각 행의 하단 경계선 */
+}
+
+/* 세로선을 숨기기 위한 스타일 */
+.table td {
+    border-right: none; /* 오른쪽 경계선 숨김 */
+}
+
+.table tr:last-child td {
+    border-bottom: none; /* 마지막 행의 하단 경계선 제거 */
+}
+
+.table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.table tr:hover {
+    background-color: #f1f1f1;
+}
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.pagination button {
+    background-color: #864e5d;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin: 0 5px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.pagination button:hover {
+    background-color: #673d48;
+}
+
+.pagination button.active {
+    background-color: #333;
+    color: white;
+}
+.clickableRow {
+    cursor: pointer; /* 마우스 커서를 링크 클릭할 때처럼 바꾸기 위한 스타일 */
+}
+
+.table th:nth-child(1),
+.table td:nth-child(1) {
+    width: 7%;
+}
+/* 이메일 */
+.table th:nth-child(2),
+.table td:nth-child(2) {
+    width: 28%;
+}
+
+/* 유저권한, 유저상태, 누적 경고 수 */
+.table th:nth-child(3),
+.table td:nth-child(3),
+.table th:nth-child(4),
+.table td:nth-child(4),
+.table th:nth-child(5),
+.table td:nth-child(5) {
+    width: 17%;
+}
+
+/* 가입일자 */
+.table th:nth-child(5),
+.table td:nth-child(5) {
+    width: 15%;
+}
+
+.userEdit {
+    cursor: pointer;
+    text-decoration-line: underline;
+    text-underline-offset: 5px; /* 밑줄 간격 조정 */
+    text-decoration-color: #864e5d;
+}
+
+.searchContainer {
+    float: right;
+}
+
+.searchContainer label {
+    padding: 10px;
+}
+
+.searchInput {
+    margin-right: 10px;
+    padding: 10px;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+}
+
+.searchButton {
+    padding: 10px;
+    background-color: #864e5d;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+

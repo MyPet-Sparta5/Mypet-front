@@ -1,0 +1,128 @@
+.container {
+    padding: 20px;
+}
+
+.heading {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th,
+.table td {
+    padding: 12px 15px;
+    text-align: left;
+}
+
+.table th {
+    background-color: white;
+    font-weight: bold;
+    text-transform: uppercase;
+    border-bottom: 2px solid #ddd;
+}
+
+.table td {
+    background-color: #fff;
+    border-bottom: 1px solid #ddd;
+}
+
+.table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.table tr:hover {
+    background-color: #f1f1f1;
+}
+
+.table th:nth-child(1),
+.table td:nth-child(1) {
+    width: 40%;
+    /* 원하는 너비로 조정 */
+}
+
+/* 신고사유 */
+.table th:nth-child(2),
+.table td:nth-child(2) {
+    width: 15%;
+    /* 원하는 너비로 조정 */
+}
+
+/* 신고당한 유저*/
+.table th:nth-child(3),
+.table td:nth-child(3) {
+    width: 15%;
+    /* 원하는 너비로 조정 */
+}
+
+/* 신고상태 */
+.table th:nth-child(4),
+.table td:nth-child(4) {
+    width: 15%;
+}
+
+/* 신고일자*/
+.table th:nth-child(5),
+.table td:nth-child(5) {
+    width: 20%;
+    /* 원하는 너비로 조정 */
+}
+
+
+
+.reportEdit {
+    cursor: pointer;
+    text-decoration-line: underline;
+    text-underline-offset: 5px;
+    /* 밑줄 간격 조정 */
+    text-decoration-color: #864e5d;
+}
+
+.searchContainer {
+    float: right;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.search {
+    float: left;
+    display: flex;
+    align-items: center;
+}
+
+.searchContainer label {
+    padding: 10px;
+}
+
+.searchInput {
+    margin-right: 10px;
+    padding: 10px;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+}
+
+.searchDate {
+    margin-right: 10px;
+    width: 200px;
+    padding: 10px;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+}
+
+.searchButton {
+    padding: 10px;
+    background-color: #864e5d;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}

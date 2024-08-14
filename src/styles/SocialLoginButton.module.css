@@ -1,0 +1,14 @@
+.socialLoginWrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.socialLoginButton {
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+}
+
+.socialLoginButton:hover {
+    transform: scale(1.05);
+}

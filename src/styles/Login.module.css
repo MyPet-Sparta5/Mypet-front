@@ -1,0 +1,59 @@
+.login {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.title {
+    margin-top: 60px;
+    margin-bottom: 60px;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 450px;
+}
+
+.input {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+}
+
+.button {
+    padding: 5px 10px;
+    background-color: #5f3742;
+    /* 기본 색상 */
+    color: #fff;
+    /* 글자 색상 */
+    border: none;
+    border-radius: 5px;
+    font-size: 1em;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.button:hover {
+    background-color: #4a2b35;
+    /* 호버 시 색상 */
+}
+
+.kakaoLoginWrapper {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.kakaoLoginButton {
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+}
+
+.kakaoLoginButton:hover {
+    transform: scale(1.05);
+}

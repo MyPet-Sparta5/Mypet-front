@@ -1,0 +1,197 @@
+.container {
+    font-family: Arial, sans-serif;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 20px;
+}
+
+.mainContent {
+    display: flex;
+    width: 80%;
+}
+
+.postDetail {
+    flex: 2;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 20px;
+    margin-right: 20px;
+    position: relative;
+    text-align: left;
+    max-width: 65%;
+    /* 최대 너비 설정 */
+    word-wrap: break-word;
+    /* 단어가 길면 줄바꿈 */
+}
+
+.postHeader {
+    display: flex;
+    justify-content: space-between;
+}
+
+.dateLike {
+    display: flex;
+    justify-content: space-between;
+    font-size: 15px;
+}
+
+.postTitle {
+    font-size: 1.3em;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.postBody {
+    margin-top: 10px;
+}
+
+.postInfo {
+    margin-bottom: 15px;
+    white-space: pre-line;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.infoRow {
+    display: flex;
+    align-items: flex-start;
+}
+
+.infoLabel {
+    min-width: 60px; /* 라벨의 고정된 너비를 설정합니다 */
+    font-weight: bold;
+}
+
+.infoContent {
+    flex-grow: 1; /* 내용 부분이 가변적으로 차지하게 합니다 */
+}
+
+.postInfo p {
+    margin: 0 0 15px;
+}
+
+.icons {
+    display: flex;
+    gap: 8px;
+}
+
+.editIcon,
+.deleteIcon,
+.reportIcon {
+    cursor: pointer;
+    font-size: 18px;
+    color: #888;
+}
+
+.likeIcon {
+    font-size: 15px;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.liked {
+    color: #fe0028;
+    /* 하트가 클릭되었을 때 빨간색 */
+}
+
+.backButton {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #864e5d;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+}
+
+.commentsSection {
+    flex: 1;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 20px;
+    max-width: 35%;
+}
+
+.commentsSection h3 {
+    margin: 0 0 10px 0;
+}
+
+/* Adjusting the container for the input and icon */
+.commentInputContainer {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-top: 100px;
+    /* Adjust as necessary */
+}
+
+.commentContainer {
+    display: flex;
+    background-color: #f4f4f4;
+    text-align: left;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px;
+    border-radius: 20px;
+    margin-bottom: 8px;
+    position: relative;
+    max-width: 100%;
+    /* 최대 너비 설정 */
+    word-wrap: break-word;
+    /* 단어가 길면 줄바꿈 */
+}
+
+.commentText {
+    flex: 1;
+    word-wrap: break-word; /* 단어가 길 경우에도 줄바꿈 */
+    word-break: break-word; /* 긴 단어를 중간에서 줄바꿈 */
+    white-space: pre-wrap; /* 공백과 줄바꿈을 유지하면서 텍스트를 래핑 */
+}
+.deleteButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #ccc;
+    font-size: 16px;
+    margin-left: 10px;
+}
+
+.deleteButton:hover {
+    color: #ccc;
+}
+
+/* Styling the input field */
+.commentInput {
+    flex: 1;
+    padding: 15px;
+    padding-right: 40px;
+    /* Space for the icon */
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    outline: none;
+    font-size: 14px;
+}
+
+/* Positioning the icon inside the input field */
+.sendIcon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 24px;
+    cursor: pointer;
+    color: gray;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

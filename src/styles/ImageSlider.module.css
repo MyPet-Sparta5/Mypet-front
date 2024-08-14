@@ -1,0 +1,28 @@
+.sliderContainer {
+    width: 100%;
+    margin: auto;
+  }
+  
+  .slide {
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+    height: 300px; /* 슬라이더의 높이를 고정합니다. */
+    overflow: hidden;
+  }
+  
+  .slideImage,
+  .slideMedia {
+    height: 100%;
+    object-fit: contain; /* 비율을 유지하면서 컨테이너에 맞게 조절 */
+  }
+  
+  .slideImage {
+    width: auto; /* 이미지의 가로폭을 자동으로 조정 */
+    object-fit: cover; /* 이미지의 비율을 유지하면서 자르기 */
+  }
+  
+  .slideMedia {
+    width: auto; /* 비디오의 가로폭을 자동으로 조정 */
+  }
+  
