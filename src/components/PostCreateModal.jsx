@@ -4,13 +4,13 @@ import styles from '../styles/Modal.module.css';
 function PostCreateModal({ category, onSave, onClose }) {
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
-    const [selectedCategory, setSelectedCategory] = useState(category === 'DEFAULT' ? '' : category);
+    const [selectedCategory, setSelectedCategory] = useState(category === '' ? '' : category);
     const [files, setFiles] = useState([]);
     const [error, setError] = useState('');
 
     const allowedFileTypes = ['image/jpeg', 'image/png', 'image/gif', 'video/mp4', 'video/avi'];
     const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB for images
-    const MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 100 MB for videos
+    const MAX_VIDEO_SIZE = 10 * 1024 * 1024; // 100 MB for videos
 
     const handleFileChange = (e) => {
         const selectedFiles = Array.from(e.target.files);
@@ -72,7 +72,7 @@ function PostCreateModal({ category, onSave, onClose }) {
                         value={selectedCategory}
                         onChange={(e) => setSelectedCategory(e.target.value)}
                         className={styles.selectCategory}
-                        disabled={category !== 'DEFAULT'}
+                        disabled={category !== ''}
                     >
                         <option value="">카테고리 선택</option>
                         <option value="BOAST">자랑하기</option>
