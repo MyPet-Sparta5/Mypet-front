@@ -49,10 +49,15 @@ function Login() {
                 navigate('/');
                 window.location.reload();
             } else {
-                alert('아이디 또는 비밀번호가 맞지 않습니다. 다시 시도해 주세요.')
+                console.log('로그인 실패');
             }
         } catch (error) {
-            alert('아이디 또는 비밀번호가 맞지 않습니다. 다시 시도해 주세요.');
+            if (error.response && error.response.data && error.response.data.message) {
+                const errorMessage = error.response.data.message;
+                alert(`로그인 실패: ${errorMessage.replace('Exception caught: ', '')}`);
+            } else {
+                alert('아이디 또는 비밀번호가 맞지 않습니다. 다시 시도해 주세요.');
+            }  
         }
     };
 
