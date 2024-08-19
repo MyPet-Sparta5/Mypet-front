@@ -3,13 +3,20 @@ import { Map, MapMarker, MarkerClusterer, Circle, useMap } from 'react-kakao-map
 import { axiosNonAuthorization } from '../setting/api'; 
 import '../styles/FacilityFinderPage.css';
 import { debounce } from 'lodash';
+import KakaoMapOverlay from '../components/KakaoMapOverlay';
+import Loading from '../setting/Loading.js'
 
 function FacilityFinderPage() {
+
+  const MIN_LEVEL = 3; // 최대 줌 레벨 (가장 가까이 볼 수 있는 레벨)
+  const MAX_LEVEL = 6; // 최소 줌 레벨 (가장 멀리 볼 수 있는 레벨)
+
   const [facilities, setFacilities] = useState([]);
   const [center, setCenter] = useState({ lat: 37.566826, lng: 126.9786567 });
   const [level, setLevel] = useState(3);
   const [isLoading, setIsLoading] = useState(true);
   const [searchRadius, setSearchRadius] = useState(250); // 초기 검색 반경 (미터 단위)
+  const [selectedFacility, setSelectedFacility] = useState(null);  // 선택된 시설 상태 추가
 
   useEffect(() => {
     // 사용자의 위치를 가져오는 함수
@@ -35,6 +42,18 @@ function FacilityFinderPage() {
 
     getUserLocation();
   }, []); // 컴포넌트 마운트 시 한 번만 실행
+
+  useEffect(() => {
+    // facilities가 변경될 때마다 실행
+    if (selectedFacility) {
+      // selectedFacility가 새로운 facilities 목록에 존재하는지 확인
+      const stillExists = facilities.some(facility => facility.id === selectedFacility.id);
+      if (!stillExists) {
+        // 존재하지 않으면 selectedFacility를 null로 설정 (오버레이 닫기)
+        setSelectedFacility(null);
+      }
+    }
+  }, [facilities, selectedFacility]);
 
   const calculateRadius = useCallback((map) => {
     if (!map) return 250;
@@ -101,6 +120,10 @@ function FacilityFinderPage() {
     const map = useMap();
     useEffect(() => {
       if (map) {
+
+        map.setMinLevel(MIN_LEVEL);
+        map.setMaxLevel(MAX_LEVEL);
+
         const handleDragEnd = () => {
           setLevel(map.getLevel());
           debouncedSearchFacilities(map);
@@ -126,6 +149,16 @@ function FacilityFinderPage() {
     }, [map, debouncedSearchFacilities]);
 
     return null;
+  };
+
+  // 마커 클릭 핸들러 추가
+  const handleMarkerClick = (facility) => {
+    setSelectedFacility(facility);
+  };
+
+  // 오버레이 닫기 핸들러 추가
+  const handleCloseOverlay = () => {
+    setSelectedFacility(null);
   };
 
   return (
@@ -155,12 +188,25 @@ function FacilityFinderPage() {
                 key={facility.id}
                 position={{ lat: facility.latitude, lng: facility.longitude }}
                 title={facility.placeName}
+                onClick={() => handleMarkerClick(facility)}
               />
             ))}
           </MarkerClusterer>
+          {selectedFacility && (  // 선택된 시설이 있을 때만 오버레이 표시
+            <KakaoMapOverlay
+              place={{
+                name: selectedFacility.placeName,
+                address: selectedFacility.roadAddressName || "-",
+                jibunAddress: selectedFacility.addressName || "-",
+                phone: selectedFacility.phone || "-",  // 실제 홈페이지 URL로 교체 필요
+              }}
+              position={{ lat: selectedFacility.latitude, lng: selectedFacility.longitude }}
+              onClose={handleCloseOverlay}
+            />
+          )}
         </Map>
       </div>
-      {isLoading && <div className="loading-overlay">로딩 중...</div>}
+      {isLoading && <Loading />}
     </div>
   );
 }
