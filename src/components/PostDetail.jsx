@@ -96,8 +96,8 @@ const PostDetail = () => {
         const newComment = commentInput.current.value.trim();
         if (!newComment) return;
 
-        if (newComment.length > 255) {
-            alert('댓글은 255자를 초과할 수 없습니다.');
+        if (newComment.length > 250) {
+            alert('댓글은 250자를 초과할 수 없습니다.');
             return;
         }
 
