@@ -207,20 +207,26 @@ const PetCardPost = () => {
   return (
     <div className="card">
       <div className="card-header">
-        <div>
-          <FaArrowLeft className="backButton" onClick={handleBoardClick} />
-          <span className="card-title">{post.title}</span>
+        <div className="card-header-line">
+          <div>
+            <FaArrowLeft className="backButton" onClick={handleBoardClick} />
+            <span className="card-title">{post.title}</span>
+          </div>
+          <div className={styles.icons}>
+            {shouldShowEditIcon && (
+              <MdEdit className={styles.editIcon} onClick={handleEditClick} title="게시물 수정" />
+            )}
+            {shouldShowDeleteIcon && (
+              <FaTrashAlt className={styles.deleteIcon} onClick={handleDeleteClick} title="게시물 삭제" />
+            )}
+            {shouldShowReportIcon && (
+              <GoAlertFill className={styles.reportIcon} onClick={handleReportClick} title="해당 게시물 유저 신고" />
+            )}
+          </div>
+
         </div>
-        <div className={styles.icons}>
-          {shouldShowEditIcon && (
-            <MdEdit className={styles.editIcon} onClick={handleEditClick} title="게시물 수정" />
-          )}
-          {shouldShowDeleteIcon && (
-            <FaTrashAlt className={styles.deleteIcon} onClick={handleDeleteClick} title="게시물 삭제" />
-          )}
-          {shouldShowReportIcon && (
-            <GoAlertFill className={styles.reportIcon} onClick={handleReportClick} title="해당 게시물 유저 신고" />
-          )}
+        <div className="card-detail">
+        {new Date(post.createAt).toLocaleDateString()} {post.nickname}   
         </div>
       </div>
       {/* 파일이 있는 경우에만 ImageSlider를 렌더링합니다. */}
