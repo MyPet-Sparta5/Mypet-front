@@ -362,6 +362,8 @@ const PostDetail = () => {
                         <Comment
                             key={index}
                             text={comment.content}
+                            username={comment.username}
+                            createdAt={comment.createdAt}
                             onDelete={() => handleDeleteComment(comment.id)}
                         />
                     ))}

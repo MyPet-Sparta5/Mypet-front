@@ -132,38 +132,61 @@
 }
 
 .commentContainer {
+    padding: 10px 0;
+    border-bottom: 1px solid #E8E8E8;
+}
+
+.commentHeader {
     display: flex;
-    background-color: #f4f4f4;
-    text-align: left;
-    align-items: center;
     justify-content: space-between;
-    padding: 15px;
-    border-radius: 20px;
-    margin-bottom: 8px;
-    position: relative;
-    max-width: 100%;
-    /* 최대 너비 설정 */
-    word-wrap: break-word;
-    /* 단어가 길면 줄바꿈 */
+    align-items: center;
+    background-color: #E8E8E8;
+}
+
+.commentUsername {
+    font-weight: bold;
+    margin-left: 5px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.commentDate {
+    font-size: 0.8em;
+    color: #666;
+    margin-right: 5px;
+}
+
+.commentContent {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
 }
 
 .commentText {
-    flex: 1;
+    flex-grow: 1;
+    text-align: left;
     word-wrap: break-word; /* 단어가 길 경우에도 줄바꿈 */
     word-break: break-word; /* 긴 단어를 중간에서 줄바꿈 */
     white-space: pre-wrap; /* 공백과 줄바꿈을 유지하면서 텍스트를 래핑 */
+    margin-right: 10px;
 }
+
+.commentFooter {
+    display: flex;
+    justify-content: flex-end;
+}
+
 .deleteButton {
     background: none;
     border: none;
+    color: #666;
     cursor: pointer;
-    color: #ccc;
-    font-size: 16px;
-    margin-left: 10px;
+    font-size: 0.9em;
+    padding: 5px;
 }
 
 .deleteButton:hover {
-    color: #ccc;
+    color: #ff4d4d;
 }
 
 /* Styling the input field */
