@@ -196,9 +196,9 @@ function FacilityFinderPage() {
             <KakaoMapOverlay
               place={{
                 name: selectedFacility.placeName,
-                address: selectedFacility.roadAddressName || "-",
-                jibunAddress: selectedFacility.addressName || "-",
-                phone: selectedFacility.phone || "-",  // 실제 홈페이지 URL로 교체 필요
+                address: selectedFacility.roadAddressName === null || selectedFacility.roadAddressName === 'nan' ? "-" : selectedFacility.roadAddressName,
+                jibunAddress: selectedFacility.addressName === null || selectedFacility.addressName === 'nan' ? "-" : selectedFacility.addressName,
+                phone: selectedFacility.phone === null || selectedFacility.phone === 'nan' ? "-" : selectedFacility.phone,  // 실제 홈페이지 URL로 교체 필요
               }}
               position={{ lat: selectedFacility.latitude, lng: selectedFacility.longitude }}
               onClose={handleCloseOverlay}
