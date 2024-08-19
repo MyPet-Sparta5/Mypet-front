@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from '../../styles/SocialLoginButton.module.css';
-import kakaoLoginButton from '../../assets/kakao_login_medium_wide.png';
+import kakaoLoginButton from '../../assets/kakao_login_medium_narrow.png';
 
 function KakaoLoginButton() {
     const handleKakaoLogin = () => {

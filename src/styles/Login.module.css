@@ -57,3 +57,12 @@
 .kakaoLoginButton:hover {
     transform: scale(1.05);
 }
+
+.socialLoginContainer {
+    display: flex;
+    justify-content: center;
+}
+
+.blank {
+    margin-left: 84px;
+}

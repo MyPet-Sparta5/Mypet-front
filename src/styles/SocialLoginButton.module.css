@@ -12,3 +12,35 @@
 .socialLoginButton:hover {
     transform: scale(1.05);
 }
+
+.googleLoginButton {
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 5px;
+    background-color: white;
+    border-radius: 0.25rem;
+    border-color: rgb(170, 170, 170);
+    font-size: 0.875rem;
+    width: 183px;
+    height: 45px;
+}
+
+.googleLoginButton:hover {
+    transform: scale(1.05);
+}
+
+.google {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 600;
+}
+
+.FcGoogle {
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-right: 1.25rem;
+}
