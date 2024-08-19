@@ -74,7 +74,7 @@ function Login() {
                 <button className={styles.button} type="submit" onClick={handleLoginClick}>Login</button>
                 <button className={styles.button} type="submit" onClick={handleSignupClick}>Sign up</button>
                 <div className={styles.socialLoginContainer}>
-                    <KakaoLoginButton />
+                    <KakaoLoginButton/> <div className={styles.blank}/>
                     <GoogleLoginButton />
                 </div>
             </form>
