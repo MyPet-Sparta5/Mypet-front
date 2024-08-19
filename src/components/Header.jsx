@@ -23,10 +23,6 @@ function Header() {
         navigate('/login');
     };
 
-    const handleSignupClick = () => {
-        navigate('/signup');
-    };
-
     return (
         <header className={styles.header}>
             <div className={styles.headerContainer}>
@@ -56,7 +52,6 @@ function Header() {
                     ) : (
                         <>
                             <button className={styles.button} onClick={handleLoginClick}>로그인</button>
-                            <button className={styles.button} onClick={handleSignupClick}>회원가입</button>
                         </>
                     )}
                 </div>
