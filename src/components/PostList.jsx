@@ -92,7 +92,7 @@ const PostList = ({ category }) => {
     };
 
     const checkAuthAndOpenModal = () => {
-        const token = localStorage.getItem('token'); // 액세스 토큰 확인
+        const token = localStorage.getItem('accessToken'); // 액세스 토큰 확인
         if (token) {
             setIsModalOpen(true);
         } else {
