@@ -96,6 +96,11 @@ const PostDetail = () => {
         const newComment = commentInput.current.value.trim();
         if (!newComment) return;
 
+        if (newComment.length > 250) {
+            alert('댓글은 250자를 초과할 수 없습니다.');
+            return;
+        }
+
         try {
             await postComment(newComment);
             commentInput.current.value = "";
@@ -357,6 +362,8 @@ const PostDetail = () => {
                         <Comment
                             key={index}
                             text={comment.content}
+                            username={comment.username}
+                            createdAt={comment.createdAt}
                             onDelete={() => handleDeleteComment(comment.id)}
                         />
                     ))}

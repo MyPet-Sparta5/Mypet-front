@@ -79,7 +79,8 @@ const Profile = () => {
             try {
                 const response = await handleApiCall(() => axiosInstance.get('/api/posts', {
                     params: {
-                        email: email
+                        email: email,
+                        status: 'ACTIVE'
                     }
                 }), navigate);
 

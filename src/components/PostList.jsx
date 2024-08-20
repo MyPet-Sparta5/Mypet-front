@@ -91,8 +91,13 @@ const PostList = ({ category }) => {
         navigate(targetPath);
     };
 
-    const openModal = () => {
-        setIsModalOpen(true);
+    const checkAuthAndOpenModal = () => {
+        const token = localStorage.getItem('accessToken'); // 액세스 토큰 확인
+        if (token) {
+            setIsModalOpen(true);
+        } else {
+            alert('로그인 후 게시물을 작성할 수 있습니다.');
+        }
     };
 
     const closeModal = () => {
@@ -173,7 +178,7 @@ const PostList = ({ category }) => {
                         </>
                     )}
                 </div>
-                <button onClick={openModal} className={styles.button}>+ 게시글 작성</button>
+                <button onClick={checkAuthAndOpenModal} className={styles.button}>+ 게시글 작성</button>
             </div>
             <table className={styles.table}>
                 <thead>

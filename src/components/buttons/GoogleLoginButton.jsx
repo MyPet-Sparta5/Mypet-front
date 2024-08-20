@@ -1,6 +1,7 @@
 import React from 'react';
 import styles from '../../styles/SocialLoginButton.module.css';
 import googleLoginButton from '../../assets/google_login_medium_wide.png';
+import { FcGoogle } from "react-icons/fc";
 
 function GoogleLoginButton() {
     const handleGoogleLogin = () => {
@@ -16,12 +17,9 @@ function GoogleLoginButton() {
 
     return (
         <div className={styles.socialLoginWrapper}>
-            <img
-                src={googleLoginButton}
-                alt="구글 로그인"
-                onClick={handleGoogleLogin}
-                className={styles.socialLoginButton}
-            />
+            <button type="button" alt="구글 로그인" onClick={handleGoogleLogin} className={styles.googleLoginButton} >
+                <FcGoogle className={styles.FcGoogle} /> <div className={styles.google}>구글 로그인</div>
+            </button>
         </div>
     );
 }
