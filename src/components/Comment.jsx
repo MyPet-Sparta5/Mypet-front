@@ -1,25 +1,20 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { formatDistanceToNow, parseISO, format } from 'date-fns';
+import { ko } from 'date-fns/locale';
 import styles from '../styles/PostDetail.module.css';
 
 function Comment({ text, username, createdAt, onDelete }) {
     const formatDate = (dateString) => {
-        const now = new Date();
-        const commentDate = new Date(dateString);
-        const diffTime = Math.abs(now - commentDate);
-        const diffMinutes = Math.floor(diffTime / (1000 * 60));
-        const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
+        const date = parseISO(dateString);
+        const distanceToNow = formatDistanceToNow(date, { addSuffix: true, locale: ko });
         
-        if (diffMinutes < 1) {
-            return '1분 전';
-        } else if (diffMinutes < 60) {
-            return `${diffMinutes}분 전`;
-        } else if (diffHours < 24) {
-            return `${diffHours}시간 전`;
-        } else {
-            return commentDate.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' });
+        if (distanceToNow.includes('1년')) {
+            return format(date, 'yyyy년 M월 d일 HH:mm', { locale: ko });
         }
+        
+        return distanceToNow;
     };
 
     return (
