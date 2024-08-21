@@ -14,7 +14,7 @@ function FacilityFinderPage() {
   const [facilities, setFacilities] = useState([]);
   const [center, setCenter] = useState({ lat: 37.566826, lng: 126.9786567 });
   const [level, setLevel] = useState(3);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [searchRadius, setSearchRadius] = useState(250); // 초기 검색 반경 (미터 단위)
   const [selectedFacility, setSelectedFacility] = useState(null);  // 선택된 시설 상태 추가
 

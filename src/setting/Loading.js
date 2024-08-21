@@ -10,7 +10,7 @@ const Loading = () => {
   useEffect(() => {
     const showTimer = setTimeout(() => {
       setShow(true);
-    }, 300); // 300ms 지연 후 로딩 화면 표시
+    }, 500); // 500ms 지연 후 로딩 화면 표시
 
     const dotTimer = setInterval(() => {
       setDots((prevDots) => {
