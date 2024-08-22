@@ -56,7 +56,7 @@ const MyPostList = () => {
       category: categoryMapping[post.category] || post.category,
       title: post.title,
       nickname: post.nickname,
-      createdTime: new Date(post.createAt).toLocaleDateString(),
+      createdTime: new Date(post.createdAt).toLocaleDateString(), // 작성일자 변환 부분
       likes: post.likeCount,
     }));
   };
