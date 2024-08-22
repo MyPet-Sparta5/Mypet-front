@@ -28,6 +28,7 @@ const MyPostList = () => {
             page: currentPage,
             pageSize: postsPerPage,
             sortBy: 'createdAt,desc',
+            status: 'ACTIVE',
             email: email, // 이메일을 userName 파라미터로 설정
           },
         }), navigate);
@@ -55,7 +56,7 @@ const MyPostList = () => {
       category: categoryMapping[post.category] || post.category,
       title: post.title,
       nickname: post.nickname,
-      createdTime: new Date(post.createAt).toLocaleDateString(),
+      createdTime: new Date(post.createdAt).toLocaleDateString(), // 작성일자 변환 부분
       likes: post.likeCount,
     }));
   };
